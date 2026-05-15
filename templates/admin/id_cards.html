@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}ID Cards – YSS Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <h1><i class="fa fa-id-card" style="color:var(--gold);margin-right:.5rem;"></i>ID Cards</h1>
+</div>
+
+<div class="table-card" style="margin-bottom:1.5rem;">
+  <form method="GET" class="table-toolbar">
+    <div class="search-box">
+      <span class="si"><i class="fa fa-search"></i></span>
+      <input type="text" name="search" placeholder="Search by name, mobile number..." value="{{ search }}">
+    </div>
+    <select name="reg_status" class="filter-select" onchange="this.form.submit()">
+      <option value="">Registration Status: All</option>
+      <option value="Pending" {% if reg_status=='Pending' %}selected{% endif %}>Pending</option>
+      <option value="Approved" {% if reg_status=='Approved' %}selected{% endif %}>Approved</option>
+      <option value="Rejected" {% if reg_status=='Rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Filter</button>
+  </form>
+</div>
+
+{% if pagination.items %}
+<div class="id-cards-grid">
+  {% for r in pagination.items %}
+  <div style="border:2px solid #333;background:#fff;border-radius:4px;overflow:hidden;">
+    <div style="background:var(--primary);color:#fff;text-align:center;padding:.75rem;">
+      <div style="font-weight:700;font-size:.9rem;letter-spacing:1px;">Y.S.D.K., ANANTAPUR</div>
+      <div style="font-weight:700;font-size:.9rem;">3-DAY SADHANA SANGAM</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #ccc;">
+      <div style="padding:.5rem 1rem;font-weight:700;font-size:1.1rem;text-align:center;border-right:1px solid #ccc;">{{ r.id }}</div>
+      <div style="padding:.5rem 1rem;text-align:center;font-size:.85rem;">({{ r.created_at.strftime('%d-%m-%Y') if r.created_at else '' }})</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;color:#333;width:40%;">Name :</td><td style="padding:.4rem .75rem;">{{ r.full_name }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;">Lesson No :</td><td style="padding:.4rem .75rem;">{{ r.lesson_no }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;">Mobile No :</td><td style="padding:.4rem .75rem;">{{ r.whatsapp }}</td></tr>
+      <tr><td style="padding:.4rem .75rem;font-weight:700;">Place :</td><td style="padding:.4rem .75rem;">{{ r.place }}</td></tr>
+    </table>
+    <div style="padding:.5rem;display:flex;gap:.5rem;justify-content:center;border-top:1px solid #eee;">
+      <a href="{{ url_for('reg_success', reg_id=r.reg_id) }}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Print</a>
+      <a href="{{ url_for('reg_success', reg_id=r.reg_id) }}" target="_blank" class="btn btn-outline btn-sm"><i class="fa fa-download"></i> Download</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div style="margin-top:1.5rem;color:var(--muted);font-size:.85rem;text-align:center;">
+  Showing {{ (pagination.page-1)*6+1 }} to {{ [(pagination.page-1)*6+6, pagination.total]|min }} of {{ pagination.total }} entries
+</div>
+
+{% if pagination.pages > 1 %}
+<div class="pagination" style="margin-top:1rem;">
+  <a href="?page={{ pagination.prev_num }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_prev %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-left"></i></a>
+  {% for p in pagination.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
+    {% if p %}<a href="?page={{ p }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn {% if p==pagination.page %}active{% endif %}">{{ p }}</a>
+    {% else %}<span class="page-btn" style="border:none;">…</span>{% endif %}
+  {% endfor %}
+  <a href="?page={{ pagination.next_num }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_next %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-right"></i></a>
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state"><div class="empty-icon">🪪</div><h3>No ID Cards Found</h3><p>ID cards appear here once registrations are submitted.</p></div>
+{% endif %}
+{% endblock %}

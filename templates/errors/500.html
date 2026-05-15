@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Server Error – YSS{% endblock %}
+{% block content %}
+<div style="text-align:center;padding:8rem 2rem;">
+  <div style="font-size:6rem;">⚠️</div>
+  <h1 style="font-family:'Cinzel',serif;color:var(--primary);font-size:3rem;">500</h1>
+  <p style="color:var(--muted);font-size:1.2rem;margin:1rem 0 2rem;">Something went wrong on our end. Please try again.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Registration Successful – YSS Anantapur{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:700px;">
+    <div class="success-icon">✅</div>
+    <h2 class="success-title">Registration Successful!</h2>
+    <p style="text-align:center;color:var(--muted);margin:.5rem 0 1rem;">Thank you for registering for the 3-Day Spiritual Program.<br>Your registration has been received successfully.</p>
+    <div style="text-align:center;color:var(--primary);font-weight:700;margin-bottom:.5rem;">✦ Your ID Card ✦</div>
+
+    <div class="id-card" id="idCard">
+      <div class="id-card-header">
+        <h2>Y.S.D.K., ANANTAPUR</h2>
+        <h2>3-DAY SADHANA SANGAM</h2>
+      </div>
+      <div class="id-card-num">
+        <table style="width:100%;border-collapse:collapse;border:none;">
+          <tr>
+            <td style="border:none;text-align:center;width:50%;font-weight:700;font-size:1.2rem;">{{ reg.id }}</td>
+            <td style="border:none;text-align:center;width:50%;">({{ reg.created_at.strftime('%d-%m-%Y') if reg.created_at else '' }})</td>
+          </tr>
+        </table>
+      </div>
+      <table>
+        <tr><td>Name :</td><td>{{ reg.full_name }}</td></tr>
+        <tr><td>Lesson No :</td><td>{{ reg.lesson_no }}</td></tr>
+        <tr><td>Mobile No :</td><td>{{ reg.whatsapp }}</td></tr>
+        <tr><td>Place :</td><td>{{ reg.place }}</td></tr>
+      </table>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
+      <button onclick="printCard()" class="btn btn-primary"><i class="fa fa-print"></i> Print ID Card</button>
+      <button onclick="downloadCard()" class="btn btn-outline"><i class="fa fa-download"></i> Download ID Card</button>
+      <a href="{{ url_for('index') }}" class="btn btn-gold">Back to Home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function printCard() {
+  const card = document.getElementById('idCard');
+  const w = window.open('', '_blank');
+  w.document.write('<html><head><title>ID Card</title><style>body{font-family:sans-serif;}.id-card-header{background:#B5330A;color:#fff;text-align:center;padding:1rem;}.id-card-header h2{margin:0;font-size:1rem;}table{width:100%;border-collapse:collapse;}td{padding:.5rem 1rem;border:1px solid #ccc;}</style></head><body>' + card.innerHTML + '</body></html>');
+  w.document.close();
+  w.print();
+}
+function downloadCard() {
+  html2canvas(document.getElementById('idCard'), {scale:2}).then(canvas => {
+    const a = document.createElement('a');
+    a.download = 'YSS_ID_Card_{{ reg.reg_id }}.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+}
+</script>
+{% endblock %}

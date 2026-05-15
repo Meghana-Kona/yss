@@ -1,0 +1,89 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard – YSS Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <h1><i class="fa fa-th-large" style="color:var(--gold);margin-right:.5rem;"></i>Dashboard</h1>
+  <span style="color:var(--muted);font-size:.9rem;"><i class="fa fa-calendar"></i> 3-Day Program – June 24–26, 2026</span>
+</div>
+
+<div class="stat-cards">
+  <div class="stat-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="stat-num">{{ total_regs }}</div>
+        <div class="stat-label">Total Registrations</div>
+      </div>
+      <div style="font-size:2.5rem;opacity:.3;">👥</div>
+    </div>
+    <a href="{{ url_for('admin_registrations') }}" style="font-size:.8rem;color:var(--primary);margin-top:.5rem;display:inline-block;">View All →</a>
+  </div>
+  <div class="stat-card" style="border-top-color:var(--gold);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="stat-num" style="color:var(--gold);">{{ total_dons }}</div>
+        <div class="stat-label">Total Donations</div>
+      </div>
+      <div style="font-size:2.5rem;opacity:.3;">💛</div>
+    </div>
+    <a href="{{ url_for('admin_donations') }}" style="font-size:.8rem;color:var(--gold);margin-top:.5rem;display:inline-block;">View All →</a>
+  </div>
+  <div class="stat-card" style="border-top-color:#2E7D32;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="stat-num" style="color:#2E7D32;">₹{{ total_amount|int }}</div>
+        <div class="stat-label">Total Donation Amount</div>
+      </div>
+      <div style="font-size:2.5rem;opacity:.3;">💰</div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:2rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);">Recent Registrations</h3>
+    <a href="{{ url_for('admin_registrations') }}" class="btn btn-outline btn-sm">View All</a>
+  </div>
+  {% if recent_regs %}
+  <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Reg ID</th><th>Name</th><th>WhatsApp</th><th>Place</th><th>Payment</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in recent_regs %}
+      <tr>
+        <td>{{ r.reg_id }}</td>
+        <td>{{ r.full_name }}</td>
+        <td>{{ r.whatsapp }}</td>
+        <td>{{ r.place }}</td>
+        <td><span class="badge badge-{{ r.payment_status|lower }}">{{ r.payment_status }}</span></td>
+        <td><span class="badge badge-{{ r.reg_status|lower }}">{{ r.reg_status }}</span></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">📋</div><h3>No Registrations Yet</h3><p>Registrations will appear here.</p></div>
+  {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+  <div class="card">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1rem;">Quick Actions</h3>
+    <div style="display:flex;flex-direction:column;gap:.75rem;">
+      <a href="{{ url_for('admin_registrations') }}" class="btn btn-primary w-100"><i class="fa fa-users"></i> Manage Registrations</a>
+      <a href="{{ url_for('admin_donations') }}" class="btn btn-outline w-100"><i class="fa fa-heart"></i> Manage Donations</a>
+      <a href="{{ url_for('admin_id_cards') }}" class="btn btn-gold w-100"><i class="fa fa-id-card"></i> View ID Cards</a>
+      <a href="{{ url_for('admin_schedule') }}" class="btn btn-outline w-100"><i class="fa fa-calendar-alt"></i> Edit Schedule</a>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1rem;">Event Details</h3>
+    <ul style="list-style:none;color:var(--muted);line-height:2.2;">
+      <li><i class="fa fa-calendar text-primary"></i> &nbsp;<strong>Dates:</strong> June 24–26, 2026</li>
+      <li><i class="fa fa-map-marker-alt text-primary"></i> &nbsp;<strong>Venue:</strong> {{ config.EVENT_VENUE }}</li>
+      <li><i class="fa fa-envelope text-primary"></i> &nbsp;{{ config.EVENT_CONTACT_EMAIL }}</li>
+      <li><i class="fa fa-phone text-primary"></i> &nbsp;{{ config.EVENT_CONTACT_MOBILE }}</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

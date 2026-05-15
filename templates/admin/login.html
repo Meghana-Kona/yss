@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login – YSS Anantapur</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body style="background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-container">
+{% for cat,msg in messages %}
+<div class="toast toast-{{cat}}">{{msg}}</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div style="background:#fff;border-radius:20px;padding:3rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="font-size:3.5rem;">🪷</div>
+    <h1 style="font-family:'Cinzel',serif;color:var(--primary);font-size:1.4rem;margin:.5rem 0 .25rem;">Admin Portal</h1>
+    <p style="color:var(--muted);font-size:.85rem;">YSS – 3-Day Spiritual Program, Anantapur</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('admin_login') }}">
+    <div class="form-group" style="margin-bottom:1.25rem;">
+      <label style="font-weight:700;color:var(--text);display:block;margin-bottom:.4rem;">Email Address</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);"><i class="fa fa-envelope"></i></span>
+        <input type="email" name="email" class="form-control" placeholder="Enter admin email" style="padding-left:2.5rem;" required>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:1.5rem;">
+      <label style="font-weight:700;color:var(--text);display:block;margin-bottom:.4rem;">Password</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);"><i class="fa fa-lock"></i></span>
+        <input type="password" name="password" id="passwordField" class="form-control" placeholder="Enter password" style="padding-left:2.5rem;padding-right:2.5rem;" required>
+        <span onclick="togglePassword()" style="position:absolute;right:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;" id="eyeIcon"><i class="fa fa-eye"></i></span>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100" style="padding:.9rem;font-size:1rem;">Login to Dashboard</button>
+  </form>
+
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a href="{{ url_for('index') }}" style="color:var(--muted);font-size:.85rem;"><i class="fa fa-arrow-left"></i> Back to Website</a>
+  </div>
+</div>
+
+<script>
+function togglePassword(){
+  const f=document.getElementById('passwordField');
+  const i=document.getElementById('eyeIcon').querySelector('i');
+  if(f.type==='password'){f.type='text';i.className='fa fa-eye-slash';}
+  else{f.type='password';i.className='fa fa-eye';}
+}
+// Auto-dismiss toasts
+setTimeout(()=>{document.querySelectorAll('.toast').forEach(t=>t.remove());},4000);
+</script>
+</body>
+</html>

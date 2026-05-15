@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}FAQs – YSS Anantapur{% endblock %}
+{% block content %}
+<div class="about-hero">
+  <h1>Frequently Asked Questions</h1>
+  <p>Find answers to common questions about the 3-Day Spiritual Program.</p>
+</div>
+<section class="section">
+  <div class="container" style="max-width:800px;">
+    <div class="faq-search">
+      <span class="search-icon"><i class="fa fa-search"></i></span>
+      <input type="text" id="faqSearch" placeholder="Search FAQs..." oninput="filterFAQ(this.value)">
+    </div>
+    {% set faqs = [
+      ('Registration','How do I register for the program?','Visit the Registration page, fill in all required details including your Lesson Number, and submit the form. You will receive a confirmation with your ID card.'),
+      ('Registration','What is the Lesson Number?','The Lesson Number is your YSS/SRF student lesson number (e.g., 12345). It is used to identify registered devotees.'),
+      ('Registration','Can I register on the day of the event?','On-spot registration may be available subject to capacity. We strongly recommend registering online in advance.'),
+      ('Registration','How do I know if my registration is confirmed?','You will be redirected to a success page with your ID card upon successful submission. An email confirmation will also be sent.'),
+      ('Accommodation','Is accommodation available?','Yes, simple accommodation is available for outstation devotees. Please select "Yes" for Accommodation Required during registration.'),
+      ('Accommodation','Is accommodation free?','Accommodation details and charges, if any, will be communicated. Please contact us for more information.'),
+      ('Accommodation','What should I bring for accommodation?','Please bring your own bedding/sleeping bag, towels, and personal toiletries. Sattvic meals will be provided.'),
+      ('Donations','How can I make a donation?','Visit the Donation page, fill in your details and amount, and submit. You will receive a donation confirmation.'),
+      ('Donations','What is the minimum donation amount?','There is no minimum required amount. Any contribution made with devotion is gratefully received.'),
+      ('Donations','Is my donation tax-deductible?','Please contact the organization directly at ' ~ config.EVENT_CONTACT_EMAIL ~ ' for information regarding donation receipts.'),
+      ('ID Cards','When will I receive my ID card?','Your ID card is generated immediately upon successful registration. You can print or download it from the success page.'),
+      ('ID Cards','What if I lose my ID card?','Please visit the Registration page or contact us with your registration ID to retrieve your ID card.'),
+      ('ID Cards','Is the ID card mandatory to attend?','Yes, please carry your ID card (printed or digital) to the event for entry and identification.'),
+      ('Event Information','What is the dress code?','Participants are requested to wear simple, white or light-colored spiritual attire. Avoid bright or distracting clothing.'),
+      ('Event Information','Is the event open to non-YSS members?','Yes, the event is open to all sincere spiritual seekers regardless of organization membership.'),
+      ('Event Information','Will food be provided?','Yes, sattvic meals will be provided for all registered participants throughout the 3 days.'),
+      ('Event Information','Can I attend for only one day?','The program is designed as a 3-day retreat. Full attendance is recommended for the best experience.'),
+      ('Contact Support','How can I contact the organizers?','Email: ' ~ config.EVENT_CONTACT_EMAIL ~ ' | Mobile: ' ~ config.EVENT_CONTACT_MOBILE),
+      ('Contact Support','What are the support timings?','Support is available Monday to Saturday, 9:00 AM to 6:00 PM.'),
+    ] %}
+
+    {% set categories = faqs | map(attribute=0) | list | unique | list %}
+    {% for cat in ['Registration','Accommodation','Donations','ID Cards','Event Information','Contact Support'] %}
+    <div class="faq-category" data-cat="{{ cat }}">
+      <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1rem;padding-left:.5rem;border-left:4px solid var(--gold);">
+        {% if cat=='Registration' %}📝{% elif cat=='Accommodation' %}🏠{% elif cat=='Donations' %}💛{% elif cat=='ID Cards' %}🪪{% elif cat=='Event Information' %}📅{% else %}📞{% endif %}
+        {{ cat }}
+      </h3>
+      {% for f_cat, q, a in faqs %}
+      {% if f_cat == cat %}
+      <div class="accordion-item faq-item" data-q="{{ q|lower }}">
+        <div class="accordion-header" onclick="toggleFAQ(this)">
+          <span>{{ q }}</span>
+          <i class="fa fa-chevron-down"></i>
+        </div>
+        <div class="accordion-body">{{ a }}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+      <div style="margin-bottom:2rem;"></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+function toggleFAQ(el) {
+  const body = el.nextElementSibling;
+  const icon = el.querySelector('i');
+  el.classList.toggle('active');
+  body.classList.toggle('open');
+  icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+function filterFAQ(val) {
+  const v = val.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.style.display = item.dataset.q.includes(v) ? '' : 'none';
+  });
+  document.querySelectorAll('.faq-category').forEach(cat => {
+    const visible = [...cat.querySelectorAll('.faq-item')].some(i => i.style.display !== 'none');
+    cat.style.display = visible ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

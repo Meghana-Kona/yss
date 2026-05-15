@@ -1,0 +1,164 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Schedule Management – YSS Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <h1><i class="fa fa-calendar-alt" style="color:var(--gold);margin-right:.5rem;"></i>Event Schedule Management</h1>
+  <button onclick="document.getElementById('addModal').style.display='flex'" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Item</button>
+</div>
+
+{% for day in [1,2,3] %}
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1rem;">
+    Day {{ day }} – {{ ['24 June','25 June','26 June'][day-1] }} 2026
+  </h3>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Time</th><th>Activity</th><th>Category</th><th>Order</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for s in schedules %}{% if s.day_number==day %}
+      <tr>
+        <td>{{ s.start_time }} – {{ s.end_time }}</td>
+        <td>{{ s.activity }}</td>
+        <td><span class="category-badge cat-{{ s.category }}">{{ s.category|title }}</span></td>
+        <td>{{ s.sort_order }}</td>
+        <td>
+          <div class="action-btns">
+            <button onclick="openEdit({{ s.id }},'{{ s.day_number }}','{{ s.day_label }}','{{ s.start_time }}','{{ s.end_time }}','{{ s.activity }}','{{ s.category }}','{{ s.sort_order }}')" class="btn btn-outline btn-sm"><i class="fa fa-edit"></i></button>
+            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this schedule item?')">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="item_id" value="{{ s.id }}">
+              <button type="submit" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;"><i class="fa fa-trash"></i></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endif %}{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endfor %}
+
+<!-- ADD MODAL -->
+<div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Add Schedule Item</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="add">
+      <div class="form-grid form-grid-2" style="gap:1rem;">
+        <div class="form-group">
+          <label>Day Number</label>
+          <select name="day_number" class="form-control" onchange="updateLabel(this)">
+            <option value="1">Day 1 (24 June)</option>
+            <option value="2">Day 2 (25 June)</option>
+            <option value="3">Day 3 (26 June)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sort Order</label>
+          <input type="number" name="sort_order" class="form-control" value="99">
+        </div>
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="text" name="start_time" class="form-control" placeholder="e.g. 05:00 AM">
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="text" name="end_time" class="form-control" placeholder="e.g. 06:00 AM">
+        </div>
+      </div>
+      <input type="hidden" name="day_label" id="addDayLabel" value="Day 1 – 24 June 2026">
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Activity</label>
+        <input type="text" name="activity" class="form-control" placeholder="Activity description" required>
+      </div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Category</label>
+        <select name="category" class="form-control">
+          <option value="meditation">Meditation</option>
+          <option value="food">Food</option>
+          <option value="talk">Talk/Discourse</option>
+          <option value="bhajan">Bhajan/Kirtan</option>
+          <option value="volunteer">Volunteer/Seva</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+        <button type="button" onclick="document.getElementById('addModal').style.display='none'" class="btn btn-outline w-100">Cancel</button>
+        <button type="submit" class="btn btn-primary w-100">Add Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Edit Schedule Item</h3>
+    <form method="POST" id="editForm">
+      <input type="hidden" name="action" value="edit">
+      <input type="hidden" name="item_id" id="editId">
+      <div class="form-grid form-grid-2" style="gap:1rem;">
+        <div class="form-group">
+          <label>Day Number</label>
+          <select name="day_number" class="form-control" id="editDay" onchange="updateEditLabel(this)">
+            <option value="1">Day 1 (24 June)</option>
+            <option value="2">Day 2 (25 June)</option>
+            <option value="3">Day 3 (26 June)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sort Order</label>
+          <input type="number" name="sort_order" class="form-control" id="editOrder">
+        </div>
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="text" name="start_time" class="form-control" id="editStart">
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="text" name="end_time" class="form-control" id="editEnd">
+        </div>
+      </div>
+      <input type="hidden" name="day_label" id="editDayLabel">
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Activity</label>
+        <input type="text" name="activity" class="form-control" id="editActivity" required>
+      </div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Category</label>
+        <select name="category" class="form-control" id="editCategory">
+          <option value="meditation">Meditation</option>
+          <option value="food">Food</option>
+          <option value="talk">Talk/Discourse</option>
+          <option value="bhajan">Bhajan/Kirtan</option>
+          <option value="volunteer">Volunteer/Seva</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+        <button type="button" onclick="document.getElementById('editModal').style.display='none'" class="btn btn-outline w-100">Cancel</button>
+        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const dayLabels = {1:'Day 1 – 24 June 2026',2:'Day 2 – 25 June 2026',3:'Day 3 – 26 June 2026'};
+function updateLabel(sel){document.getElementById('addDayLabel').value=dayLabels[sel.value];}
+function updateEditLabel(sel){document.getElementById('editDayLabel').value=dayLabels[sel.value];}
+function openEdit(id,day,label,start,end,activity,cat,order){
+  document.getElementById('editId').value=id;
+  document.getElementById('editDay').value=day;
+  document.getElementById('editDayLabel').value=label;
+  document.getElementById('editStart').value=start;
+  document.getElementById('editEnd').value=end;
+  document.getElementById('editActivity').value=activity;
+  document.getElementById('editCategory').value=cat;
+  document.getElementById('editOrder').value=order;
+  document.getElementById('editModal').style.display='flex';
+}
+</script>
+{% endblock %}

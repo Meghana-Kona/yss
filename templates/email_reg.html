@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;background:#FDF5E6;margin:0;padding:20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
+  <div style="background:#B5330A;padding:2rem;text-align:center;">
+    <div style="font-size:3rem;">🪷</div>
+    <h1 style="color:#fff;font-size:1.3rem;margin:.5rem 0 0;">Yogoda Satsanga Society of India</h1>
+    <p style="color:rgba(255,255,255,.8);font-size:.85rem;margin:.25rem 0 0;">3-Day Spiritual Program – Anantapur</p>
+  </div>
+  <div style="padding:2rem;">
+    <h2 style="color:#2E7D32;font-size:1.5rem;margin-bottom:.5rem;">✅ Registration Confirmed!</h2>
+    <p style="color:#555;">Dear <strong>{{ reg.full_name }}</strong>,</p>
+    <p style="color:#555;line-height:1.7;">Your registration for the 3-Day Spiritual Program has been successfully received. Please find your details below.</p>
+
+    <div style="border:2px solid #333;margin:1.5rem 0;border-radius:4px;overflow:hidden;">
+      <div style="background:#B5330A;color:#fff;text-align:center;padding:.75rem;">
+        <div style="font-weight:700;">Y.S.D.K., ANANTAPUR</div>
+        <div style="font-weight:700;">3-DAY SADHANA SANGAM</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;width:40%;">Reg ID</td><td style="padding:.6rem 1rem;">{{ reg.reg_id }}</td></tr>
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Name</td><td style="padding:.6rem 1rem;">{{ reg.full_name }}</td></tr>
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Lesson No</td><td style="padding:.6rem 1rem;">{{ reg.lesson_no }}</td></tr>
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Mobile No</td><td style="padding:.6rem 1rem;">{{ reg.whatsapp }}</td></tr>
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Place</td><td style="padding:.6rem 1rem;">{{ reg.place }}</td></tr>
+        <tr style="border-bottom:1px solid #ddd;"><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Arrival</td><td style="padding:.6rem 1rem;">{{ reg.arrival_date }}</td></tr>
+        <tr><td style="padding:.6rem 1rem;font-weight:700;background:#f9f9f9;">Departure</td><td style="padding:.6rem 1rem;">{{ reg.departure_date }}</td></tr>
+      </table>
+    </div>
+
+    <div style="background:#FFF3E0;border-left:4px solid #E07B1A;padding:1rem;border-radius:4px;margin-bottom:1.5rem;">
+      <p style="margin:0;color:#555;font-size:.9rem;"><strong>Event Details:</strong><br>
+      📅 Dates: June 24–26, 2026<br>
+      📍 Venue: Dhyana Kendra, Anantapur, Andhra Pradesh<br>
+      📧 Contact: {{ config.EVENT_CONTACT_EMAIL }}<br>
+      📞 Mobile: {{ config.EVENT_CONTACT_MOBILE }}</p>
+    </div>
+    <p style="color:#555;font-size:.9rem;">Please carry a printed or digital copy of your ID card to the event for entry. God bless you on your spiritual journey! 🙏</p>
+  </div>
+  <div style="background:#FAE8D0;padding:1rem;text-align:center;">
+    <p style="color:#7D5A3C;font-size:.8rem;margin:0;">© 2026 Yogoda Satsanga Society of India. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>
