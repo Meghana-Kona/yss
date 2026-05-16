@@ -17,6 +17,9 @@ class Admin(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     mobile = db.Column(db.String(15), nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    is_main_admin = db.Column(db.Boolean, default=False)
+    reset_token = db.Column(db.String(100), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -41,7 +44,7 @@ class Registration(db.Model):
     state = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(120), nullable=True)
     country_code = db.Column(db.String(10), default='+91')
-    whatsapp = db.Column(db.String(15), nullable=False)
+    whatsapp = db.Column(db.String(20), nullable=False)
     is_kriyaban = db.Column(db.Boolean, default=False)
     accommodation = db.Column(db.Boolean, default=False)
     volunteer = db.Column(db.Boolean, default=False)
@@ -53,6 +56,7 @@ class Registration(db.Model):
     payment_screenshot = db.Column(db.String(255), nullable=True)
     payment_status = db.Column(db.String(20), default='Pending')  # Pending, Paid
     reg_status = db.Column(db.String(20), default='Pending')  # Pending, Approved, Rejected
+    notified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -79,6 +83,7 @@ class Registration(db.Model):
             'payment_screenshot': self.payment_screenshot,
             'payment_status': self.payment_status,
             'reg_status': self.reg_status,
+            'notified': self.notified,
             'created_at': self.created_at.strftime('%d %b %Y') if self.created_at else ''
         }
 
@@ -96,7 +101,8 @@ class Donation(db.Model):
     payment_mode = db.Column(db.String(30), nullable=False)
     transaction_id = db.Column(db.String(100), nullable=True)
     payment_screenshot = db.Column(db.String(255), nullable=True)
-    payment_status = db.Column(db.String(20), default='Pending')  # Pending, Completed
+    payment_status = db.Column(db.String(20), default='Pending')  # Pending, Received, Failed
+    notified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):

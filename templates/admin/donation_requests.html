@@ -1,30 +1,30 @@
 {% extends 'admin/base_admin.html' %}
-{% block title %}Requests – YSS Admin{% endblock %}
+{% block title %}Donation Requests – YSS Admin{% endblock %}
 {% block content %}
 <div class="admin-header">
   <h1>
-    <i class="fa fa-bell" style="color:var(--gold);margin-right:.5rem;"></i>
-    Payment Requests
+    <i class="fa fa-heart" style="color:var(--gold);margin-right:.5rem;"></i>
+    Donation Requests
     {% if pending_count > 0 %}
     <span style="background:#C62828;color:#fff;font-size:.5em;font-weight:700;padding:.2rem .6rem;border-radius:999px;vertical-align:middle;margin-left:.5rem;">{{ pending_count }}</span>
     {% endif %}
   </h1>
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-    <a href="{{ url_for('registration') }}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> New Registration</a>
+    <a href="{{ url_for('donation') }}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> New Donation</a>
   </div>
 </div>
 
 <!-- Info Banner -->
 <div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid var(--gold);border-radius:12px;padding:.9rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.75rem;font-size:.9rem;color:#5a4000;">
   <i class="fa fa-info-circle" style="color:var(--gold);font-size:1.2rem;"></i>
-  <span>These are registrations with <strong>Pending payment</strong>. Review payment screenshots and <strong>Approve</strong> or <strong>Decline</strong> each request.</span>
+  <span>Review donation payment screenshots and <strong>Mark Received</strong> or <strong>Mark Failed</strong>. Then notify the donor via WhatsApp.</span>
 </div>
 
 <div class="table-card">
   <form method="GET" class="table-toolbar">
     <div class="search-box">
       <span class="si"><i class="fa fa-search"></i></span>
-      <input type="text" name="search" placeholder="Search by name, mobile, Reg ID..." value="{{ search }}">
+      <input type="text" name="search" placeholder="Search by name, mobile, ID..." value="{{ search }}">
     </div>
     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
   </form>
@@ -35,7 +35,7 @@
       <thead>
         <tr>
           <th>S.No</th>
-          <th>Reg ID</th>
+          <th>Donation ID</th>
           <th>Lesson No</th>
           <th>Name</th>
           <th>Mobile No</th>
@@ -51,25 +51,25 @@
         </tr>
       </thead>
       <tbody>
-      {% for r in pagination.items %}
-      <tr id="row-{{ r.id }}" style="transition:opacity .4s;">
+      {% for d in pagination.items %}
+      <tr id="row-{{ d.id }}" style="transition:opacity .4s;">
         <td>{{ (pagination.page-1)*10 + loop.index }}</td>
-        <td><small style="color:var(--muted);">{{ r.reg_id }}</small></td>
-        <td>{{ r.lesson_no }}</td>
-        <td><strong>{{ r.full_name }}</strong><br><small style="color:var(--muted);">{{ r.gender }}, {{ r.age }} yrs</small></td>
-        <td>{{ r.whatsapp }}</td>
-        <td>{{ r.place }}<br><small style="color:var(--muted);">{{ r.state }}</small></td>
-        <td><strong>₹{{ r.amount|int if r.amount else 0 }}</strong></td>
-        <td style="font-size:.8rem;">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}</td>
+        <td><small style="color:var(--muted);">{{ d.donation_id }}</small></td>
+        <td>{{ d.lesson_no }}</td>
+        <td><strong>{{ d.name }}</strong><br><small style="color:var(--muted);">{{ d.age }} yrs</small></td>
+        <td>{{ d.whatsapp }}</td>
+        <td>{{ d.place }}</td>
+        <td><strong style="color:var(--primary);">₹{{ d.amount|int }}</strong></td>
+        <td style="font-size:.8rem;">{{ d.created_at.strftime('%d %b %Y') if d.created_at else '' }}</td>
         <td>
           <span style="background:#EEF2FF;color:#3730a3;padding:.2rem .6rem;border-radius:6px;font-size:.8rem;font-weight:600;">
-            {{ r.payment_mode }}
+            {{ d.payment_mode }}
           </span>
         </td>
-        <td style="font-size:.8rem;color:var(--muted);">{{ r.transaction_id or '—' }}</td>
+        <td style="font-size:.8rem;color:var(--muted);">{{ d.transaction_id or '—' }}</td>
         <td>
-          {% if r.payment_screenshot %}
-          <button onclick="showScreenshot('{{ url_for('static', filename='uploads/' + r.payment_screenshot) }}')"
+          {% if d.payment_screenshot %}
+          <button onclick="showScreenshot('{{ url_for('static', filename='uploads/' + d.payment_screenshot) }}')"
             class="btn btn-outline btn-sm" title="View Screenshot" style="font-size:.75rem;">
             <i class="fa fa-eye"></i> View
           </button>
@@ -78,21 +78,21 @@
           {% endif %}
         </td>
         <td>
-          {% if r.reg_status == 'Approved' %}
-          <span style="color:#2E7D32;font-weight:700;"><i class="fa fa-check-circle"></i> Approved</span>
+          {% if d.payment_status == 'Received' %}
+          <span style="color:#2E7D32;font-weight:700;"><i class="fa fa-check-circle"></i> Received</span>
           {% else %}
-          <span style="color:var(--muted);font-size:.8rem;">Pending Approval</span>
+          <span style="color:var(--muted);font-size:.8rem;">Pending</span>
           {% endif %}
         </td>
         <td style="text-align:center;">
-          {% if r.reg_status == 'Approved' %}
+          {% if d.payment_status == 'Received' %}
           <div style="display:flex; flex-direction:column; gap:0.25rem;">
-            <a href="https://wa.me/{{ (r.country_code + r.whatsapp)|replace('+','') }}?text=Jai%20Guru!%20Dear%20{{ r.full_name|urlencode }},%20your%20registration%20for%20the%20YSS%203-Day%20Spiritual%20Program%20in%20Anantapur%20(Reg%20ID:%20{{ r.reg_id }})%20has%20been%20APPROVED.%20We%20look%20forward%20to%20seeing%20you!" 
+            <a href="https://wa.me/91{{ d.whatsapp }}?text=Jai%20Guru!%20Dear%20{{ d.name|urlencode }},%20thank%20you%20for%20your%20generous%20donation%20of%20₹{{ d.amount }}%20towards%20the%20YSS%203-Day%20Spiritual%20Program%20in%20Anantapur.%20Your%20support%20is%20deeply%20appreciated." 
                target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; border:none; padding: 0.35rem; border-radius: 6px;" 
-               onclick="markNotified({{ r.id }})" title="Send WhatsApp & Mark as Done">
+               onclick="markDonNotified({{ d.id }})" title="Send WhatsApp & Mark as Done">
                <i class="fa-brands fa-whatsapp"></i> <span style="font-size:0.7rem;">WhatsApp</span>
             </a>
-            <button onclick="markNotified({{ r.id }})" class="btn btn-outline btn-sm" style="font-size:0.6rem; padding:0.1rem;">Mark Notified</button>
+            <button onclick="markDonNotified({{ d.id }})" class="btn btn-outline btn-sm" style="font-size:0.6rem; padding:0.1rem;">Mark Notified</button>
           </div>
           {% else %}
           <span style="color:var(--muted); font-size:0.75rem;">—</span>
@@ -100,20 +100,24 @@
         </td>
         <td>
           <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
-            <button id="approve-btn-{{ r.id }}"
-              onclick="handleAction({{ r.id }}, 'approve')"
+            {% if d.payment_status == 'Pending' %}
+            <button id="received-btn-{{ d.id }}"
+              onclick="handleDonAction({{ d.id }}, 'Received')"
               class="btn btn-sm"
               style="background:linear-gradient(135deg,#2E7D32,#388E3C);color:#fff;border:none;padding:.35rem .8rem;border-radius:8px;font-weight:600;font-size:.8rem;display:flex;align-items:center;gap:.35rem;cursor:pointer;"
-              title="Approve this registration">
-              <i class="fa fa-check"></i> Approve
+              title="Mark as Received">
+              <i class="fa fa-check"></i> Received
             </button>
-            <button id="decline-btn-{{ r.id }}"
-              onclick="handleAction({{ r.id }}, 'decline')"
+            <button id="failed-btn-{{ d.id }}"
+              onclick="handleDonAction({{ d.id }}, 'Failed')"
               class="btn btn-sm"
               style="background:linear-gradient(135deg,#C62828,#E53935);color:#fff;border:none;padding:.35rem .8rem;border-radius:8px;font-weight:600;font-size:.8rem;display:flex;align-items:center;gap:.35rem;cursor:pointer;"
-              title="Decline this registration">
-              <i class="fa fa-times"></i> Decline
+              title="Mark as Failed">
+              <i class="fa fa-times"></i> Failed
             </button>
+            {% else %}
+            <button onclick="confirmDelDon({{ d.id }})" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;" title="Delete"><i class="fa fa-trash"></i></button>
+            {% endif %}
           </div>
         </td>
       </tr>
@@ -122,13 +126,13 @@
     </table>
   </div>
   <div style="padding:1rem;color:var(--muted);font-size:.85rem;">
-    Showing {{ (pagination.page-1)*10+1 }} to {{ [(pagination.page-1)*10+10, pagination.total]|min }} of {{ pagination.total }} pending requests
+    Showing {{ (pagination.page-1)*10+1 }} to {{ [(pagination.page-1)*10+10, pagination.total]|min }} entries
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">🎉</div>
-    <h3>No Pending Requests</h3>
-    <p>All payment requests have been processed. Great work!</p>
+    <div class="empty-icon">💛</div>
+    <h3>No Pending Donation Requests</h3>
+    <p>All donation requests have been processed.</p>
   </div>
   {% endif %}
 
@@ -164,82 +168,80 @@ function showScreenshot(url) {
   document.getElementById('screenshotModal').style.display = 'flex';
 }
 
-function handleAction(id, action) {
-  const approveBtn = document.getElementById('approve-btn-' + id);
-  const declineBtn = document.getElementById('decline-btn-' + id);
+function handleDonAction(id, action) {
+  const receivedBtn = document.getElementById('received-btn-' + id);
+  const failedBtn = document.getElementById('failed-btn-' + id);
   const row = document.getElementById('row-' + id);
 
-  // Disable both buttons while processing
-  approveBtn.disabled = true;
-  declineBtn.disabled = true;
-  approveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-  declineBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+  if(receivedBtn) receivedBtn.disabled = true;
+  if(failedBtn) failedBtn.disabled = true;
 
-  const url = '/api/registrations/' + id + '/' + action;
-
-  fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-    .then(r => r.json())
-    .then(d => {
-      if (d.success) {
-        // Visual feedback before removing row
-        row.style.background = action === 'approve'
-          ? 'linear-gradient(135deg,#E8F5E9,#F1F8E9)'
-          : 'linear-gradient(135deg,#FFEBEE,#FFF3E0)';
-
-        const icon = action === 'approve' ? '✅' : '❌';
-        const label = action === 'approve' ? 'Approved' : 'Declined';
-        const color = action === 'approve' ? '#2E7D32' : '#C62828';
-
-        const actionCell = approveBtn.parentElement;
-        actionCell.innerHTML = `<span style="color:${color};font-weight:700;font-size:.9rem;">${icon} ${label}</span>`;
-
-        showToast(d.message, action === 'approve' ? 'success' : 'error');
-
-        // Fade out and remove row after 1.5s
+  fetch('/api/donations/' + id, { 
+    method: 'PUT', 
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payment_status: action })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      if(action === 'Received') {
+        // Show Notify buttons dynamically
+        const statusCell = row.cells[11];
+        const notifyCell = row.cells[12];
+        const actionCell = row.cells[13];
+        
+        statusCell.innerHTML = '<span style="color:#2E7D32;font-weight:700;"><i class="fa fa-check-circle"></i> Received</span>';
+        notifyCell.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <a href="https://wa.me/91${row.cells[4].textContent.trim()}?text=Jai%20Guru!%20..." target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; border:none; padding: 0.35rem; border-radius: 6px;" onclick="markDonNotified(${id})">
+               <i class="fa-brands fa-whatsapp"></i> <span style="font-size:0.7rem;">WhatsApp</span>
+            </a>
+            <button onclick="markDonNotified(${id})" class="btn btn-outline btn-sm" style="font-size:0.6rem; padding:0.1rem;">Mark Notified</button>
+          </div>`;
+        actionCell.innerHTML = `<button onclick="confirmDelDon(${id})" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;" title="Delete"><i class="fa fa-trash"></i></button>`;
+        
+        showToast('Donation marked as Received', 'success');
+      } else {
+        // Failed -> Disappear
+        row.style.background = 'linear-gradient(135deg,#FFEBEE,#FFF3E0)';
+        showToast('Donation marked as Failed', 'error');
         setTimeout(() => {
           row.style.opacity = '0';
-          setTimeout(() => {
-            row.remove();
-            // Check if table is now empty
-            const tbody = document.querySelector('tbody');
-            if (tbody && tbody.children.length === 0) {
-              location.reload();
-            }
-          }, 400);
-        }, 1500);
-      } else {
-        showToast('Action failed. Please try again.', 'error');
-        approveBtn.disabled = false;
-        declineBtn.disabled = false;
-        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve';
-        declineBtn.innerHTML = '<i class="fa fa-times"></i> Decline';
+          setTimeout(() => row.remove(), 400);
+        }, 1000);
       }
-    })
-    .catch(() => {
-      showToast('Network error. Please try again.', 'error');
-      approveBtn.disabled = false;
-      declineBtn.disabled = false;
-      approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve';
-      declineBtn.innerHTML = '<i class="fa fa-times"></i> Decline';
-    });
+    }
+  });
 }
 
-function markNotified(id) {
-  fetch('/api/registrations/' + id + '/notified', { method: 'POST' })
+function markDonNotified(id) {
+  fetch('/api/donations/' + id + '/notified', { method: 'POST' })
     .then(r => r.json())
     .then(d => {
       if (d.success) {
         const row = document.getElementById('row-' + id);
         row.style.opacity = '0.5';
         row.style.background = '#f5f5f5';
-        showToast('Member marked as notified and moved to Registrations.', 'success');
+        showToast('Donor marked as notified and moved to Donations.', 'success');
         setTimeout(() => {
           row.style.transition = 'opacity 0.5s';
           row.style.opacity = '0';
-          setTimeout(() => row.remove(), 500);
+          setTimeout(() => {
+            row.remove();
+            if (document.querySelector('tbody').children.length === 0) location.reload();
+          }, 500);
         }, 1000);
       }
     });
+}
+
+function confirmDelDon(id) {
+  const modal = document.getElementById('deleteModal');
+  modal.style.display = 'flex';
+  document.getElementById('confirmDeleteBtn').onclick = function() {
+    fetch('/api/donations/'+id, {method:'DELETE'})
+      .then(r=>r.json()).then(d=>{if(d.success){modal.style.display='none';location.reload();}});
+  };
 }
 
 function showToast(msg, type) {

@@ -35,7 +35,10 @@
       </div>
     </div>
     <div class="form-group" style="margin-bottom:1.5rem;">
-      <label style="font-weight:700;color:var(--text);display:block;margin-bottom:.4rem;">Password</label>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem;">
+        <label style="font-weight:700;color:var(--text);margin:0;">Password</label>
+        <a href="{{ url_for('forgot_password') }}" style="color:var(--gold); font-size:0.8rem; font-weight:600;">Forgot Password?</a>
+      </div>
       <div style="position:relative;">
         <span style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);"><i class="fa fa-lock"></i></span>
         <input type="password" name="password" id="passwordField" class="form-control" placeholder="Enter password" style="padding-left:2.5rem;padding-right:2.5rem;" required>

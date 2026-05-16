@@ -2,37 +2,30 @@
 {% block title %}Registration Successful – YSS Anantapur{% endblock %}
 {% block content %}
 <section class="section">
-  <div class="container" style="max-width:700px;">
-    <div class="success-icon">✅</div>
-    <h2 class="success-title">Registration Successful!</h2>
-    <p style="text-align:center;color:var(--muted);margin:.5rem 0 1rem;">Thank you for registering for the 3-Day Spiritual Program.<br>Your registration has been received successfully.</p>
-    <div style="text-align:center;color:var(--primary);font-weight:700;margin-bottom:.5rem;">✦ Your ID Card ✦</div>
+  <div class="container" style="max-width:700px; text-align:center;">
+    <div class="success-icon" style="font-size: 4rem; color: var(--gold); margin-bottom: 1.5rem;">⏳</div>
+    <h2 class="success-title" style="color: var(--primary); font-family: 'Cinzel', serif; margin-bottom: 1rem;">Registration Submitted</h2>
+    
+    <div style="background: #fff8f5; border: 1px solid var(--gold); padding: 2rem; border-radius: 12px; text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text); margin-bottom: 1rem;">
+        Jai Guru! Your registration request (ID: <strong>{{ reg.reg_id }}</strong>) has been received.
+      </p>
+      
+      <div style="background: #fff; border-left: 5px solid #F57F17; padding: 1rem; margin: 1.5rem 0;">
+        <span style="color: #F57F17; font-weight: 700; font-size: 1.1rem;">Status: Pending Approval</span>
+      </div>
 
-    <div class="id-card" id="idCard">
-      <div class="id-card-header">
-        <h2>Y.S.D.K., ANANTAPUR</h2>
-        <h2>3-DAY SADHANA SANGAM</h2>
-      </div>
-      <div class="id-card-num">
-        <table style="width:100%;border-collapse:collapse;border:none;">
-          <tr>
-            <td style="border:none;text-align:center;width:50%;font-weight:700;font-size:1.2rem;">{{ reg.id }}</td>
-            <td style="border:none;text-align:center;width:50%;">({{ reg.created_at.strftime('%d-%m-%Y') if reg.created_at else '' }})</td>
-          </tr>
-        </table>
-      </div>
-      <table>
-        <tr><td>Name :</td><td>{{ reg.full_name }}</td></tr>
-        <tr><td>Lesson No :</td><td>{{ reg.lesson_no }}</td></tr>
-        <tr><td>Mobile No :</td><td>{{ reg.whatsapp }}</td></tr>
-        <tr><td>Place :</td><td>{{ reg.place }}</td></tr>
-      </table>
+      <p style="font-size: 1rem; color: #555;">
+        Your digital ID card will be generated and sent to your WhatsApp <strong>only after</strong> the administrator approves your registration.
+      </p>
+      
+      <p style="font-size: 1rem; color: #555; margin-top: 1rem;">
+        Please keep your Transaction ID ({{ reg.transaction_id }}) for reference.
+      </p>
     </div>
 
-    <div style="display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
-      <button onclick="printCard()" class="btn btn-primary"><i class="fa fa-print"></i> Print ID Card</button>
-      <button onclick="downloadCard()" class="btn btn-outline"><i class="fa fa-download"></i> Download ID Card</button>
-      <a href="{{ url_for('index') }}" class="btn btn-gold">Back to Home</a>
+    <div style="margin-top: 2rem;">
+      <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
     </div>
   </div>
 </section>

@@ -3,8 +3,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_mail import Mail, Message
 from models import db, Admin, Registration, Donation, EventSchedule
 from config import Config
-from datetime import datetime
-import os, openpyxl
+from datetime import datetime, timedelta
+import os, openpyxl, uuid
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -30,10 +30,12 @@ def seed_data():
             lesson_no='00000',
             name='YSS Admin',
             email=app.config['ADMIN_EMAIL'],
-            mobile='9494457607'
+            mobile='9494457607',
+            is_main_admin=True
         )
         admin.set_password(app.config['ADMIN_PASSWORD'])
         db.session.add(admin)
+        db.session.commit()
 
     # Seed schedule
     if not EventSchedule.query.first():
@@ -184,6 +186,23 @@ def send_registration_email(reg):
     except Exception as e:
         app.logger.warning(f'Email send failed: {e}')
 
+def send_admin_sms(reg):
+    """
+    Sends an SMS notification to the Admin mobile number.
+    Placeholder for Twilio or other SMS Gateway integration.
+    """
+    admin_mobile = app.config.get('EVENT_CONTACT_MOBILE', '9490320939')
+    message = f"YSS Registration Alert: {reg.full_name} ({reg.reg_id}) has submitted a registration. Please check the admin panel for approval."
+    print(f"SMS SENT TO ADMIN ({admin_mobile}): {message}")
+
+def send_member_whatsapp(reg):
+    """
+    Sends a WhatsApp message to the member after Admin approval.
+    Placeholder for Twilio WhatsApp API or other providers.
+    """
+    message = f"Jai Guru! Dear {reg.full_name}, your registration for the YSS 3-Day Spiritual Program in Anantapur (Reg ID: {reg.reg_id}) has been APPROVED. We look forward to seeing you!"
+    print(f"WHATSAPP SENT TO {reg.whatsapp}: {message}")
+
 # ─── PUBLIC ROUTES ────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
@@ -222,8 +241,8 @@ def registration():
         place = request.form.get('place', '').strip()
         state = request.form.get('state', '').strip()
         email = request.form.get('email', '').strip()
-        country_code = request.form.get('country_code', '+91').strip()
-        whatsapp = request.form.get('whatsapp', '').strip()
+        country_code = request.form.get('country_code', '+91')
+        whatsapp = request.form.get('whatsapp')
         is_kriyaban = request.form.get('is_kriyaban') == 'yes'
         accommodation = request.form.get('accommodation') == 'yes'
         volunteer = request.form.get('volunteer') == 'yes'
@@ -263,18 +282,25 @@ def registration():
                 flash(e, 'error')
             return render_template('registration.html', config=app.config, form=request.form)
 
+        # Calculate amount
+        base_fee = 1800
+        acc_fee = 1000 if accommodation else 0
+        total_amount = base_fee + acc_fee
+
         reg = Registration(
             lesson_no=lesson_no, full_name=full_name, gender=gender,
             age=int(age), place=place, state=state, email=email, country_code=country_code, whatsapp=whatsapp,
             is_kriyaban=is_kriyaban, accommodation=accommodation,
             volunteer=volunteer, arrival_date=arrival_date,
             departure_date=departure_date, payment_mode=payment_mode,
+            amount=total_amount,
             transaction_id=transaction_id, payment_screenshot=screenshot_filename
         )
         db.session.add(reg)
         db.session.commit()
         update_registrations_excel()
         send_registration_email(reg)
+        send_admin_sms(reg) # Send SMS to Admin
         return redirect(url_for('reg_success', reg_id=reg.reg_id))
 
     return render_template('registration.html', config=app.config, form={})
@@ -350,7 +376,86 @@ def donation():
 @app.route('/donation/success/<don_id>')
 def donation_success(don_id):
     don = Donation.query.filter_by(donation_id=don_id).first_or_404()
-    return render_template('donation_success.html', don=don, config=app.config)
+    return render_template('don_success.html', don=don, config=app.config)
+
+@app.route('/admin/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        admin = Admin.query.filter_by(email=email).first()
+        if admin:
+            token = uuid.uuid4().hex
+            admin.reset_token = token
+            admin.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+            
+            reset_url = url_for('reset_password', token=token, _external=True)
+            msg = Message('Password Reset Request – YSS Anantapur',
+                         sender=app.config['MAIL_USERNAME'],
+                         recipients=[admin.email])
+            msg.body = f"Jai Guru!\n\nTo reset your admin password, please click the link below:\n{reset_url}\n\nIf you did not request this, please ignore this email.\n\nRegards,\nYSS Spiritual Program Team"
+            mail.send(msg)
+            flash('A password reset link has been sent to your email.', 'success')
+        else:
+            flash('Email address not found.', 'error')
+    return render_template('admin/forgot_password.html', config=app.config)
+
+@app.route('/admin/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    admin = Admin.query.filter_by(reset_token=token).first()
+    if not admin or admin.reset_token_expiry < datetime.utcnow():
+        flash('Invalid or expired reset token.', 'error')
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm = request.form.get('confirm_password')
+        if password == confirm:
+            admin.set_password(password)
+            admin.reset_token = None
+            admin.reset_token_expiry = None
+            db.session.commit()
+            flash('Password updated successfully. Please login.', 'success')
+            return redirect(url_for('admin_login'))
+        flash('Passwords do not match.', 'error')
+    return render_template('admin/reset_password.html', config=app.config)
+
+@app.route('/admin/manage', methods=['GET', 'POST'])
+@login_required
+def admin_manage():
+    if not current_user.is_main_admin:
+        flash('Only Main Admin can access this page.', 'error')
+        return redirect(url_for('admin_registrations'))
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'add':
+            lesson_no = request.form.get('lesson_no')
+            name = request.form.get('name')
+            email = request.form.get('email')
+            mobile = request.form.get('mobile')
+            password = request.form.get('password')
+            
+            if Admin.query.filter_by(email=email).first():
+                flash('Admin with this email already exists.', 'error')
+            else:
+                new_admin = Admin(lesson_no=lesson_no, name=name, email=email, mobile=mobile)
+                new_admin.set_password(password)
+                db.session.add(new_admin)
+                db.session.commit()
+                flash('New admin added successfully.', 'success')
+        elif action == 'delete':
+            admin_id = request.form.get('admin_id')
+            admin_to_del = Admin.query.get(int(admin_id))
+            if admin_to_del and not admin_to_del.is_main_admin:
+                db.session.delete(admin_to_del)
+                db.session.commit()
+                flash('Admin deleted.', 'success')
+            else:
+                flash('Cannot delete main admin.', 'error')
+                
+    admins = Admin.query.all()
+    return render_template('admin/manage_admins.html', admins=admins, config=app.config)
 
 # ─── ADMIN AUTH ───────────────────────────────────────────────────────────────
 @app.route('/admin')
@@ -385,10 +490,10 @@ def admin_registrations():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     reg_status = request.args.get('reg_status', '')
-    # Show both Paid (Approved) and Rejected (Declined) registrations
+    # Show both Paid (Approved and Notified) and Rejected (Declined) registrations
     q = Registration.query.filter(
         db.or_(
-            Registration.payment_status == 'Paid',
+            db.and_(Registration.payment_status == 'Paid', Registration.notified == True),
             Registration.reg_status == 'Rejected'
         )
     )
@@ -408,8 +513,13 @@ def admin_registrations():
 def admin_requests():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    # Only show Pending payment registrations
-    q = Registration.query.filter_by(payment_status='Pending')
+    # Show Pending payment OR (Approved but Not Notified)
+    q = Registration.query.filter(
+        db.or_(
+            Registration.payment_status == 'Pending',
+            db.and_(Registration.reg_status == 'Approved', Registration.notified == False)
+        )
+    )
     if search:
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%'),
@@ -427,6 +537,7 @@ def approve_registration(rid):
     reg.reg_status = 'Approved'
     db.session.commit()
     update_registrations_excel()
+    send_member_whatsapp(reg) # Send WhatsApp to Member
     return jsonify({'success': True, 'message': 'Registration approved successfully'})
 
 @app.route('/api/registrations/<int:rid>/decline', methods=['POST'])
@@ -438,6 +549,14 @@ def decline_registration(rid):
     db.session.commit()
     update_registrations_excel()
     return jsonify({'success': True, 'message': 'Registration declined'})
+
+@app.route('/api/registrations/<int:rid>/notified', methods=['POST'])
+@login_required
+def mark_notified(rid):
+    reg = Registration.query.get_or_404(rid)
+    reg.notified = True
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Member marked as notified'})
 
 @app.route('/admin/registrations/export')
 @login_required
@@ -569,17 +688,41 @@ def api_registration(rid):
 def admin_donations():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    pay_status = request.args.get('pay_status', '')
-    q = Donation.query
+    # Processed donations: Received and Notified, or Failed
+    q = Donation.query.filter(
+        db.or_(
+            db.and_(Donation.payment_status == 'Received', Donation.notified == True),
+            Donation.payment_status == 'Failed'
+        )
+    )
     if search:
         q = q.filter(db.or_(Donation.name.ilike(f'%{search}%'),
                              Donation.whatsapp.ilike(f'%{search}%'),
                              Donation.donation_id.ilike(f'%{search}%')))
-    if pay_status:
-        q = q.filter_by(payment_status=pay_status)
     pagination = q.order_by(Donation.id.desc()).paginate(page=page, per_page=10)
     return render_template('admin/donations.html', pagination=pagination,
-                           search=search, pay_status=pay_status, config=app.config)
+                           search=search, config=app.config)
+
+@app.route('/admin/donation-requests')
+@login_required
+def admin_donation_requests():
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    # Pending requests: Pending status OR Received but not yet notified
+    q = Donation.query.filter(
+        db.or_(
+            Donation.payment_status == 'Pending',
+            db.and_(Donation.payment_status == 'Received', Donation.notified == False)
+        )
+    )
+    if search:
+        q = q.filter(db.or_(Donation.name.ilike(f'%{search}%'),
+                             Donation.whatsapp.ilike(f'%{search}%'),
+                             Donation.donation_id.ilike(f'%{search}%')))
+    pending_count = q.count()
+    pagination = q.order_by(Donation.id.desc()).paginate(page=page, per_page=10)
+    return render_template('admin/donation_requests.html', pagination=pagination,
+                           search=search, pending_count=pending_count, config=app.config)
 
 @app.route('/admin/donations/export')
 @login_required
@@ -587,6 +730,34 @@ def export_donations():
     update_donations_excel()
     path = os.path.join(app.config['EXPORTS_DIR'], 'donations.xlsx')
     return send_file(path, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='donations.xlsx')
+
+@app.route('/api/donations/<int:did>/notified', methods=['POST'])
+@login_required
+def mark_don_notified(did):
+    don = Donation.query.get_or_404(did)
+    don.notified = True
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Donor marked as notified'})
+
+@app.route('/api/donations/manual', methods=['POST'])
+@login_required
+def manual_donation():
+    data = request.json
+    don = Donation(
+        lesson_no=data.get('lesson_no', 'ADMIN'),
+        name=data.get('name'),
+        age=0,
+        place=data.get('place', 'Admin Entry'),
+        whatsapp=data.get('whatsapp'),
+        amount=float(data.get('amount', 0)),
+        payment_mode=data.get('payment_mode', 'Cash'),
+        payment_status='Received',
+        notified=True
+    )
+    db.session.add(don)
+    db.session.commit()
+    update_donations_excel()
+    return jsonify({'success': True})
 
 @app.route('/api/donations/<int:did>', methods=['PUT', 'DELETE'])
 @login_required

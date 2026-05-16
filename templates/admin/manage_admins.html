@@ -1,0 +1,83 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Manage Admins – YSS Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <h1><i class="fa fa-user-shield" style="color:var(--gold);margin-right:.5rem;"></i>Manage Admins</h1>
+  <button onclick="document.getElementById('addAdminModal').style.display='flex'" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Admin</button>
+</div>
+
+<div class="table-card">
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Lesson No</th><th>Email</th><th>Mobile</th><th>Role</th><th>Created At</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      {% for a in admins %}
+      <tr>
+        <td><strong>{{ a.name }}</strong></td>
+        <td>{{ a.lesson_no }}</td>
+        <td>{{ a.email }}</td>
+        <td>{{ a.mobile }}</td>
+        <td>
+          {% if a.is_main_admin %}
+            <span class="badge" style="background:#E3F2FD;color:#1565C0;">Main Admin</span>
+          {% else %}
+            <span class="badge" style="background:#F5F5F5;color:#616161;">Admin</span>
+          {% endif %}
+        </td>
+        <td>{{ a.created_at.strftime('%d %b %Y') if a.created_at else '-' }}</td>
+        <td>
+          {% if not a.is_main_admin %}
+          <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this admin?')">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="admin_id" value="{{ a.id }}">
+            <button type="submit" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;" title="Delete"><i class="fa fa-trash"></i></button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD ADMIN MODAL -->
+<div id="addAdminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2.5rem;max-width:500px;width:95%;box-shadow:0 10px 40px rgba(0,0,0,.2);">
+    <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Add New Administrator</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="add">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Lesson No</label>
+          <input type="text" name="lesson_no" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-grid form-grid-2" style="margin-top:1rem;">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Mobile</label>
+          <input type="text" name="mobile" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:2rem;">
+        <button type="button" onclick="document.getElementById('addAdminModal').style.display='none'" class="btn btn-outline">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Admin</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

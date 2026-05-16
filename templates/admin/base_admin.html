@@ -31,7 +31,10 @@
         <i class="fa fa-users"></i><span>Registrations</span>
       </a>
       <a href="{{ url_for('admin_requests') }}" class="{% if request.endpoint=='admin_requests' %}active{% endif %}" style="position:relative;">
-        <i class="fa fa-bell"></i><span>Requests</span>
+        <i class="fa fa-bell"></i><span>Reg Requests</span>
+      </a>
+      <a href="{{ url_for('admin_donation_requests') }}" class="{% if request.endpoint=='admin_donation_requests' %}active{% endif %}" style="position:relative;">
+        <i class="fa fa-hand-holding-heart"></i><span>Donation Requests</span>
       </a>
       <a href="{{ url_for('admin_donations') }}" class="{% if request.endpoint=='admin_donations' %}active{% endif %}">
         <i class="fa fa-heart"></i><span>Donations</span>
@@ -42,6 +45,11 @@
       <a href="{{ url_for('admin_schedule') }}" class="{% if request.endpoint=='admin_schedule' %}active{% endif %}">
         <i class="fa fa-calendar-alt"></i><span>Schedule</span>
       </a>
+      {% if current_user.is_main_admin %}
+      <a href="{{ url_for('admin_manage') }}" class="{% if request.endpoint=='admin_manage' %}active{% endif %}">
+        <i class="fa fa-user-shield"></i><span>Admins</span>
+      </a>
+      {% endif %}
       <a href="{{ url_for('index') }}" style="margin-top:auto;">
         <i class="fa fa-globe"></i><span>View Site</span>
       </a>
