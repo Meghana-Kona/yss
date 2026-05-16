@@ -384,20 +384,60 @@ def admin_logout():
 def admin_registrations():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    pay_status = request.args.get('pay_status', '')
     reg_status = request.args.get('reg_status', '')
-    q = Registration.query
+    # Show both Paid (Approved) and Rejected (Declined) registrations
+    q = Registration.query.filter(
+        db.or_(
+            Registration.payment_status == 'Paid',
+            Registration.reg_status == 'Rejected'
+        )
+    )
     if search:
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%'),
                              Registration.reg_id.ilike(f'%{search}%')))
-    if pay_status:
-        q = q.filter_by(payment_status=pay_status)
     if reg_status:
         q = q.filter_by(reg_status=reg_status)
     pagination = q.order_by(Registration.id.desc()).paginate(page=page, per_page=10)
     return render_template('admin/registrations.html', pagination=pagination,
-                           search=search, pay_status=pay_status, reg_status=reg_status, config=app.config)
+                           search=search, reg_status=reg_status, config=app.config)
+
+# ─── ADMIN REQUESTS (Pending payment transactions) ────────────────────────────
+@app.route('/admin/requests')
+@login_required
+def admin_requests():
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    # Only show Pending payment registrations
+    q = Registration.query.filter_by(payment_status='Pending')
+    if search:
+        q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
+                             Registration.whatsapp.ilike(f'%{search}%'),
+                             Registration.reg_id.ilike(f'%{search}%')))
+    pending_count = q.count()
+    pagination = q.order_by(Registration.id.desc()).paginate(page=page, per_page=10)
+    return render_template('admin/requests.html', pagination=pagination,
+                           search=search, pending_count=pending_count, config=app.config)
+
+@app.route('/api/registrations/<int:rid>/approve', methods=['POST'])
+@login_required
+def approve_registration(rid):
+    reg = Registration.query.get_or_404(rid)
+    reg.payment_status = 'Paid'
+    reg.reg_status = 'Approved'
+    db.session.commit()
+    update_registrations_excel()
+    return jsonify({'success': True, 'message': 'Registration approved successfully'})
+
+@app.route('/api/registrations/<int:rid>/decline', methods=['POST'])
+@login_required
+def decline_registration(rid):
+    reg = Registration.query.get_or_404(rid)
+    reg.payment_status = 'Pending'
+    reg.reg_status = 'Rejected'
+    db.session.commit()
+    update_registrations_excel()
+    return jsonify({'success': True, 'message': 'Registration declined'})
 
 @app.route('/admin/registrations/export')
 @login_required

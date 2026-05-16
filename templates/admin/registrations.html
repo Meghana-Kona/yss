@@ -2,7 +2,7 @@
 {% block title %}Registrations – YSS Admin{% endblock %}
 {% block content %}
 <div class="admin-header">
-  <h1><i class="fa fa-users" style="color:var(--gold);margin-right:.5rem;"></i>Registrations</h1>
+  <h1><i class="fa fa-users" style="color:var(--gold);margin-right:.5rem;"></i>Registrations <small style="font-size:.6em;color:var(--muted);font-weight:400;">— Approved &amp; Declined</small></h1>
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
     <a href="{{ url_for('export_registrations') }}" class="btn btn-gold btn-sm"><i class="fa fa-file-excel"></i> Download Excel</a>
     <a href="{{ url_for('export_registrations_pdf') }}" class="btn btn-primary btn-sm"><i class="fa fa-file-pdf"></i> Download PDF</a>
@@ -17,16 +17,10 @@
       <span class="si"><i class="fa fa-search"></i></span>
       <input type="text" name="search" placeholder="Search by name, mobile number..." value="{{ search }}">
     </div>
-    <select name="pay_status" class="filter-select" onchange="this.form.submit()">
-      <option value="">Payment Status: All</option>
-      <option value="Pending" {% if pay_status=='Pending' %}selected{% endif %}>Pending</option>
-      <option value="Paid" {% if pay_status=='Paid' %}selected{% endif %}>Paid</option>
-    </select>
     <select name="reg_status" class="filter-select" onchange="this.form.submit()">
-      <option value="">Reg Status: All</option>
-      <option value="Pending" {% if reg_status=='Pending' %}selected{% endif %}>Pending</option>
-      <option value="Approved" {% if reg_status=='Approved' %}selected{% endif %}>Approved</option>
-      <option value="Rejected" {% if reg_status=='Rejected' %}selected{% endif %}>Rejected</option>
+      <option value="">Status: All</option>
+      <option value="Approved" {% if reg_status=='Approved' %}selected{% endif %}>✅ Approved</option>
+      <option value="Rejected" {% if reg_status=='Rejected' %}selected{% endif %}>❌ Declined</option>
     </select>
     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
   </form>
@@ -81,17 +75,31 @@
         <td>{{ r.created_at.strftime('%d %b %Y, %I:%M %p') if r.created_at else '' }}</td>
         <td>{{ r.payment_mode }}</td>
         <td>
-          <select class="filter-select" style="font-size:.75rem;padding:.2rem .5rem;" onchange="updateReg({{ r.id }}, 'payment_status', this.value)">
-            <option value="Pending" {% if r.payment_status=='Pending' %}selected{% endif %}>Pending</option>
-            <option value="Paid" {% if r.payment_status=='Paid' %}selected{% endif %}>Paid</option>
-          </select>
+          <span style="
+            display:inline-block;
+            padding:.25rem .65rem;
+            border-radius:999px;
+            font-size:.75rem;
+            font-weight:700;
+            background:#E8F5E9;
+            color:#2E7D32;
+            border:1px solid #A5D6A7;
+          "><i class="fa fa-check-circle" style="margin-right:.3rem;"></i>Paid</span>
         </td>
         <td>
-          <select class="filter-select" style="font-size:.75rem;padding:.2rem .5rem;" onchange="updateReg({{ r.id }}, 'reg_status', this.value)">
-            <option value="Pending" {% if r.reg_status=='Pending' %}selected{% endif %}>Pending</option>
-            <option value="Approved" {% if r.reg_status=='Approved' %}selected{% endif %}>Approved</option>
-            <option value="Rejected" {% if r.reg_status=='Rejected' %}selected{% endif %}>Rejected</option>
-          </select>
+          {% if r.reg_status == 'Approved' %}
+          <span style="display:inline-block;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7;">
+            <i class="fa fa-check-circle" style="margin-right:.3rem;"></i>Approved
+          </span>
+          {% elif r.reg_status == 'Rejected' %}
+          <span style="display:inline-block;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A;">
+            <i class="fa fa-times-circle" style="margin-right:.3rem;"></i>Rejected
+          </span>
+          {% else %}
+          <span style="display:inline-block;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;background:#FFF8E1;color:#F57F17;border:1px solid #FFE082;">
+            <i class="fa fa-clock" style="margin-right:.3rem;"></i>{{ r.reg_status }}
+          </span>
+          {% endif %}
         </td>
         <td>
           <div class="action-btns">
@@ -111,21 +119,31 @@
     Showing {{ (pagination.page-1)*10+1 }} to {{ [(pagination.page-1)*10+10, pagination.total]|min }} of {{ pagination.total }} entries
   </div>
   {% else %}
-  <div class="empty-state"><div class="empty-icon">📋</div><h3>No Registrations Found</h3><p>No records match your search.</p></div>
+  <div class="empty-state">
+    <div class="empty-icon">
+      {% if reg_status == 'Approved' %}✅{% elif reg_status == 'Rejected' %}❌{% else %}📋{% endif %}
+    </div>
+    <h3>No Registrations Found</h3>
+    <p>
+      {% if reg_status == 'Approved' %}No approved registrations match your search.
+      {% elif reg_status == 'Rejected' %}No declined registrations match your search.
+      {% else %}No records match your search criteria.{% endif %}
+    </p>
+  </div>
   {% endif %}
 
   <!-- PAGINATION -->
   {% if pagination.pages > 1 %}
   <div class="pagination">
-    <a href="?page={{ pagination.prev_num }}&search={{ search }}&pay_status={{ pay_status }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_prev %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-left"></i></a>
+    <a href="?page={{ pagination.prev_num }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_prev %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-left"></i></a>
     {% for p in pagination.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
       {% if p %}
-        <a href="?page={{ p }}&search={{ search }}&pay_status={{ pay_status }}&reg_status={{ reg_status }}" class="page-btn {% if p==pagination.page %}active{% endif %}">{{ p }}</a>
+        <a href="?page={{ p }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn {% if p==pagination.page %}active{% endif %}">{{ p }}</a>
       {% else %}
         <span class="page-btn" style="border:none;">…</span>
       {% endif %}
     {% endfor %}
-    <a href="?page={{ pagination.next_num }}&search={{ search }}&pay_status={{ pay_status }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_next %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-right"></i></a>
+    <a href="?page={{ pagination.next_num }}&search={{ search }}&reg_status={{ reg_status }}" class="page-btn" {% if not pagination.has_next %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-right"></i></a>
   </div>
   {% endif %}
 </div>
