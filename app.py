@@ -437,6 +437,11 @@ def registration():
                 existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
                 if existing_txn:
                     errors.append('This Transaction ID has already been submitted.')
+                    
+            if lesson_no and lesson_no.upper() not in ['0', '00', '000', '0000', '00000', 'NA', 'N/A', '-', 'ADMIN', 'NONE', '']:
+                existing_lesson = Registration.query.filter(Registration.lesson_no.ilike(lesson_no)).first()
+                if existing_lesson:
+                    errors.append(f'Lesson Number {lesson_no} is already registered.')
 
         if errors:
             for e in errors:
@@ -645,6 +650,98 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 
+
+# ─── ADMIN REGISTRATIONS ──────────────────────────────────────────────────────
+@app.route('/admin/add-registration', methods=['GET', 'POST'])
+@login_required
+def admin_add_registration():
+    if request.method == 'POST':
+        errors = []
+        lesson_no = request.form.get('lesson_no', '').strip()
+        full_name = request.form.get('full_name', '').strip()
+        gender = request.form.get('gender', '').strip()
+        age = request.form.get('age', '').strip()
+        place = request.form.get('place', '').strip()
+        state = request.form.get('state', '').strip()
+        email = request.form.get('email', '').strip()
+        country_code = request.form.get('country_code', '+91')
+        whatsapp = request.form.get('whatsapp', '').strip()
+        is_kriyaban = request.form.get('is_kriyaban') == 'yes'
+        accommodation = request.form.get('accommodation') == 'yes'
+        volunteer = request.form.get('volunteer') == 'yes'
+        arrival_date = request.form.get('arrival_date', '').strip()
+        departure_date = request.form.get('departure_date', '').strip()
+        payment_mode = request.form.get('payment_mode', '').strip()
+        transaction_id = request.form.get('transaction_id', '').strip()
+        
+        screenshot_filename = None
+        file = request.files.get('payment_screenshot')
+        if file and file.filename != '':
+            import werkzeug.utils, uuid
+            filename = werkzeug.utils.secure_filename(file.filename)
+            file_ext = os.path.splitext(filename)[1]
+            new_filename = f"screenshot_{uuid.uuid4().hex[:8]}{file_ext}"
+            uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            file.save(os.path.join(uploads_dir, new_filename))
+            screenshot_filename = new_filename
+
+        if not lesson_no: errors.append('Lesson Number is required.')
+        if not full_name: errors.append('Full Name is required.')
+        if not gender: errors.append('Gender is required.')
+        if not age or not age.isdigit(): errors.append('Valid Age is required.')
+        if not place: errors.append('City/Village/Town is required.')
+        if not state: errors.append('State is required.')
+        if not whatsapp or not whatsapp.isdigit() or len(whatsapp) != 10: errors.append('WhatsApp Number must be exactly 10 digits.')
+        if not arrival_date: errors.append('Date of Arrival is required.')
+        if not departure_date: errors.append('Date of Departure is required.')
+        if not payment_mode: errors.append('Payment Mode is required.')
+
+        if not errors:
+            existing_reg = Registration.query.filter(Registration.full_name.ilike(full_name), Registration.whatsapp == whatsapp).first()
+            if existing_reg:
+                errors.append('A registration with this Name and Mobile number already exists.')
+                
+            if payment_mode == 'UPI' and transaction_id:
+                existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
+                if existing_txn:
+                    errors.append('This Transaction ID has already been submitted.')
+                    
+            if lesson_no and lesson_no.upper() not in ['0', '00', '000', '0000', '00000', 'NA', 'N/A', '-', 'ADMIN', 'NONE', '']:
+                existing_lesson = Registration.query.filter(Registration.lesson_no.ilike(lesson_no)).first()
+                if existing_lesson:
+                    errors.append(f'Lesson Number {lesson_no} is already registered.')
+
+        if errors:
+            for e in errors:
+                flash(e, 'error')
+            return render_template('admin/add_registration.html', config=app.config, form=request.form)
+
+        base_fee = 1800
+        acc_fee = 1000 if accommodation else 0
+        total_amount = base_fee + acc_fee
+
+        reg = Registration(
+            lesson_no=lesson_no, full_name=full_name, gender=gender,
+            age=int(age), place=place, state=state, email=email, country_code=country_code, whatsapp=whatsapp,
+            is_kriyaban=is_kriyaban, accommodation=accommodation,
+            volunteer=volunteer, arrival_date=arrival_date,
+            departure_date=departure_date, payment_mode=payment_mode,
+            amount=total_amount,
+            transaction_id=transaction_id, payment_screenshot=screenshot_filename,
+            payment_status='Paid' if payment_mode == 'Cash' or transaction_id else 'Pending',
+            reg_status='Approved' if payment_mode == 'Cash' or transaction_id else 'Pending',
+            notified=True if email and (payment_mode == 'Cash' or transaction_id) else False
+        )
+        db.session.add(reg)
+        db.session.commit()
+        update_registrations_excel()
+        if email and reg.payment_status == 'Paid':
+            send_registration_email(reg)
+        flash('Participant added successfully.', 'success')
+        return redirect(url_for('admin_registrations'))
+
+    return render_template('admin/add_registration.html', config=app.config, form={})
 
 # ─── ADMIN REGISTRATIONS ──────────────────────────────────────────────────────
 @app.route('/admin/registrations')
