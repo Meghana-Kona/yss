@@ -23,6 +23,10 @@ class Config:
     # Fallback to local SQLite if DATABASE_URL is not set
     SQLALCHEMY_DATABASE_URI = database_url or f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'database.db')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
     EXPORTS_DIR = os.path.join(BASE_DIR, 'exports')
 
     # Flask-Mail config
