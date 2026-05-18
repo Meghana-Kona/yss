@@ -44,4 +44,4 @@ class Config:
 
     # Admin defaults
     ADMIN_EMAIL = 'ravitejakv777@gmail.com'
-    ADMIN_PASSWORD = 'YSS@Ravi2026'
+    ADMIN_PASSWORD = 'yssatp2026'

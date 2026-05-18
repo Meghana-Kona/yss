@@ -80,10 +80,11 @@ def seed_data():
         db.session.add(admin)
         db.session.commit()
     else:
-        # Force update existing main admin mobile in database on launch
+        # Force update existing main admin details in database on launch
         main_admin = Admin.query.filter_by(is_main_admin=True).first()
-        if main_admin and main_admin.mobile != '9441665181':
+        if main_admin:
             main_admin.mobile = '9441665181'
+            main_admin.set_password(app.config['ADMIN_PASSWORD'])
             db.session.commit()
 
     # Seed schedule
