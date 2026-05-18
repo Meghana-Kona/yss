@@ -761,6 +761,98 @@ def admin_add_registration():
 
     return render_template('admin/add_registration.html', config=app.config, form={})
 
+@app.route('/admin/edit-registration/<int:reg_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_registration(reg_id):
+    reg = Registration.query.get_or_404(reg_id)
+    
+    if request.method == 'POST':
+        errors = []
+        lesson_no = request.form.get('lesson_no', '').strip()
+        full_name = request.form.get('full_name', '').strip()
+        gender = request.form.get('gender', '').strip()
+        age = request.form.get('age', '').strip()
+        place = request.form.get('place', '').strip()
+        district = request.form.get('district', '').strip()
+        state = request.form.get('state', '').strip()
+        email = request.form.get('email', '').strip()
+        country_code = request.form.get('country_code', '+91')
+        whatsapp = request.form.get('whatsapp', '').strip()
+        is_kriyaban = request.form.get('is_kriyaban') == 'yes'
+        accommodation = request.form.get('accommodation') == 'yes'
+        volunteer = request.form.get('volunteer') == 'yes'
+        arrival_date = request.form.get('arrival_date', '').strip()
+        departure_date = request.form.get('departure_date', '').strip()
+        payment_mode = request.form.get('payment_mode', '').strip()
+        amount = request.form.get('amount', '').strip()
+        transaction_id = request.form.get('transaction_id', '').strip()
+        
+        file = request.files.get('payment_screenshot')
+        if file and file.filename != '':
+            import werkzeug.utils, uuid, os
+            filename = werkzeug.utils.secure_filename(file.filename)
+            file_ext = os.path.splitext(filename)[1]
+            new_filename = f"screenshot_{uuid.uuid4().hex[:8]}{file_ext}"
+            uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            file.save(os.path.join(uploads_dir, new_filename))
+            reg.payment_screenshot = new_filename
+
+        if not lesson_no: errors.append('Lesson Number is required.')
+        if not full_name: errors.append('Full Name is required.')
+        if not gender: errors.append('Gender is required.')
+        if not age or not age.isdigit(): errors.append('Valid Age is required.')
+        if not place: errors.append('City/Village/Town is required.')
+        if not state: errors.append('State is required.')
+        if not whatsapp or not whatsapp.isdigit() or len(whatsapp) != 10: errors.append('WhatsApp Number must be exactly 10 digits.')
+        if not arrival_date: errors.append('Date of Arrival is required.')
+        if not departure_date: errors.append('Date of Departure is required.')
+        if not payment_mode: errors.append('Payment Mode is required.')
+        if not amount or not amount.isdigit(): errors.append('Valid Amount is required.')
+
+        if not errors:
+            if lesson_no != reg.lesson_no and lesson_no.upper() not in ['0', '00', '000', '0000', '00000', 'NA', 'N/A', '-', 'ADMIN', 'NONE', '']:
+                existing_lesson = Registration.query.filter(Registration.lesson_no.ilike(lesson_no)).first()
+                if existing_lesson:
+                    errors.append(f'Lesson Number {lesson_no} is already registered.')
+            
+            if transaction_id and transaction_id != reg.transaction_id and payment_mode == 'UPI':
+                existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
+                if existing_txn:
+                    errors.append('This Transaction ID has already been submitted.')
+
+        if errors:
+            for e in errors:
+                flash(e, 'error')
+            return render_template('admin/edit_registration.html', config=app.config, form=request.form, reg=reg)
+
+        reg.lesson_no = lesson_no
+        reg.full_name = full_name
+        reg.gender = gender
+        reg.age = int(age)
+        reg.place = place
+        reg.district = district
+        reg.state = state
+        reg.email = email
+        reg.country_code = country_code
+        reg.whatsapp = whatsapp
+        reg.is_kriyaban = is_kriyaban
+        reg.accommodation = accommodation
+        reg.volunteer = volunteer
+        reg.arrival_date = arrival_date
+        reg.departure_date = departure_date
+        reg.payment_mode = payment_mode
+        reg.amount = int(amount)
+        if transaction_id:
+            reg.transaction_id = transaction_id
+            
+        db.session.commit()
+        update_registrations_excel()
+        flash('Participant updated successfully.', 'success')
+        return redirect(url_for('admin_registrations'))
+        
+    return render_template('admin/edit_registration.html', config=app.config, form={}, reg=reg)
+
 # ─── ADMIN REGISTRATIONS ──────────────────────────────────────────────────────
 @app.route('/admin/registrations')
 @login_required

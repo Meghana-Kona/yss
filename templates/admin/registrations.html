@@ -107,6 +107,7 @@
             <button onclick="showScreenshot('{{ url_for('static', filename='uploads/' + r.payment_screenshot) }}')" class="btn btn-outline btn-sm" title="View Screenshot"><i class="fa fa-eye"></i></button>
             {% endif %}
             <button onclick="showIDCard('{{ r.reg_id }}')" class="btn btn-outline btn-sm" title="View ID Card" style="border-color:var(--gold); color:var(--gold);"><i class="fa fa-id-card"></i></button>
+            <a href="{{ url_for('admin_edit_registration', reg_id=r.id) }}" class="btn btn-sm" style="background:#E3F2FD;color:#1565C0;border:none;" title="Edit"><i class="fa fa-edit"></i></a>
             <button onclick="confirmDelete({{ r.id }}, 'reg')" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;" title="Delete"><i class="fa fa-trash"></i></button>
           </div>
         </td>

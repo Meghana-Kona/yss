@@ -39,7 +39,6 @@
       </div>
       <div style="display:flex;align-items:center;gap:1rem;">
         <a href="{{ url_for('admin_login') }}" class="btn-admin"><i class="fa fa-user"></i> Admin Portal</a>
-        <button class="menu-toggle" id="menuToggle"><i class="fa fa-bars"></i></button>
       </div>
     </div>
     <div class="navbar-nav" id="navMenu">
@@ -96,6 +95,30 @@
 
   <script src="{{ url_for('static',filename='js/main.js') }}"></script>
   {% block extra_js %}{% endblock %}
+  
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-bottom-nav">
+    <a href="{{ url_for('index') }}" class="mobile-nav-item {% if request.endpoint=='index' %}active{% endif %}">
+      <i class="fa fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="{{ url_for('schedule') }}" class="mobile-nav-item {% if request.endpoint=='schedule' %}active{% endif %}">
+      <i class="fa fa-calendar-alt"></i>
+      <span>Schedule</span>
+    </a>
+    <a href="{{ url_for('registration') }}" class="mobile-nav-item {% if request.endpoint=='registration' %}active{% endif %}">
+      <i class="fa fa-user-plus"></i>
+      <span>Register</span>
+    </a>
+    <a href="{{ url_for('donation') }}" class="mobile-nav-item {% if request.endpoint=='donation' %}active{% endif %}">
+      <i class="fa fa-heart"></i>
+      <span>Donate</span>
+    </a>
+    <a href="{{ url_for('about') }}" class="mobile-nav-item {% if request.endpoint in ['about', 'contact'] %}active{% endif %}">
+      <i class="fa fa-info-circle"></i>
+      <span>Info</span>
+    </a>
+  </nav>
 </body>
 
 </html>
