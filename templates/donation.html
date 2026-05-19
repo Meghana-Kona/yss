@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (amountInput && upiBtn) {
     const updateLink = () => {
       const amt = amountInput.value || 0;
-      upiBtn.href = `upi://pay?pa=yourupi@oksbi&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
+      upiBtn.href = `upi://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
     };
     amountInput.addEventListener('input', updateLink);
     updateLink();
