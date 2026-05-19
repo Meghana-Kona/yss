@@ -45,7 +45,7 @@ class Config:
     EVENT_NAME = '3-Day Spiritual Program – Anantapur'
     EVENT_DATES = '24 – 26 July 2026'
     EVENT_DATE_RANGE = 'July 24, 25, 26 – 2026'
-    EVENT_VENUE = 'Krishna Kala Mandir, Anantapur, Andhra Pradesh'
+    EVENT_VENUE = 'Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh'
     EVENT_CONTACT_EMAIL = 'anantapur@ysscenters.org'
     EVENT_CONTACT_MOBILE = '9441665181'
     EVENT_MAPS_URL = 'https://maps.app.goo.gl/WQxUo86SVYtabmMP9'

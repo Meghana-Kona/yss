@@ -402,7 +402,7 @@ def send_member_whatsapp(reg):
         f"Accommodation: {'Yes' if reg.accommodation else 'No'}\n\n"
         f"Program Details:\n\n"
         f"Event: 3-Day Spiritual Program Anantapur\n"
-        f"Venue: Krishna Kala Mandir, near Clock Tower, Kamalanagar, Anantapur, Andhra Pradesh 515001\n"
+        f"Venue: Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh\n"
         f"Dates: June 24-26, 2026\n"
         f"Venue Location: https://www.google.com/maps/place/MHJW%2BQGV+Krishna+Kala+Mandir,+near+Clock+Tower,+Kamalanagar,+Anantapur,+Andhra+Pradesh+515001/\n\n"
         f"May this sacred gathering fill your heart with peace, devotion, positivity, and spiritual upliftment. We sincerely thank you for choosing to be part of this divine journey.\n\n"
