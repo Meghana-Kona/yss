@@ -888,8 +888,8 @@ def admin_registrations():
     ).count()
     approved_devotees = Registration.query.filter_by(reg_status='Approved').count()
     collected_amount = db.session.query(db.func.sum(Registration.amount)).filter(Registration.payment_status == 'Paid').scalar() or 0
-    total_reg_fee = Registration.query.filter(Registration.payment_status == 'Paid').count() * 100
-    total_acco_fee = Registration.query.filter(Registration.payment_status == 'Paid', Registration.accommodation == True).count() * 300
+    total_reg_fee = Registration.query.filter(Registration.payment_status == 'Paid').count() * 1800
+    total_acco_fee = Registration.query.filter(Registration.payment_status == 'Paid', Registration.accommodation == True).count() * 1000
     
     stats = {
         'total_registered': total_registered,
