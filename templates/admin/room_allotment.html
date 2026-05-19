@@ -13,6 +13,19 @@
   </div>
 </div>
 
+<style>
+  @media(max-width: 768px) {
+    .room-allotment-container {
+      grid-template-columns: 1fr !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+    .attendees-pane {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+  }
+</style>
 <div class="room-allotment-container" style="display:grid; grid-template-columns: 1fr 2fr; gap: 2rem; height: calc(100vh - 120px); overflow: hidden;">
   
   <!-- LEFT PANE: Attendees -->

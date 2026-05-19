@@ -1150,16 +1150,17 @@ def api_donation(did):
 def admin_id_cards():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    reg_status = request.args.get('reg_status', '')
-    q = Registration.query
+    
+    # Only show approved participants in ID cards section
+    q = Registration.query.filter_by(reg_status='Approved')
+    
     if search:
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%')))
-    if reg_status:
-        q = q.filter_by(reg_status=reg_status)
+                             
     pagination = q.order_by(Registration.id).paginate(page=page, per_page=8)
     return render_template('admin/id_cards.html', pagination=pagination,
-                           search=search, reg_status=reg_status, config=app.config)
+                           search=search, config=app.config)
 
 # ─── ADMIN ROOM ALLOTMENT ────────────────────────────────────────────────────
 @app.route('/admin/room-allotment')
