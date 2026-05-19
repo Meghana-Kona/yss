@@ -12,6 +12,18 @@
   </div>
 </div>
 
+<!-- STATS DASHBOARD -->
+<div class="stat-cards" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  <div class="stat-card" style="border-top-color: var(--primary);">
+    <div class="stat-num">{{ stats.total_donations }}</div>
+    <div class="stat-label"><i class="fa fa-heart" style="color:var(--primary); margin-right:0.3rem;"></i>Total Donations</div>
+  </div>
+  <div class="stat-card" style="border-top-color: var(--gold);">
+    <div class="stat-num" style="color:var(--gold);">₹{{ stats.donated_amount|int }}</div>
+    <div class="stat-label"><i class="fa fa-indian-rupee-sign" style="color:var(--gold); margin-right:0.3rem;"></i>Donated Amount</div>
+  </div>
+</div>
+
 <div class="table-card">
   <form method="GET" class="table-toolbar">
     <div class="search-box">

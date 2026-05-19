@@ -11,6 +11,34 @@
   </div>
 </div>
 
+<!-- STATS DASHBOARD -->
+<div class="stat-cards" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <div class="stat-card" style="border-top-color: var(--primary);">
+    <div class="stat-num">{{ stats.total_registered }}</div>
+    <div class="stat-label"><i class="fa fa-users" style="color:var(--primary); margin-right:0.3rem;"></i>Total Registered</div>
+  </div>
+  <div class="stat-card" style="border-top-color: #F57F17;">
+    <div class="stat-num" style="color:#F57F17;">{{ stats.approval_pending }}</div>
+    <div class="stat-label"><i class="fa fa-clock" style="color:#F57F17; margin-right:0.3rem;"></i>Approval Pending</div>
+  </div>
+  <div class="stat-card" style="border-top-color: #2E7D32;">
+    <div class="stat-num" style="color:#2E7D32;">{{ stats.approved_devotees }}</div>
+    <div class="stat-label"><i class="fa fa-check-circle" style="color:#2E7D32; margin-right:0.3rem;"></i>Approved Devotees</div>
+  </div>
+  <div class="stat-card" style="border-top-color: var(--gold);">
+    <div class="stat-num" style="color:var(--gold);">₹{{ stats.collected_amount|int }}</div>
+    <div class="stat-label"><i class="fa fa-indian-rupee-sign" style="color:var(--gold); margin-right:0.3rem;"></i>Collected Amount</div>
+  </div>
+  <div class="stat-card" style="border-top-color: #1565C0;">
+    <div class="stat-num" style="color:#1565C0;">₹{{ stats.total_reg_fee|int }}</div>
+    <div class="stat-label"><i class="fa fa-ticket" style="color:#1565C0; margin-right:0.3rem;"></i>Registration Fees</div>
+  </div>
+  <div class="stat-card" style="border-top-color: #6A1B9A;">
+    <div class="stat-num" style="color:#6A1B9A;">₹{{ stats.total_acco_fee|int }}</div>
+    <div class="stat-label"><i class="fa fa-hotel" style="color:#6A1B9A; margin-right:0.3rem;"></i>Accommodation Fees</div>
+  </div>
+</div>
+
 <div class="table-card">
   <form method="GET" class="table-toolbar">
     <div class="search-box">

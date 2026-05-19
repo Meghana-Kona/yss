@@ -878,8 +878,30 @@ def admin_registrations():
     if reg_status:
         q = q.filter_by(reg_status=reg_status)
     pagination = q.order_by(Registration.id.asc()).paginate(page=page, per_page=10)
+    
+    total_registered = Registration.query.count()
+    approval_pending = Registration.query.filter(
+        db.or_(
+            Registration.payment_status == 'Pending',
+            db.and_(Registration.reg_status == 'Approved', Registration.notified == False)
+        )
+    ).count()
+    approved_devotees = Registration.query.filter_by(reg_status='Approved').count()
+    collected_amount = db.session.query(db.func.sum(Registration.amount)).filter(Registration.payment_status == 'Paid').scalar() or 0
+    total_reg_fee = Registration.query.filter(Registration.payment_status == 'Paid').count() * 100
+    total_acco_fee = Registration.query.filter(Registration.payment_status == 'Paid', Registration.accommodation == True).count() * 300
+    
+    stats = {
+        'total_registered': total_registered,
+        'approval_pending': approval_pending,
+        'approved_devotees': approved_devotees,
+        'collected_amount': collected_amount,
+        'total_reg_fee': total_reg_fee,
+        'total_acco_fee': total_acco_fee
+    }
+    
     return render_template('admin/registrations.html', pagination=pagination,
-                           search=search, reg_status=reg_status, config=app.config)
+                           search=search, reg_status=reg_status, stats=stats, config=app.config)
 
 # ─── ADMIN REQUESTS (Pending payment transactions) ────────────────────────────
 @app.route('/admin/requests')
@@ -1074,8 +1096,17 @@ def admin_donations():
                              Donation.whatsapp.ilike(f'%{search}%'),
                              Donation.donation_id.ilike(f'%{search}%')))
     pagination = q.order_by(Donation.id.asc()).paginate(page=page, per_page=10)
+    
+    total_donations = Donation.query.filter_by(payment_status='Received').count()
+    donated_amount = db.session.query(db.func.sum(Donation.amount)).filter(Donation.payment_status == 'Received').scalar() or 0
+    
+    stats = {
+        'total_donations': total_donations,
+        'donated_amount': donated_amount
+    }
+    
     return render_template('admin/donations.html', pagination=pagination,
-                           search=search, config=app.config)
+                           search=search, stats=stats, config=app.config)
 
 @app.route('/admin/donation-requests')
 @login_required
