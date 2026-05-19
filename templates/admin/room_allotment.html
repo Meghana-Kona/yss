@@ -5,7 +5,7 @@
   <h1><i class="fa fa-bed" style="color:var(--gold);margin-right:.5rem;"></i>Room Allotment</h1>
   <div style="display:flex; gap:.5rem; align-items:center;">
     <form action="{{ url_for('admin_room_reset_notifications') }}" method="POST" onsubmit="return showCustomConfirm('Reset email notification flags for all allotments? This allows you to email everyone again.', this)" style="margin:0;">
-      <button type="submit" class="btn btn-outline btn-sm" style="border-color:var(--primary); color:var(--primary); display:flex; align-items:center; gap:.25rem;"><i class="fa fa-sync-alt"></i> Reset Email Flags</button>
+      <button type="submit" class="btn btn-outline btn-sm" style="border-color:var(--primary); color:var(--primary); display:flex; align-items:center; justify-content:center; padding:0.4rem 0.6rem;" title="Reset Email Flags"><i class="fa fa-sync-alt"></i></button>
     </form>
     <form action="{{ url_for('admin_room_notify') }}" method="POST" onsubmit="return showCustomConfirm('Send room allotment email notifications to all pending/changed attendees?', this)" style="margin:0;">
       <button type="submit" class="btn btn-primary btn-sm" style="background:var(--primary);"><i class="fa fa-paper-plane"></i> Notify All (Email)</button>
