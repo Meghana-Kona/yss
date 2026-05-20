@@ -51,6 +51,26 @@
       <option value="Approved" {% if reg_status=='Approved' %}selected{% endif %}>✅ Approved</option>
       <option value="Rejected" {% if reg_status=='Rejected' %}selected{% endif %}>❌ Declined</option>
     </select>
+    <select name="is_kriyaban" class="filter-select" onchange="this.form.submit()">
+      <option value="">Kriyaban: All</option>
+      <option value="true" {% if is_kriyaban=='true' %}selected{% endif %}>Kriyaban: Yes</option>
+      <option value="false" {% if is_kriyaban=='false' %}selected{% endif %}>Kriyaban: No</option>
+    </select>
+    <select name="accommodation" class="filter-select" onchange="this.form.submit()">
+      <option value="">Accommodation: All</option>
+      <option value="true" {% if accommodation=='true' %}selected{% endif %}>Accommodation: Yes</option>
+      <option value="false" {% if accommodation=='false' %}selected{% endif %}>Accommodation: No</option>
+    </select>
+    <select name="notified" class="filter-select" onchange="this.form.submit()">
+      <option value="">Notified: All</option>
+      <option value="true" {% if notified=='true' %}selected{% endif %}>Notified: Yes</option>
+      <option value="false" {% if notified=='false' %}selected{% endif %}>Notified: No</option>
+    </select>
+    <select name="payment_mode" class="filter-select" onchange="this.form.submit()">
+      <option value="">Payment Mode: All</option>
+      <option value="Cash" {% if payment_mode=='Cash' %}selected{% endif %}>Cash</option>
+      <option value="UPI" {% if payment_mode=='UPI' %}selected{% endif %}>UPI</option>
+    </select>
     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
   </form>
 

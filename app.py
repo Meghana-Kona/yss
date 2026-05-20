@@ -928,6 +928,11 @@ def admin_registrations():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     reg_status = request.args.get('reg_status', '')
+    is_kriyaban = request.args.get('is_kriyaban', '')
+    accommodation = request.args.get('accommodation', '')
+    notified = request.args.get('notified', '')
+    payment_mode = request.args.get('payment_mode', '')
+
     # Show both Approved and Rejected registrations regardless of notification status
     q = Registration.query.filter(Registration.reg_status.in_(['Approved', 'Rejected']))
     if search:
@@ -936,6 +941,21 @@ def admin_registrations():
                              Registration.reg_id.ilike(f'%{search}%')))
     if reg_status:
         q = q.filter_by(reg_status=reg_status)
+    if is_kriyaban == 'true':
+        q = q.filter_by(is_kriyaban=True)
+    elif is_kriyaban == 'false':
+        q = q.filter_by(is_kriyaban=False)
+    if accommodation == 'true':
+        q = q.filter_by(accommodation=True)
+    elif accommodation == 'false':
+        q = q.filter_by(accommodation=False)
+    if notified == 'true':
+        q = q.filter_by(notified=True)
+    elif notified == 'false':
+        q = q.filter_by(notified=False)
+    if payment_mode:
+        q = q.filter_by(payment_mode=payment_mode)
+
     registrations = q.order_by(Registration.id.asc()).all()
     
     total_registered = Registration.query.count()
@@ -955,7 +975,10 @@ def admin_registrations():
     }
     
     return render_template('admin/registrations.html', registrations=registrations,
-                           search=search, reg_status=reg_status, stats=stats, config=app.config)
+                           search=search, reg_status=reg_status,
+                           is_kriyaban=is_kriyaban, accommodation=accommodation,
+                           notified=notified, payment_mode=payment_mode,
+                           stats=stats, config=app.config)
 
 # ─── ADMIN REQUESTS (Pending payment transactions) ────────────────────────────
 @app.route('/admin/requests')

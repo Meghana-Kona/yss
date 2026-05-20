@@ -107,14 +107,7 @@
                 {% endif %}
               {% endfor %}
               {% set wa_msg = "Dear " ~ a.full_name ~ ",\n\nWith divine blessings, we are happy to inform you that your accommodation has been successfully allotted for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\nAccommodation Details:\n\nName: " ~ a.full_name ~ "\nRoom Number: " ~ room_info.name ~ "\nNumber of Members: " ~ room_capacity_text ~ "\nCheck-In Date: " ~ checkin ~ "\nCheck-Out Date: " ~ checkout ~ "\n\nWe kindly request you to carry your registration confirmation during your visit and maintain the peaceful and spiritual atmosphere throughout the program.\n\nMay this sacred gathering bring peace, devotion, joy, and spiritual upliftment into your life.\n\nWe look forward to welcoming you with love and prayers.\n\nJai Guru" %}
-              <a href="https://wa.me/91{{ a.whatsapp }}?text={{ wa_msg|urlencode }}" 
-                 target="_blank" 
-                 onclick="markIndividualWhatsApp({{ a.id }})" 
-                 class="btn btn-sm" 
-                 style="padding:.3rem .5rem; font-size:.75rem; background:#25D366; color:#fff; border:none; border-radius:4px; display:inline-flex; align-items:center; gap:.25rem; text-decoration:none;" 
-                 title="Send WhatsApp">
-                <i class="fab fa-whatsapp"></i> Notify
-              </a>
+
               <form action="{{ url_for('admin_room_unallot') }}" method="POST" onsubmit="return showCustomConfirm('Remove allotment for {{ a.full_name }}?', this)" style="margin:0;">
                 <input type="hidden" name="registration_id" value="{{ a.id }}">
                 <button type="submit" class="btn btn-outline btn-sm" style="padding:.3rem .5rem; font-size:.75rem; border-color:#C62828; color:#C62828;"><i class="fa fa-times"></i></button>
