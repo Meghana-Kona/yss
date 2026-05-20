@@ -1,3 +1,7 @@
+// Polyfill global crypto for older Node versions if needed
+if (!global.crypto) {
+    global.crypto = require('crypto');
+}
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const express = require('express');
 const qrcode = require('qrcode');
