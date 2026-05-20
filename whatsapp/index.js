@@ -2,7 +2,7 @@
 if (!global.crypto) {
     global.crypto = require('crypto');
 }
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestWaWebVersion } = require('@whiskeysockets/baileys');
 const express = require('express');
 const qrcode = require('qrcode');
 const pino = require('pino');
@@ -20,10 +20,22 @@ async function connectToWhatsApp() {
     const authFolder = path.join(__dirname, 'auth_info_baileys');
     const { state, saveCreds } = await useMultiFileAuthState(authFolder);
     
+    let version = [2, 3000, 1017531287]; // Fallback stable version
+    try {
+        const { version: latestVersion, isLatest } = await fetchLatestWaWebVersion();
+        console.log(`Fetched latest WA Web version: ${latestVersion.join('.')}. Is latest: ${isLatest}`);
+        version = latestVersion;
+    } catch (err) {
+        console.log('Failed to fetch latest WA version, using fallback stable version. Error: ', err.message);
+    }
+    
     sock = makeWASocket({
+        version,
         auth: state,
         logger: pino({ level: 'silent' }), // Hide noisy debug logs
-        printQRInTerminal: true
+        browser: ['Chrome (Windows)', 'Chrome', '110.0.5481.177'],
+        defaultQueryTimeoutMs: 60000,
+        connectTimeoutMs: 60000
     });
     
     sock.ev.on('creds.update', saveCreds);
@@ -41,12 +53,20 @@ async function connectToWhatsApp() {
         }
         
         if (connection === 'close') {
-            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Connection closed due to: ', lastDisconnect?.error?.message || lastDisconnect?.error, '. Reconnecting: ', shouldReconnect);
+            const statusCode = lastDisconnect?.error?.output?.statusCode;
+            const errorReason = lastDisconnect?.error?.message || lastDisconnect?.error;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            
+            console.log(`Connection closed (Status ${statusCode}). Reason:`, errorReason);
+            if (lastDisconnect?.error) {
+                console.log('Full disconnect error stack:', lastDisconnect.error);
+            }
+            
             connectionStatus = 'Disconnected';
             qrCodeData = null;
             if (shouldReconnect) {
-                setTimeout(connectToWhatsApp, 5000); // Wait 5s before reconnecting
+                console.log('Attempting reconnection in 10 seconds...');
+                setTimeout(connectToWhatsApp, 10000); // 10s throttle
             }
         } else if (connection === 'open') {
             console.log('WhatsApp connection opened successfully!');
