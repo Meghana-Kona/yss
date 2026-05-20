@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline – YSS Anantapur</title>
+  <link rel="stylesheet" href="/static/css/style.css?v=1.0.3">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background-color: var(--cream);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1.5rem;
+      font-family: 'Outfit', sans-serif;
+      text-align: center;
+    }
+    .offline-card {
+      background: #fff;
+      border: 1px solid var(--light);
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow);
+    }
+    .logo-container {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      overflow: hidden;
+    }
+    .logo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+    }
+    p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: center;
+      background: var(--cream);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    .contact-item i {
+      color: var(--accent);
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-card">
+    <div class="logo-container">
+      <img src="/static/images/logo.png" alt="YSS Logo">
+    </div>
+    <h1>You are Offline</h1>
+    <p>It looks like you are not connected to the internet right now. Please check your network connection and try again.</p>
+    
+    <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text);">Need Immediate Assistance?</div>
+    <a href="tel:+919441665181" class="contact-item">
+      <i class="fa fa-phone"></i> +91 9441665181 (A Narsimhulu)
+    </a>
+    <a href="tel:+918019682209" class="contact-item">
+      <i class="fa fa-phone"></i> +91 8019682209 (K Suresh)
+    </a>
+
+    <button onclick="window.location.reload()" class="btn btn-primary">
+      <i class="fa fa-sync"></i> Retry Connection
+    </button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Group Photo Gallery – YSS Anantapur{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 4rem; margin-bottom: 5rem; min-height: 70vh;">
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <h1 style="font-family: 'Cinzel', serif; color: var(--primary); margin-bottom: 0.5rem;" data-i18n="Gallery">Group Photo Gallery</h1>
+    <p style="color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;" data-i18n="gallery_subtitle">
+      Cherished moments and spiritual gatherings from the 3-Day Spiritual Program at Anantapur.
+    </p>
+    <div style="width: 80px; height: 3px; background: var(--gold); margin: 1.5rem auto 0 auto; border-radius: 2px;"></div>
+  </div>
+
+  {% if not images %}
+    <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+      <i class="fa fa-images" style="font-size: 3.5rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.6;"></i>
+      <h3 style="font-family: 'Cinzel', serif; color: var(--primary); margin-bottom: 0.5rem;" data-i18n="no_photos_title">No Photos Uploaded Yet</h3>
+      <p style="color: var(--muted); max-width: 450px; margin: 0 auto;" data-i18n="no_photos_desc">
+        Photos will be uploaded by the administration panel after the event has concluded. Please check back soon!
+      </p>
+    </div>
+  {% else %}
+    <!-- Photo Grid -->
+    <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+      {% for img in images %}
+        <div class="gallery-card" onclick="openLightbox({{ loop.index0 }})" style="cursor: pointer; background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+          <div style="position: relative; padding-bottom: 75%; overflow: hidden; background: #eaeaea;">
+            <img src="{{ url_for('static', filename='uploads/gallery/' + img.filename) }}" alt="{{ img.caption or 'YSS Event Image' }}" style="position: absolute; inset:0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+            <div class="gallery-overlay" style="position: absolute; inset:0; background: rgba(204, 68, 20, 0.4); opacity: 0; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease;">
+              <i class="fa fa-search-plus" style="color: #fff; font-size: 2rem;"></i>
+            </div>
+          </div>
+          {% if img.caption %}
+            <div style="padding: 1rem; text-align: center;">
+              <p style="margin: 0; font-size: 0.95rem; color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ img.caption }}</p>
+              <span style="font-size: 0.75rem; color: var(--muted);">{{ img.uploaded_at.strftime('%d %b %Y') if img.uploaded_at else '' }}</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Pure JS Lightbox Modal -->
+<div id="lightboxModal" style="display: none; position: fixed; inset:0; z-index: 99999; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; user-select: none;">
+  <!-- Close Button -->
+  <button onclick="closeLightbox()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2.5rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">&times;</button>
+  
+  <!-- Left Navigation Arrow -->
+  <button onclick="prevLightboxImage()" style="position: absolute; left: 1.5rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+    <i class="fa fa-chevron-left"></i>
+  </button>
+  
+  <!-- Image Container -->
+  <div style="text-align: center; max-width: 85%; max-height: 80%;">
+    <img id="lightboxImage" src="" alt="Lightbox Zoom" style="max-width: 100%; max-height: 75vh; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); object-fit: contain;">
+    <div id="lightboxCaption" style="color: #fff; margin-top: 1.5rem; font-size: 1.2rem; font-family: 'Outfit', sans-serif;">Caption here</div>
+    <div id="lightboxIndex" style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">1 of 12</div>
+  </div>
+  
+  <!-- Right Navigation Arrow -->
+  <button onclick="nextLightboxImage()" style="position: absolute; right: 1.5rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+    <i class="fa fa-chevron-right"></i>
+  </button>
+</div>
+
+<style>
+.gallery-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(204,68,20,0.15) !important;
+  border-color: var(--primary) !important;
+}
+.gallery-card:hover img {
+  transform: scale(1.05);
+}
+.gallery-card:hover .gallery-overlay {
+  opacity: 1 !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load images list from backend template Context
+const galleryImages = [
+  {% for img in images %}
+    {
+      "src": "{{ url_for('static', filename='uploads/gallery/' + img.filename) }}",
+      "caption": "{{ img.caption|escape }}"
+    }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+let currentImageIndex = 0;
+
+function openLightbox(index) {
+  currentImageIndex = index;
+  const modal = document.getElementById('lightboxModal');
+  modal.style.display = 'flex';
+  updateLightbox();
+  document.body.style.overflow = 'hidden'; // Lock scrolling
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxModal').style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+function updateLightbox() {
+  const item = galleryImages[currentImageIndex];
+  if (!item) return;
+
+  document.getElementById('lightboxImage').src = item.src;
+  document.getElementById('lightboxCaption').textContent = item.caption || "YSS Anantapur Spiritual Program";
+  document.getElementById('lightboxIndex').textContent = `${currentImageIndex + 1} of ${galleryImages.length}`;
+}
+
+function prevLightboxImage() {
+  if (galleryImages.length === 0) return;
+  currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+  updateLightbox();
+}
+
+function nextLightboxImage() {
+  if (galleryImages.length === 0) return;
+  currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+  updateLightbox();
+}
+
+// Close on background click
+document.getElementById('lightboxModal').addEventListener('click', function(e) {
+  if (e.target === this || e.target.tagName === 'DIV') {
+    closeLightbox();
+  }
+});
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('lightboxModal').style.display === 'flex') {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') prevLightboxImage();
+    if (e.key === 'ArrowRight') nextLightboxImage();
+  }
+});
+</script>
+{% endblock %}

@@ -11,68 +11,67 @@
   <!-- Right Side: Scrollable Form (Wider) -->
   <div class="split-right" style="width:65%; padding:4rem 5rem; background:var(--cream);">
     <div class="form-card" style="box-shadow:none; padding:0; background:transparent; max-width:800px; margin:0 auto;">
-      <h2 class="form-title" style="text-align:left; color:var(--primary);">Registration Form</h2>
+      <h2 class="form-title" style="text-align:left; color:var(--primary);" data-i18n="reg_heading">Registration Form</h2>
       <div class="divider-ornament" style="text-align:left;">✦</div>
-      <p class="form-subtitle" style="text-align:left; margin-bottom:3rem; color:var(--muted);">Please fill in the details carefully to register for the 3-Day Spiritual Program.</p>
+      <p class="form-subtitle" style="text-align:left; margin-bottom:3rem; color:var(--muted);" data-i18n="reg_subtitle">Please fill in the details carefully to register for the 3-Day Spiritual Program.</p>
       
       <form method="POST" action="{{ url_for('registration') }}" id="regForm" enctype="multipart/form-data">
-        <!-- Form Content remains the same ... -->
         <div class="form-grid form-grid-2">
           <div class="form-group">
-            <label>Lesson No <span class="req">*</span></label>
-            <input type="text" name="lesson_no" class="form-control" placeholder="Enter lesson number" value="{{ form.get('lesson_no','') }}" required>
+            <label data-i18n="lesson_no_label">Lesson No *</label>
+            <input type="text" name="lesson_no" class="form-control" data-i18n-placeholder="lesson_no_placeholder" placeholder="Enter lesson number" value="{{ form.get('lesson_no','') }}" required>
           </div>
           <div class="form-group">
-            <label>Full Name <span class="req">*</span></label>
-            <input type="text" name="full_name" class="form-control" placeholder="Enter your full name" value="{{ form.get('full_name','') }}" required>
+            <label data-i18n="full_name_label">Full Name *</label>
+            <input type="text" name="full_name" class="form-control" data-i18n-placeholder="full_name_placeholder" placeholder="Enter your full name" value="{{ form.get('full_name','') }}" required>
           </div>
         </div>
         
         <div class="form-grid form-grid-3" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Gender <span class="req">*</span></label>
+            <label data-i18n="gender_label">Gender *</label>
             <select name="gender" class="form-control" required>
-              <option value="">-- Select Gender --</option>
-              <option value="Male" {% if form.get('gender')=='Male' %}selected{% endif %}>Male</option>
-              <option value="Female" {% if form.get('gender')=='Female' %}selected{% endif %}>Female</option>
-              <option value="Other" {% if form.get('gender')=='Other' %}selected{% endif %}>Other</option>
+              <option value="" data-i18n="select_gender">-- Select Gender --</option>
+              <option value="Male" data-i18n="male" {% if form.get('gender')=='Male' %}selected{% endif %}>Male</option>
+              <option value="Female" data-i18n="female" {% if form.get('gender')=='Female' %}selected{% endif %}>Female</option>
+              <option value="Other" data-i18n="other" {% if form.get('gender')=='Other' %}selected{% endif %}>Other</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Age <span class="req">*</span></label>
-            <input type="number" name="age" class="form-control" placeholder="Enter your age" value="{{ form.get('age','') }}" min="5" max="120" required>
+            <label data-i18n="age_label">Age *</label>
+            <input type="number" name="age" class="form-control" data-i18n-placeholder="age_placeholder" placeholder="Enter your age" value="{{ form.get('age','') }}" min="5" max="120" required>
           </div>
           <div class="form-group">
-            <label>City/Village/Town <span class="req">*</span></label>
-            <input type="text" name="place" class="form-control" placeholder="Enter city/village/town" value="{{ form.get('place','') }}" required>
+            <label data-i18n="city_label">City/Village/Town *</label>
+            <input type="text" name="place" class="form-control" data-i18n-placeholder="city_placeholder" placeholder="Enter city/village/town" value="{{ form.get('place','') }}" required>
           </div>
         </div>
         
         <div class="form-grid form-grid-3" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>District <span style="color:#888;font-weight:normal;font-size:0.85em;">(Optional)</span></label>
-            <input type="text" name="district" class="form-control" placeholder="Enter your district" value="{{ form.get('district','') }}">
+            <label data-i18n="district_label">District (Optional)</label>
+            <input type="text" name="district" class="form-control" data-i18n-placeholder="district_placeholder" placeholder="Enter your district" value="{{ form.get('district','') }}">
           </div>
           <div class="form-group">
-            <label>State <span class="req">*</span></label>
-            <input type="text" name="state" class="form-control" placeholder="Enter your state" value="{{ form.get('state','') }}" required>
+            <label data-i18n="state_label">State *</label>
+            <input type="text" name="state" class="form-control" data-i18n-placeholder="state_placeholder" placeholder="Enter your state" value="{{ form.get('state','') }}" required>
           </div>
           <div class="form-group">
-            <label>Email Address <span class="req">*</span></label>
-            <input type="email" name="email" class="form-control" placeholder="Enter your email" value="{{ form.get('email','') }}" required>
+            <label data-i18n="email_label">Email Address *</label>
+            <input type="email" name="email" class="form-control" data-i18n-placeholder="email_placeholder" placeholder="Enter your email" value="{{ form.get('email','') }}" required>
           </div>
         </div>
         
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Kriya <span class="req">*</span></label>
+            <label data-i18n="kriyaban_label">Kriya *</label>
             <div class="radio-group">
-              <label><input type="radio" name="is_kriyaban" value="yes" {% if form.get('is_kriyaban')=='yes' %}checked{% endif %}> Kriyaban</label>
-              <label><input type="radio" name="is_kriyaban" value="no" {% if form.get('is_kriyaban')=='no' %}checked{% endif %}> Non-Kriyaban</label>
+              <label><input type="radio" name="is_kriyaban" value="yes" {% if form.get('is_kriyaban')=='yes' %}checked{% endif %}><span data-i18n="kriyaban">Kriyaban</span></label>
+              <label><input type="radio" name="is_kriyaban" value="no" {% if form.get('is_kriyaban')=='no' %}checked{% endif %}><span data-i18n="non_kriyaban">Non-Kriyaban</span></label>
             </div>
           </div>
           <div class="form-group">
-            <label>WhatsApp No <span class="req">*</span></label>
+            <label data-i18n="whatsapp_label">WhatsApp No *</label>
             <div style="display:flex;gap:0.5rem;">
               <select name="country_code" class="form-control" style="width:auto;flex-shrink:0;">
                 <option value="+91" selected>+91 (IND)</option>
@@ -83,50 +82,50 @@
                 <option value="+65">+65 (SG)</option>
                 <option value="+60">+60 (MY)</option>
               </select>
-              <input type="tel" name="whatsapp" class="form-control" placeholder="10 digit number" value="{{ form.get('whatsapp','') }}" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required style="flex:1;">
+              <input type="tel" name="whatsapp" class="form-control" data-i18n-placeholder="whatsapp_placeholder" placeholder="10 digit number" value="{{ form.get('whatsapp','') }}" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required style="flex:1;">
             </div>
           </div>
         </div>
         
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Accommodation Required <span class="req">*</span></label>
+            <label data-i18n="accommodation_label">Accommodation Required *</label>
             <div class="radio-group">
-              <label><input type="radio" name="accommodation" value="yes" {% if form.get('accommodation')=='yes' %}checked{% endif %}> Yes</label>
-              <label><input type="radio" name="accommodation" value="no" {% if form.get('accommodation')=='no' %}checked{% endif %}> No</label>
+              <label><input type="radio" name="accommodation" value="yes" {% if form.get('accommodation')=='yes' %}checked{% endif %}><span data-i18n="yes">Yes</span></label>
+              <label><input type="radio" name="accommodation" value="no" {% if form.get('accommodation')=='no' %}checked{% endif %}><span data-i18n="no">No</span></label>
             </div>
           </div>
           <div class="form-group">
-            <label>Volunteer <span class="req">*</span></label>
+            <label data-i18n="volunteer_label">Volunteer *</label>
             <div class="radio-group">
-              <label><input type="radio" name="volunteer" value="yes" {% if form.get('volunteer')=='yes' %}checked{% endif %}> Yes</label>
-              <label><input type="radio" name="volunteer" value="no" {% if form.get('volunteer')=='no' %}checked{% endif %}> No</label>
+              <label><input type="radio" name="volunteer" value="yes" {% if form.get('volunteer')=='yes' %}checked{% endif %}><span data-i18n="yes">Yes</span></label>
+              <label><input type="radio" name="volunteer" value="no" {% if form.get('volunteer')=='no' %}checked{% endif %}><span data-i18n="no">No</span></label>
             </div>
           </div>
         </div>
         
         <div class="form-grid form-grid-3" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Date of Arrival <span class="req">*</span></label>
+            <label data-i18n="arrival_date_label">Date of Arrival *</label>
             <input type="date" name="arrival_date" class="form-control" value="{{ form.get('arrival_date','') }}" min="2026-07-23" max="2026-07-27" required>
           </div>
           <div class="form-group">
-            <label>Date of Departure <span class="req">*</span></label>
+            <label data-i18n="departure_date_label">Date of Departure *</label>
             <input type="date" name="departure_date" class="form-control" value="{{ form.get('departure_date','') }}" min="2026-07-23" max="2026-07-27" required>
           </div>
           <div class="form-group">
-            <label>Payment Mode <span class="req">*</span></label>
+            <label data-i18n="payment_mode_label">Payment Mode *</label>
             <input type="text" name="payment_mode" id="payment_mode" class="form-control" value="UPI" readonly style="background:#e9ecef; cursor:not-allowed; font-weight:700; color:var(--primary);">
           </div>
         </div>
 
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;" id="upi_fields">
           <div class="form-group">
-            <label>Transaction ID <span class="req">*</span></label>
-            <input type="text" name="transaction_id" id="transaction_id" class="form-control" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}">
+            <label data-i18n="transaction_id_label">Transaction ID *</label>
+            <input type="text" name="transaction_id" id="transaction_id" class="form-control" data-i18n-placeholder="transaction_id_placeholder" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}">
           </div>
           <div class="form-group">
-            <label>Upload Payment Screenshot <span class="req">*</span></label>
+            <label data-i18n="screenshot_label">Upload Payment Screenshot *</label>
             <input type="file" name="payment_screenshot" id="payment_screenshot" class="form-control" accept="image/*">
           </div>
         </div>
@@ -148,7 +147,7 @@
 
         <div class="form-note mt-3"><i class="fa fa-info-circle" style="color:var(--accent);"></i> All fields marked with <strong>*</strong> are mandatory.</div>
         <div style="margin-top:2rem;text-align:left;">
-          <button type="submit" class="btn btn-primary" style="padding:.9rem 3rem;font-size:1rem;">Submit Registration</button>
+          <button type="submit" class="btn btn-primary" style="padding:.9rem 3rem;font-size:1rem;" data-i18n="submit_reg_btn">Submit Registration</button>
         </div>
       </form>
     </div>

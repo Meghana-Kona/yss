@@ -4,73 +4,73 @@
 <section class="section">
   <div class="container">
     <div class="form-card">
-      <h2 class="form-title">Donation Form</h2>
+      <h2 class="form-title" data-i18n="don_heading">Donation Form</h2>
       <div class="divider-ornament">✦</div>
-      <p class="form-subtitle">Please fill in the details below to make a donation.</p>
+      <p class="form-subtitle" data-i18n="don_subtitle">Please fill in the details below to make a donation.</p>
       <form method="POST" action="{{ url_for('donation') }}" enctype="multipart/form-data">
         <div class="form-grid form-grid-2">
           <div class="form-group">
-            <label>Lesson No <span class="req">*</span></label>
-            <input type="text" name="lesson_no" class="form-control" placeholder="Enter lesson number e.g. 12345" value="{{ form.get('lesson_no','') }}" required>
+            <label data-i18n="lesson_no_label">Lesson No *</label>
+            <input type="text" name="lesson_no" class="form-control" data-i18n-placeholder="lesson_no_placeholder" placeholder="Enter lesson number e.g. 12345" value="{{ form.get('lesson_no','') }}" required>
           </div>
           <div class="form-group">
-            <label>Name <span class="req">*</span></label>
-            <input type="text" name="name" class="form-control" placeholder="Enter your full name" value="{{ form.get('name','') }}" required>
+            <label data-i18n="don_name_label">Name *</label>
+            <input type="text" name="name" class="form-control" data-i18n-placeholder="full_name_placeholder" placeholder="Enter your full name" value="{{ form.get('name','') }}" required>
           </div>
         </div>
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Age <span class="req">*</span></label>
-            <input type="number" name="age" class="form-control" placeholder="Enter your age" value="{{ form.get('age','') }}" required>
+            <label data-i18n="age_label">Age *</label>
+            <input type="number" name="age" class="form-control" data-i18n-placeholder="age_placeholder" placeholder="Enter your age" value="{{ form.get('age','') }}" required>
           </div>
           <div class="form-group">
-            <label>Place <span class="req">*</span></label>
-            <input type="text" name="place" class="form-control" placeholder="Enter your place" value="{{ form.get('place','') }}" required>
+            <label data-i18n="place_label">Place *</label>
+            <input type="text" name="place" class="form-control" data-i18n-placeholder="place_placeholder" placeholder="Enter your place" value="{{ form.get('place','') }}" required>
           </div>
         </div>
         <div class="form-group" style="margin-top:1.25rem;">
-          <label>WhatsApp Number <span class="req">*</span></label>
-          <input type="tel" name="whatsapp" class="form-control" placeholder="Enter 10 digit WhatsApp number" value="{{ form.get('whatsapp','') }}" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
+          <label data-i18n="don_whatsapp_label">WhatsApp Number *</label>
+          <input type="tel" name="whatsapp" class="form-control" data-i18n-placeholder="whatsapp_placeholder" placeholder="Enter 10 digit WhatsApp number" value="{{ form.get('whatsapp','') }}" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
         </div>
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Amount (₹) <span class="req">*</span></label>
-            <input type="number" name="amount" id="donation_amount" class="form-control" placeholder="Enter amount" value="{{ form.get('amount','') }}" min="1" required>
+            <label data-i18n="don_amount_label">Amount (₹) *</label>
+            <input type="number" name="amount" id="donation_amount" class="form-control" data-i18n-placeholder="amount_placeholder" placeholder="Enter amount" value="{{ form.get('amount','') }}" min="1" required>
           </div>
           <div class="form-group">
-            <label>Payment Mode <span class="req">*</span></label>
+            <label data-i18n="payment_mode_label">Payment Mode *</label>
             <select name="payment_mode" class="form-control" required>
-              <option value="">-- Select Payment Mode --</option>
-              <option value="UPI" {% if form.get('payment_mode')=='UPI' %}selected{% endif %}>UPI</option>
-              <option value="Cash" {% if form.get('payment_mode')=='Cash' %}selected{% endif %}>Cash</option>
+              <option value="" data-i18n="select_payment_mode">-- Select Payment Mode --</option>
+              <option value="UPI" data-i18n="payment_mode_upi" {% if form.get('payment_mode')=='UPI' %}selected{% endif %}>UPI</option>
+              <option value="Cash" data-i18n="payment_mode_cash" {% if form.get('payment_mode')=='Cash' %}selected{% endif %}>Cash</option>
             </select>
           </div>
         </div>
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label>Transaction ID <span class="req">*</span></label>
-            <input type="text" name="transaction_id" class="form-control" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}" required>
+            <label data-i18n="transaction_id_label">Transaction ID *</label>
+            <input type="text" name="transaction_id" class="form-control" data-i18n-placeholder="transaction_id_placeholder" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}" required>
           </div>
           <div class="form-group">
-            <label>Upload Payment Screenshot <span class="req">*</span></label>
+            <label data-i18n="screenshot_label">Upload Payment Screenshot *</label>
             <input type="file" name="payment_screenshot" class="form-control" accept="image/*" required>
           </div>
         </div>
         <div class="form-note mt-3"><i class="fa fa-info-circle" style="color:var(--accent);"></i> All fields marked with <strong>*</strong> are mandatory.</div>
         <div id="payment-details" style="background:var(--cream);padding:1.5rem;border-radius:8px;margin-top:2rem;text-align:center;">
-          <h3 style="color:var(--primary);margin-bottom:1rem;font-family:'Cinzel',serif;">Payment Details</h3>
+          <h3 style="color:var(--primary);margin-bottom:1rem;font-family:'Cinzel',serif;" data-i18n="payment_details_title">Payment Details</h3>
           <div style="margin-top:1.5rem;">
-            <p style="margin-bottom:0.5rem;font-weight:bold;">UPI Payment Details</p>
+            <p style="margin-bottom:0.5rem;font-weight:bold;" data-i18n="upi_payment_details">UPI Payment Details</p>
             <p style="margin-top:0.5rem;font-size:1.1rem;color:var(--primary);font-weight:bold;margin-bottom:1rem;">PhonePe / GPay Mobile Number: {{ config.EVENT_CONTACT_MOBILE }}</p>
-            <a id="upi-pay-btn" href="#" class="btn" style="display:inline-block; padding:0.85rem 2.5rem; background:#4CAF50; color:#fff; font-weight:bold; border-radius:6px; text-decoration:none;"><i class="fa fa-mobile-alt" style="margin-right:0.5rem;"></i> Pay Now (UPI)</a>
+            <a id="upi-pay-btn" href="#" class="btn" style="display:inline-block; padding:0.85rem 2.5rem; background:#4CAF50; color:#fff; font-weight:bold; border-radius:6px; text-decoration:none;" data-i18n="pay_now_btn"><i class="fa fa-mobile-alt" style="margin-right:0.5rem;"></i> Pay Now (UPI)</a>
             <div id="desktop-qr-container" style="display:none; margin-top:1.5rem;">
-              <p style="font-size:0.9rem; color:var(--muted); margin-bottom:0.5rem;">Scan this QR with any UPI app on your phone:</p>
+              <p style="font-size:0.9rem; color:var(--muted); margin-bottom:0.5rem;" data-i18n="scan_qr_text">Scan this QR with any UPI app on your phone:</p>
               <img id="desktop-qr-img" src="" alt="UPI QR Code" style="width:200px; height:200px; border:2px solid var(--gold); border-radius:8px; display:inline-block; background:#fff; padding:0.5rem;">
             </div>
           </div>
         </div>
         <div style="margin-top:2rem;text-align:center;">
-          <button type="submit" class="btn btn-primary" style="padding:.9rem 3rem;font-size:1rem;">Submit Donation</button>
+          <button type="submit" class="btn btn-primary" style="padding:.9rem 3rem;font-size:1rem;" data-i18n="submit_don_btn">Submit Donation</button>
         </div>
       </form>
     </div>

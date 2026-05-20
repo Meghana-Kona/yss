@@ -1,0 +1,24 @@
+{
+  "name": "YSS Anantapur 3-Day Spiritual Program",
+  "short_name": "YSS Anantapur",
+  "description": "Yogoda Satsanga Society of India - Anantapur event portal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF6EC",
+  "theme_color": "#CC4414",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

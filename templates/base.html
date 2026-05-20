@@ -7,8 +7,109 @@
   <title>{% block title %}YSS – 3-Day Spiritual Program Anantapur{% endblock %}</title>
   <meta name="description"
     content="{% block desc %}Yogoda Satsanga Society of India – 3-Day Spiritual Program at Anantapur, June 24-26 2026{% endblock %}">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#CC4414">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="YSS ATP">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.png') }}">
   <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}?v=1.0.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Dark Mode variables & overrides for user-facing pages */
+    body.dark-mode {
+      --cream: #121212;
+      --light: #1e1e1e;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --white: #1e1e1e;
+      background-color: #121212;
+      color: #e2e8f0;
+    }
+    body.dark-mode .navbar {
+      border-bottom: 1px solid #2d2d2d;
+    }
+    body.dark-mode .navbar-top {
+      background-color: #1a1a1a !important;
+    }
+    body.dark-mode .brand-text h1 {
+      color: #fff;
+    }
+    body.dark-mode .brand-text p {
+      color: var(--gold);
+    }
+    body.dark-mode .navbar-nav {
+      background-color: #262626 !important;
+    }
+    body.dark-mode .navbar-nav a {
+      color: #cbd5e1;
+    }
+    body.dark-mode .navbar-nav a:hover,
+    body.dark-mode .navbar-nav a.active {
+      background-color: #333;
+      color: var(--gold);
+    }
+    body.dark-mode .footer {
+      background-color: #1a1a1a !important;
+      border-top: 1px solid #2d2d2d;
+    }
+    body.dark-mode .footer h4 {
+      color: #fff;
+    }
+    body.dark-mode .footer-contact li {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode .footer-bottom {
+      border-top: 1px solid #2d2d2d;
+      color: #94a3b8;
+    }
+    body.dark-mode .card,
+    body.dark-mode .form-card,
+    body.dark-mode .reg-card,
+    body.dark-mode .reg-container,
+    body.dark-mode .donation-container {
+      background: #1e1e1e !important;
+      border-color: #2d2d2d !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #2d2d2d !important;
+      border-color: #404040 !important;
+      color: #fff !important;
+    }
+    body.dark-mode label {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode table {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode th {
+      background-color: #262626 !important;
+      color: #fff !important;
+    }
+    body.dark-mode td {
+      border-bottom-color: #2d2d2d !important;
+    }
+    body.dark-mode #countdown div {
+      background-color: #1a1a1a !important;
+      border-color: #2d2d2d !important;
+    }
+    body.dark-mode #countdown div span:first-child {
+      color: var(--gold) !important;
+    }
+    /* Mobile bottom nav overrides */
+    body.dark-mode .mobile-bottom-nav {
+      background: #1a1a1a !important;
+      border-top: 1px solid #2d2d2d !important;
+    }
+    body.dark-mode .mobile-nav-item {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .mobile-nav-item.active {
+      color: var(--gold) !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -37,7 +138,19 @@
           <p>FOUNDED 1917 BY PARAMAHANSA YOGANANDA</p>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+        <!-- Public Dark Mode Toggle -->
+        <button id="publicThemeToggle" type="button" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;height:35px;width:35px;" title="Toggle Dark/Light Mode">
+          <i class="fa fa-moon" id="publicThemeIcon"></i>
+        </button>
+        <!-- Language Switcher Selector -->
+        <div style="position:relative;display:inline-block;">
+          <select id="langSelect" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:0.4rem 0.6rem;border-radius:6px;font-size:0.85rem;cursor:pointer;outline:none;font-weight:600;height:35px;">
+            <option value="en" style="background:#fff;color:#000;">English</option>
+            <option value="te" style="background:#fff;color:#000;">తెలుగు (Telugu)</option>
+            <option value="hi" style="background:#fff;color:#000;">हिन्दी (Hindi)</option>
+          </select>
+        </div>
         <a href="{{ url_for('admin_login') }}" class="btn-admin"><i class="fa fa-user"></i> Admin Portal</a>
       </div>
     </div>
@@ -48,6 +161,7 @@
       <a href="{{ url_for('registration') }}"
         class="{% if request.endpoint=='registration' %}active{% endif %}">Registration</a>
       <a href="{{ url_for('donation') }}" class="{% if request.endpoint=='donation' %}active{% endif %}">Donation</a>
+      <a href="{{ url_for('gallery') }}" class="{% if request.endpoint=='gallery' %}active{% endif %}" data-i18n="Gallery">Gallery</a>
 
       <a href="{{ url_for('contact') }}" class="{% if request.endpoint=='contact' %}active{% endif %}">Contact Us</a>
     </div>
@@ -115,11 +229,301 @@
       <i class="fa fa-heart"></i>
       <span>Donate</span>
     </a>
+    <a href="{{ url_for('gallery') }}" class="mobile-nav-item {% if request.endpoint=='gallery' %}active{% endif %}">
+      <i class="fa fa-images"></i>
+      <span data-i18n="Gallery">Gallery</span>
+    </a>
     <a href="{{ url_for('about') }}" class="mobile-nav-item {% if request.endpoint in ['about', 'contact'] %}active{% endif %}">
       <i class="fa fa-info-circle"></i>
       <span>Info</span>
     </a>
   </nav>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => console.log('Service Worker registered successfully.', reg.scope))
+          .catch((err) => console.log('Service Worker registration failed.', err));
+      });
+    }
+
+    // MULTI-LANGUAGE TRANSLATION DICTIONARY
+    const translations = {
+      te: {
+        "Home": "హోమ్",
+        "About Event": "కార్యక్రమం గురించి",
+        "Schedule": "షెడ్యూల్",
+        "Registration": "రిజిస్ట్రేషన్",
+        "Donation": "విరాళం",
+        "Gallery": "ఫోటో గ్యాలరీ",
+        "Contact Us": "మమ్మల్ని సంప్రదించండి",
+        "Info": "సమాచారం",
+        "Register": "నమోదు",
+        "Donate": "విరాళం ఇవ్వండి",
+        "countdown_title": "కార్యక్రమం ప్రారంభం కానుంది",
+        "days": "రోజులు",
+        "hours": "గంటలు",
+        "minutes": "నిమిషాలు",
+        "seconds": "సెకన్లు",
+        "countdown_started": "🪷 ఆధ్యాత్మిక కార్యక్రమం ప్రారంభమైంది! భక్తులందరికీ స్వాగతం. 🪷",
+        "view_photos": "📸 ఫోటో గ్యాలరీ",
+        "view_schedule": "🗓 షెడ్యూల్ చూడండి",
+        "quick_links": "శీఘ్ర లింకులు",
+        "contact_info": "సంప్రదించవలసిన సమాచారం",
+        
+        "reg_heading": "భక్తుల రిజిస్ట్రేషన్",
+        "reg_subtitle": "దయచేసి 3 రోజుల ఆధ్యాత్మిక కార్యక్రమం కొరకు నమోదు చేసుకోవడానికి వివరాలను జాగ్రత్తగా పూరించండి.",
+        "lesson_no_label": "వై.ఎస్.ఎస్ పాఠాల సంఖ్య *",
+        "full_name_label": "పూర్తి పేరు *",
+        "gender_label": "లింగం *",
+        "age_label": "వయస్సు *",
+        "city_label": "నగరం / గ్రామం *",
+        "district_label": "జిల్ల్లా (ఐచ్ఛికం)",
+        "state_label": "రాష్ట్రం *",
+        "email_label": "ఈమెయిల్ (ఐచ్ఛికం) *",
+        "kriyaban_label": "మీరు క్రియాబాన్లా? *",
+        "whatsapp_label": "వాట్సాప్ నెంబర్ *",
+        "accommodation_label": "వసతి అవసరమా? *",
+        "volunteer_label": "వాలంటీర్ సేవ చేయడానికి ఆసక్తి ఉందా? *",
+        "arrival_date_label": "వచ్చే తేదీ *",
+        "departure_date_label": "వెళ్ళే తేదీ *",
+        "payment_mode_label": "చెల్లింపు విధానం *",
+        "transaction_id_label": "లావాదేవీ ఐడి (Transaction ID) *",
+        "screenshot_label": "చెల్లింపు స్క్రీన్ షాట్ అప్ లోడ్ చేయండి *",
+        "yes": "అవును",
+        "no": "కాదు",
+        "male": "పురుషుడు",
+        "female": "స్త్రీ",
+        "other": "ఇతర",
+        "base_fee": "రిజిస్ట్రేషన్ రుసుము:",
+        "acc_fee": "వసతి రుసుము:",
+        "total_fee": "మొత్తం చెల్లించవలసినది:",
+        "pay_instructions": "కింది యు.పి.ఐ (UPI) ద్వారా చెల్లించండి:",
+        "pay_now_btn": "ఇప్పుడే చెల్లించండి (UPI)",
+        "submit_reg_btn": "రిజిస్ట్రేషన్ సమర్పించండి",
+        
+        "don_heading": "విరాళం ఇవ్వండి",
+        "don_subtitle": "దయచేసి విరాళం ఇవ్వడానికి కింది వివరాలను పూరించండి.",
+        "don_name_label": "దాత పేరు *",
+        "don_amount_label": "విరాళం మొత్తం (రూపాయలు) *",
+        "don_whatsapp_label": "వాట్సాప్ నెంబర్ *",
+        "submit_don_btn": "విరాళం సమర్పించండి",
+        
+        // Placeholders & Selection Dropdowns
+        "lesson_no_placeholder": "పాఠాల సంఖ్యను నమోదు చేయండి",
+        "full_name_placeholder": "మీ పూర్తి పేరును నమోదు చేయండి",
+        "age_placeholder": "మీ వయస్సును నమోదు చేయండి",
+        "city_placeholder": "నగరం/గ్రామం పేరు",
+        "district_placeholder": "మీ జిల్లాను నమోదు చేయండి",
+        "state_placeholder": "మీ రాష్ట్రాన్ని నమోదు చేయండి",
+        "email_placeholder": "మీ ఈమెయిల్ ఐడి",
+        "whatsapp_placeholder": "10 అంకెల వాట్సాప్ నెంబర్",
+        "transaction_id_placeholder": "లావాదేవీ ఐడిని నమోదు చేయండి",
+        "amount_placeholder": "మొత్తాన్ని నమోదు చేయండి",
+        "select_gender": "-- లింగాన్ని ఎంచుకోండి --",
+        "select_payment_mode": "-- చెల్లింపు విధానాన్ని ఎంచుకోండి --",
+        "payment_mode_upi": "UPI",
+        "payment_mode_cash": "నగదు",
+        "payment_details_title": "చెల్లింపు వివరాలు",
+        "upi_payment_details": "UPI చెల్లింపు వివరాలు",
+        "scan_qr_text": "మీ ఫోన్‌లోని ఏదైనా UPI యాప్‌తో ఈ QR కోడ్‌ను స్కాన్ చేయండి:",
+        "kriyaban": "క్రియాబాన్",
+        "non_kriyaban": "క్రియాబాన్ కాదు"
+      },
+      hi: {
+        "Home": "होम",
+        "About Event": "कार्यक्रम के बारे में",
+        "Schedule": "कार्यक्रम सूची",
+        "Registration": "पंजीकरण",
+        "Donation": "दान",
+        "Gallery": "फोटो गैलरी",
+        "Contact Us": "संपर्क करें",
+        "Info": "जानकारी",
+        "Register": "पंजीकरण",
+        "Donate": "दान करें",
+        "countdown_title": "कार्यक्रम शुरू होने में शेष",
+        "days": "दिन",
+        "hours": "घंटे",
+        "minutes": "मिनट",
+        "seconds": "सेकंड",
+        "countdown_started": "🪷 आध्यात्मिक कार्यक्रम शुरू हो चुका है! सभी भक्तों का स्वागत है। 🪷",
+        "view_photos": "📸 फोटो गैलरी",
+        "view_schedule": "🗓 कार्यक्रम सूची देखें",
+        "quick_links": "त्वरित लिंक",
+        "contact_info": "संपर्क जानकारी",
+
+        "reg_heading": "भक्त पंजीकरण",
+        "reg_subtitle": "कृपया 3-दिवसीय आध्यात्मिक कार्यक्रम के लिए पंजीकरण करने के लिए विवरण सावधानीपूर्वक भरें।",
+        "lesson_no_label": "वाई.एस.एस पाठ संख्या *",
+        "full_name_label": "पूरा नाम *",
+        "gender_label": "लिंग *",
+        "age_label": "उम्र *",
+        "city_label": "शहर / गाँव *",
+        "district_label": "ज़िला (वैकल्पिक)",
+        "state_label": "राज्य *",
+        "email_label": "ईमेल (वैकल्पिक) *",
+        "kriyaban_label": "क्या आप क्रियाबान हैं? *",
+        "whatsapp_label": "व्हाट्सएप नंबर *",
+        "accommodation_label": "आवास की आवश्यकता है? *",
+        "volunteer_label": "स्वयंसेवक सेवा में रुचि है? *",
+        "arrival_date_label": "आगमन की तिथि *",
+        "departure_date_label": "प्रस्थान की तिथि *",
+        "payment_mode_label": "भुगतान का प्रकार *",
+        "transaction_id_label": "लेनदेन आईडी (Transaction ID) *",
+        "screenshot_label": "भुगतान स्क्रीनशॉट अपलोड करें *",
+        "yes": "हाँ",
+        "no": "नहीं",
+        "male": "पुरुष",
+        "female": "महिला",
+        "other": "अन्य",
+        "base_fee": "पंजीकरण शुल्क:",
+        "acc_fee": "आवास शुल्क:",
+        "total_fee": "कुल देय राशि:",
+        "pay_instructions": "निम्नलिखित यूपीआई (UPI) के माध्यम से भुगतान करें:",
+        "pay_now_btn": "अभी भुगतान करें (UPI)",
+        "submit_reg_btn": "पंजीकरण जमा करें",
+
+        "don_heading": "दान करें",
+        "don_subtitle": "कृपया दान करने के लिए नीचे दिए गए विवरण भरें।",
+        "don_name_label": "दाता का नाम *",
+        "don_amount_label": "दान राशि (रुपये) *",
+        "don_whatsapp_label": "व्हाट्सएप नंबर *",
+        "submit_don_btn": "दान विवरण जमा करें",
+        
+        // Placeholders & Selection Dropdowns
+        "lesson_no_placeholder": "पाठ संख्या दर्ज करें",
+        "full_name_placeholder": "अपना पूरा नाम दर्ज करें",
+        "age_placeholder": "अपनी उम्र दर्ज करें",
+        "city_placeholder": "शहर/गाँव का नाम",
+        "district_placeholder": "अपना ज़िला दर्ज करें",
+        "state_placeholder": "अपना राज्य दर्ज करें",
+        "email_placeholder": "अपना ईमेल पता दर्ज करें",
+        "whatsapp_placeholder": "10 अंकों का व्हाट्सएप नंबर",
+        "transaction_id_placeholder": "लेनदेन आईडी दर्ज करें",
+        "amount_placeholder": "दान राशि दर्ज करें",
+        "select_gender": "-- लिंग चुनें --",
+        "select_payment_mode": "-- भुगतान का प्रकार चुनें --",
+        "payment_mode_upi": "यूपीआई (UPI)",
+        "payment_mode_cash": "नकद (Cash)",
+        "payment_details_title": "भुगतान विवरण",
+        "upi_payment_details": "UPI भुगतान विवरण",
+        "scan_qr_text": "अपने फ़ोन पर किसी भी UPI ऐप से इस QR कोड को स्कैन करें:",
+        "kriyaban": "क्रियाबान",
+        "non_kriyaban": "गैर-क्रियाबान"
+      }
+    };
+
+    function setLanguage(lang) {
+      localStorage.setItem('pref-lang', lang);
+      document.getElementById('langSelect').value = lang;
+      
+      // Translate data-i18n elements
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        let translation = key;
+        
+        if (lang !== 'en' && translations[lang] && translations[lang][key]) {
+          translation = translations[lang][key];
+        }
+        
+        if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
+          el.value = translation;
+        } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.placeholder = translation;
+        } else {
+          el.innerText = translation;
+        }
+      });
+
+      // Translate placeholders specifically using data-i18n-placeholder attribute
+      const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+      placeholderElements.forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        let translation = key;
+        if (lang !== 'en' && translations[lang] && translations[lang][key]) {
+          translation = translations[lang][key];
+        } else {
+          // If english fallback, we can use the original placeholder value cached or default
+          const origPlaceholder = el.getAttribute('data-orig-placeholder') || el.placeholder;
+          if (!el.getAttribute('data-orig-placeholder')) {
+            el.setAttribute('data-orig-placeholder', origPlaceholder);
+          }
+          translation = origPlaceholder;
+        }
+        el.placeholder = translation;
+      });
+
+      // Translate links
+      const links = document.querySelectorAll('.navbar-nav a, .mobile-bottom-nav a span, .footer h4, .footer a');
+      links.forEach(link => {
+        const origText = link.getAttribute('data-orig-text') || (link.tagName === 'A' && link.children.length === 0 ? link.innerText : link.textContent).trim();
+        if (!link.getAttribute('data-orig-text')) {
+          link.setAttribute('data-orig-text', origText);
+        }
+        
+        if (lang !== 'en' && translations[lang] && translations[lang][origText]) {
+          if (link.tagName === 'A' && link.children.length === 0) {
+            link.innerText = translations[lang][origText];
+          } else if (link.tagName === 'SPAN') {
+            link.innerText = translations[lang][origText];
+          } else if (link.tagName === 'H4') {
+            link.innerText = translations[lang][origText];
+          }
+        } else {
+          link.innerText = origText;
+        }
+      });
+    }
+
+    // Set initial language from storage or default
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedLang = localStorage.getItem('pref-lang') || 'en';
+      setLanguage(savedLang);
+      
+      document.getElementById('langSelect').addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+      });
+    });
+
+    // Public Dark Mode Theme Toggle Script
+    const publicThemeToggle = document.getElementById('publicThemeToggle');
+    const publicThemeIcon = document.getElementById('publicThemeIcon');
+
+    function applyPublicTheme(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (publicThemeIcon) {
+          publicThemeIcon.classList.remove('fa-moon');
+          publicThemeIcon.classList.add('fa-sun');
+        }
+      } else {
+        document.body.classList.remove('dark-mode');
+        if (publicThemeIcon) {
+          publicThemeIcon.classList.remove('fa-sun');
+          publicThemeIcon.classList.add('fa-moon');
+        }
+      }
+    }
+
+    let currentTheme = localStorage.getItem('public-theme');
+    if (!currentTheme) {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        currentTheme = 'dark';
+      } else {
+        currentTheme = 'light';
+      }
+    }
+    applyPublicTheme(currentTheme);
+
+    if (publicThemeToggle) {
+      publicThemeToggle.addEventListener('click', () => {
+        const activeTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+        localStorage.setItem('public-theme', activeTheme);
+        applyPublicTheme(activeTheme);
+      });
+    }
+  </script>
 </body>
 
 </html>

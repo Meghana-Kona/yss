@@ -14,55 +14,158 @@
   </div>
 </div>
 
-<div style="display:flex; justify-content:center; align-items:start; margin-top:1rem;">
-  <!-- Connection Status Dashboard -->
-  <div id="whatsapp-setup-container" class="card" style="width:100%; max-width:600px; padding:2.5rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
-    <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-      <i class="fa fa-plug" style="color:var(--gold);"></i> Connection Status
-    </h3>
-    
-    <div style="text-align:center; padding:1.5rem; background:#fdf6ec; border-radius:8px; border:1px solid #e0d0bb; margin-bottom:1.5rem;">
-      <div style="font-size:1.1rem; font-weight:bold; margin-bottom:0.75rem; color:var(--text);">Current Status:</div>
+<div class="admin-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start;">
+  <!-- COLUMN 1: Status & Reminders -->
+  <div style="display:flex; flex-direction:column; gap:2rem;">
+    <!-- Connection Status Card -->
+    <div id="whatsapp-setup-container" class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
+      <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
+        <i class="fa fa-plug" style="color:var(--gold);"></i> Connection Status
+      </h3>
       
-      <div id="status-badge-area">
-        <div style="display:inline-flex; align-items:center; gap:0.5rem; background:#f3f4f6; color:#4b5563; padding:0.5rem 1.5rem; border-radius:30px; font-weight:bold; font-size:1.1rem;">
-          <span style="display:inline-block; width:10px; height:10px; background:#9ca3af; border-radius:50%; animation: pulse 1.5s infinite;"></span>
-          CHECKING...
+      <div style="text-align:center; padding:1.25rem; background:#fdf6ec; border-radius:8px; border:1px solid #e0d0bb; margin-bottom:1.5rem;">
+        <div style="font-size:1rem; font-weight:bold; margin-bottom:0.75rem; color:var(--text);">Current Status:</div>
+        <div id="status-badge-area">
+          <div style="display:inline-flex; align-items:center; gap:0.5rem; background:#f3f4f6; color:#4b5563; padding:0.5rem 1.5rem; border-radius:30px; font-weight:bold; font-size:1.1rem;">
+            <span style="display:inline-block; width:10px; height:10px; background:#9ca3af; border-radius:50%; animation: pulse 1.5s infinite;"></span>
+            CHECKING...
+          </div>
+          <p style="margin-top:1rem; font-size:0.9rem; color:var(--muted);">
+            Retrieving live status from gateway...
+          </p>
         </div>
-        <p style="margin-top:1rem; font-size:0.9rem; color:var(--muted);">
-          Retrieving live status from gateway...
+      </div>
+
+      <!-- QR Code Scanning Section -->
+      <div id="qr-scan-area" style="display:none; text-align:center; padding:1.5rem; border:2px dashed var(--gold); border-radius:12px; background:#fffdec; margin-top:1rem;">
+        <h4 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:0.75rem;">Scan QR Code</h4>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem;">
+          Go to <strong>WhatsApp ➔ Linked Devices ➔ Link a Device</strong> on your phone and scan:
+        </p>
+        <div style="display:inline-block; background:#fff; padding:1rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); border: 1px solid #e0d0bb;">
+          <img id="qr-image" src="" alt="WhatsApp QR Code" style="width:200px; height:200px; display:block;">
+        </div>
+        <div style="margin-top:1rem; font-size:0.8rem; color:var(--gold); font-weight:bold; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <i class="fa fa-spinner fa-spin"></i> Checking connection status live...
+        </div>
+      </div>
+
+      <!-- Connected Status Section -->
+      <div id="connected-area" style="display:none; text-align:center; padding:1.5rem; border:2px solid #dcfce7; border-radius:12px; background:#f0fdf4; margin-top:1rem; color:#166534;">
+        <i class="fa-solid fa-circle-check" style="font-size:2.5rem; margin-bottom:0.75rem; color:#22c55e;"></i>
+        <h4 style="font-family:'Cinzel',serif; margin:0 0 0.5rem 0; font-size:1.1rem;">Automation Active</h4>
+        <p style="font-size:0.85rem; color:#14532d; margin:0;">
+          WhatsApp gateway is connected and active. Notifications will deliver automatically.
         </p>
       </div>
-    </div>
 
-    <!-- QR Code Scanning Section -->
-    <div id="qr-scan-area" style="display:none; text-align:center; padding:1.5rem; border:2px dashed var(--gold); border-radius:12px; background:#fffdec; margin-top:1.5rem;">
-      <h4 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:0.75rem;">Scan QR Code</h4>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem;">
-        Go to <strong>WhatsApp ➔ Linked Devices ➔ Link a Device</strong> on your phone and scan:
-      </p>
-      <div style="display:inline-block; background:#fff; padding:1rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); border: 1px solid #e0d0bb;">
-        <img id="qr-image" src="" alt="WhatsApp QR Code" style="width:220px; height:220px; display:block;">
-      </div>
-      <div style="margin-top:1rem; font-size:0.8rem; color:var(--gold); font-weight:bold; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-        <i class="fa fa-spinner fa-spin"></i> Checking connection status live...
+      <!-- Recent Messages Button -->
+      <div style="text-align:center; margin-top:1.5rem;">
+        <button onclick="openMessagesDialog()" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; border-color:#25D366; color:#25D366;">
+          <i class="fab fa-whatsapp"></i> View Recent Despatches (Last 10)
+        </button>
       </div>
     </div>
 
-    <!-- Connected Status Section -->
-    <div id="connected-area" style="display:none; text-align:center; padding:2rem 1.5rem; border:2px solid #dcfce7; border-radius:12px; background:#f0fdf4; margin-top:1.5rem; color:#166534;">
-      <i class="fa-solid fa-circle-check" style="font-size:3rem; margin-bottom:1rem; color:#22c55e;"></i>
-      <h4 style="font-family:'Cinzel',serif; margin:0 0 0.5rem 0; font-size:1.2rem;">Automation Active</h4>
-      <p style="font-size:0.85rem; color:#14532d; margin:0;">
-        Devotees will receive instant, beautifully-formatted receipt details via your connected WhatsApp account as soon as registrations are approved.
+    <!-- Trigger Event Reminders Card -->
+    <div class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
+      <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+        <i class="fa fa-hourglass-half" style="color:var(--gold);"></i> Event Reminders
+      </h3>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1.5rem;">
+        Manually trigger scheduled broadcast notifications to approved devotees based on days remaining to the program start date (24 July 2026).
       </p>
-    </div>
 
-    <!-- Recent Messages Button -->
-    <div style="text-align:center; margin-top:1.5rem;">
-      <button onclick="openMessagesDialog()" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; border-color:#25D366; color:#25D366;">
-        <i class="fab fa-whatsapp"></i> View Recent Messages (Last 10)
-      </button>
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <!-- 7 Days Reminder -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; gap:1rem;" class="reminder-row">
+          <div>
+            <h5 style="margin:0; font-size:0.95rem; font-weight:bold; color:var(--text);">7-Day Reminder</h5>
+            <span style="font-size:0.8rem; color:var(--muted);">Pending: <strong>{{ count_7d_pending }}</strong> devotees</span>
+          </div>
+          <form action="/admin/whatsapp-send-reminders/7" method="POST" style="margin:0;" onsubmit="return showCustomConfirm('Trigger 7-Day reminder to all pending approved devotees?', this)">
+            <button type="submit" class="btn btn-sm" style="background:#CC4414; color:#fff;" {% if count_7d_pending == 0 %}disabled style="opacity:0.6; cursor:not-allowed;"{% endif %}>
+              <i class="fa fa-paper-plane"></i> Dispatch
+            </button>
+          </form>
+        </div>
+
+        <!-- 3 Days Reminder -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; gap:1rem;" class="reminder-row">
+          <div>
+            <h5 style="margin:0; font-size:0.95rem; font-weight:bold; color:var(--text);">3-Day Reminder</h5>
+            <span style="font-size:0.8rem; color:var(--muted);">Pending: <strong>{{ count_3d_pending }}</strong> devotees</span>
+          </div>
+          <form action="/admin/whatsapp-send-reminders/3" method="POST" style="margin:0;" onsubmit="return showCustomConfirm('Trigger 3-Day reminder to all pending approved devotees?', this)">
+            <button type="submit" class="btn btn-sm" style="background:#CC4414; color:#fff;" {% if count_3d_pending == 0 %}disabled style="opacity:0.6; cursor:not-allowed;"{% endif %}>
+              <i class="fa fa-paper-plane"></i> Dispatch
+            </button>
+          </form>
+        </div>
+
+        <!-- 1 Day Reminder -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; gap:1rem;" class="reminder-row">
+          <div>
+            <h5 style="margin:0; font-size:0.95rem; font-weight:bold; color:var(--text);">1-Day Reminder</h5>
+            <span style="font-size:0.8rem; color:var(--muted);">Pending: <strong>{{ count_1d_pending }}</strong> devotees</span>
+          </div>
+          <form action="/admin/whatsapp-send-reminders/1" method="POST" style="margin:0;" onsubmit="return showCustomConfirm('Trigger 1-Day reminder to all pending approved devotees?', this)">
+            <button type="submit" class="btn btn-sm" style="background:#CC4414; color:#fff;" {% if count_1d_pending == 0 %}disabled style="opacity:0.6; cursor:not-allowed;"{% endif %}>
+              <i class="fa fa-paper-plane"></i> Dispatch
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMN 2: Templates Customization -->
+  <div class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
+    <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+      <i class="fa fa-edit" style="color:var(--gold);"></i> Edit Message Templates
+    </h3>
+    <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1.5rem;">
+      Modify the messages sent during registration, room allotments, and reminders. Use the dynamic placeholders in curly braces.
+    </p>
+
+    <!-- Template Selector Tabs -->
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+      <div class="form-group">
+        <label style="font-weight:bold; color:var(--text); margin-bottom:0.5rem; display:block;">Select Template Stage:</label>
+        <select id="templateKeySelector" class="form-control" style="width:100%;">
+          {% for t in templates %}
+            <option value="{{ t.key }}">{{ t.key.replace('_', ' ').toUpperCase() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Edit Form -->
+      <form action="/admin/whatsapp-templates/update" method="POST" id="templateEditForm">
+        <input type="hidden" name="key" id="templateKeyInput" value="">
+        
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label style="font-weight:bold; color:var(--text); margin-bottom:0.3rem; display:block;">Template Description:</label>
+          <div id="templateDescription" style="font-size:0.85rem; color:var(--muted); background:#f9fafb; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #e5e7eb; line-height:1.4;">
+            Loading description...
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label style="font-weight:bold; color:var(--text); margin-bottom:0.3rem; display:block;">Available Placeholders:</label>
+          <div id="templateVariables" style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+            <!-- dynamic badges -->
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label style="font-weight:bold; color:var(--text); margin-bottom:0.5rem; display:block;">Message Text:</label>
+          <textarea name="template_text" id="templateTextArea" class="form-control" rows="12" style="width:100%; font-family:monospace; font-size:0.9rem; line-height:1.5; padding:0.8rem; border-radius:6px; border:1px solid #ccc; outline:none; resize:vertical;" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">
+          <i class="fa fa-save"></i> Save Template Changes
+        </button>
+      </form>
     </div>
   </div>
 </div>
@@ -88,12 +191,88 @@
   50% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(0.95); opacity: 0.8; }
 }
+/* Style adjustments for dark mode compatibility */
+body.dark-mode .reminder-row {
+  background-color: #262626 !important;
+  border-color: #333 !important;
+}
+body.dark-mode #templateDescription {
+  background-color: #262626 !important;
+  border-color: #333 !important;
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Load template database entries
+const templatesData = {
+  {% for t in templates %}
+    "{{ t.key }}": {
+      "description": "{{ t.description|escape }}",
+      "variables": "{{ t.variables|escape }}",
+      "template_text": `{{ t.template_text|safe }}`
+    }{% if not loop.last %},{% endif %}
+  {% endfor %}
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+  const selector = document.getElementById('templateKeySelector');
+  const keyInput = document.getElementById('templateKeyInput');
+  const descContainer = document.getElementById('templateDescription');
+  const varsContainer = document.getElementById('templateVariables');
+  const textInput = document.getElementById('templateTextArea');
+
+  function updateTemplateForm(key) {
+    const data = templatesData[key];
+    if (!data) return;
+
+    keyInput.value = key;
+    descContainer.textContent = data.description || "No description provided.";
+    textInput.value = data.template_text;
+
+    // Render variables badges
+    varsContainer.innerHTML = "";
+    if (data.variables) {
+      data.variables.split(',').forEach(variable => {
+        const badge = document.createElement('span');
+        badge.style.display = "inline-block";
+        badge.style.padding = "0.2rem 0.5rem";
+        badge.style.background = "#eef2ff";
+        badge.style.color = "#4f46e5";
+        badge.style.borderRadius = "4px";
+        badge.style.fontSize = "0.75rem";
+        badge.style.fontWeight = "bold";
+        badge.style.border = "1px solid #c7d2fe";
+        badge.style.cursor = "pointer";
+        badge.textContent = `{${variable.trim()}}`;
+        
+        // Clicking badge inserts it at the cursor position
+        badge.addEventListener('click', () => {
+          const start = textInput.selectionStart;
+          const end = textInput.selectionEnd;
+          const text = textInput.value;
+          textInput.value = text.substring(0, start) + badge.textContent + text.substring(end);
+          textInput.focus();
+          textInput.selectionStart = textInput.selectionEnd = start + badge.textContent.length;
+        });
+
+        varsContainer.appendChild(badge);
+      });
+    } else {
+      varsContainer.innerHTML = `<span style="font-size:0.8rem; color:#888;">No variables required.</span>`;
+    }
+  }
+
+  if (selector) {
+    selector.addEventListener('change', (e) => {
+      updateTemplateForm(e.target.value);
+    });
+    // Trigger initial select
+    updateTemplateForm(selector.value);
+  }
+
+  // Connection Poll Status
   let pollInterval = null;
 
   function fetchWhatsAppStatus() {
@@ -112,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
               CONNECTED
             </div>
             <p style="margin-top:1rem; font-size:0.9rem; color:#15803d; font-weight:600;">
-              🎉 Fantastic! WhatsApp messages are now fully automated and will be dispatched in the background!
+              🎉 Live and fully active! Ready to dispatch template messages.
             </p>
           `;
           qrArea.style.display = 'none';
@@ -124,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
               PENDING SCAN
             </div>
             <p style="margin-top:1rem; font-size:0.9rem; color:var(--muted);">
-              Please scan the QR code below using WhatsApp linked devices on your admin phone.
+              Scan the QR below with your phone to log in.
             </p>
           `;
           connectedArea.style.display = 'none';
@@ -141,13 +320,12 @@ document.addEventListener('DOMContentLoaded', () => {
               GATEWAY OFFLINE
             </div>
             <p style="margin-top:1rem; font-size:0.9rem; color:#b91c1c; font-weight:600;">
-              The WhatsApp Gateway service could not be reached. Please verify the service is running on Railway.
+              The WhatsApp Gateway service could not be reached. Verify the service is running.
             </p>
           `;
           qrArea.style.display = 'none';
           connectedArea.style.display = 'none';
         } else {
-          // General disconnected or other status
           badgeArea.innerHTML = `
             <div style="display:inline-flex; align-items:center; gap:0.5rem; background:#f3f4f6; color:#4b5563; padding:0.5rem 1.5rem; border-radius:30px; font-weight:bold; font-size:1.1rem;">
               <span style="display:inline-block; width:10px; height:10px; background:#9ca3af; border-radius:50%;"></span>
@@ -166,10 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Initial fetch
   fetchWhatsAppStatus();
-
-  // Poll every 5 seconds
   pollInterval = setInterval(fetchWhatsAppStatus, 5000);
 });
 
@@ -210,7 +385,6 @@ function openMessagesDialog() {
     });
 }
 
-// Close modal on background click
 document.getElementById('messagesModal').addEventListener('click', function(e) {
   if (e.target === this) this.style.display = 'none';
 });

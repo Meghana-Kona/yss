@@ -4,8 +4,92 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{% block title %}Admin – YSS{% endblock %}</title>
-<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}?v=1.0.3">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}?v=1.0.3">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Dark Mode variables & overrides for Admin Portal */
+    body.dark-mode {
+      --cream: #121212;
+      --light: #1e1e1e;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --white: #1e1e1e;
+      background-color: #121212;
+      color: #e2e8f0;
+    }
+    body.dark-mode .admin-sidebar {
+      background-color: #1a1a1a !important;
+      border-right: 1px solid #2d2d2d;
+    }
+    body.dark-mode .sidebar-logo {
+      border-bottom: 1px solid #2d2d2d;
+    }
+    body.dark-mode .sidebar-nav a {
+      color: #cbd5e1;
+    }
+    body.dark-mode .sidebar-nav a:hover,
+    body.dark-mode .sidebar-nav a.active {
+      background-color: #262626 !important;
+      color: var(--gold);
+    }
+    body.dark-mode .admin-content {
+      background-color: #121212 !important;
+    }
+    body.dark-mode .card,
+    body.dark-mode .reg-card,
+    body.dark-mode .form-card,
+    body.dark-mode .stat-card {
+      background-color: #1e1e1e !important;
+      border-color: #2d2d2d !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #2d2d2d !important;
+      border-color: #404040 !important;
+      color: #fff !important;
+    }
+    body.dark-mode .table,
+    body.dark-mode table {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode th {
+      background-color: #262626 !important;
+      color: #fff !important;
+      border-bottom-color: #333 !important;
+    }
+    body.dark-mode td {
+      border-bottom-color: #2d2d2d !important;
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode tr:hover {
+      background-color: #262626 !important;
+    }
+    body.dark-mode .badge {
+      background-color: #2d2d2d;
+      color: #cbd5e1;
+    }
+    /* Modals & Dialogs in Admin Dark Mode */
+    body.dark-mode #deleteModal > div,
+    body.dark-mode #customConfirmModal > div,
+    body.dark-mode #whatsappDialog > div {
+      background-color: #1e1e1e !important;
+      border-color: #404040 !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode #confirmCancelBtn {
+      background-color: #2d2d2d !important;
+      border-color: #404040 !important;
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode .modal-content,
+    body.dark-mode .dialog-content {
+      background-color: #1e1e1e !important;
+      color: #e2e8f0 !important;
+      border: 1px solid #404040 !important;
+    }
+  </style>
 </head>
 <body>
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -55,12 +139,21 @@
       <a href="{{ url_for('admin_whatsapp_setup') }}" class="{% if request.endpoint=='admin_whatsapp_setup' %}active{% endif %}">
         <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i><span>WhatsApp Setup</span>
       </a>
+      <a href="{{ url_for('admin_gallery') }}" class="{% if request.endpoint=='admin_gallery' %}active{% endif %}">
+        <i class="fa fa-images"></i><span>Gallery Mgmt</span>
+      </a>
+      <a href="{{ url_for('admin_activity_log') }}" class="{% if request.endpoint=='admin_activity_log' %}active{% endif %}">
+        <i class="fa fa-history"></i><span>Activity Log</span>
+      </a>
       {% if current_user.is_main_admin %}
       <a href="{{ url_for('admin_manage') }}" class="{% if request.endpoint=='admin_manage' %}active{% endif %}">
         <i class="fa fa-user-shield"></i><span>Admins</span>
       </a>
       {% endif %}
-      <a href="{{ url_for('admin_logout') }}" onclick="return showCustomConfirm('Logout from admin panel?', this)" style="margin-top:auto; color:#ff9999;">
+      <a href="#" id="adminThemeToggle" style="margin-top:auto; color: var(--gold); border-top: 1px solid #444; padding-top: 1rem;">
+        <i class="fa fa-moon" id="adminThemeIcon"></i><span>Dark Mode</span>
+      </a>
+      <a href="{{ url_for('admin_logout') }}" onclick="return showCustomConfirm('Logout from admin panel?', this)" style="color:#ff9999;">
         <i class="fa fa-sign-out-alt"></i><span>Logout</span>
       </a>
     </nav>
@@ -153,42 +246,81 @@ function closeCustomConfirm() {
   }, 200);
 }
 
-// Sidebar toggle logic
-document.addEventListener('DOMContentLoaded', function() {
-  const sidebar = document.querySelector('.admin-sidebar');
-  const toggleBtn = document.getElementById('sidebarToggle');
-  const toggleIcon = document.getElementById('toggleIcon');
-  
-  if (sidebar && toggleBtn && toggleIcon) {
-    let isCollapsed = localStorage.getItem('sidebar-collapsed');
-    if (isCollapsed === null) {
-      isCollapsed = window.innerWidth <= 768;
-    } else {
-      isCollapsed = isCollapsed === 'true';
-    }
-    
-    if (isCollapsed) {
-      sidebar.classList.add('collapsed');
-      toggleIcon.className = 'fa fa-chevron-right';
-    } else {
-      sidebar.classList.remove('collapsed');
-      toggleIcon.className = 'fa fa-chevron-left';
-    }
-    
-    toggleBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      sidebar.classList.toggle('collapsed');
-      const nowCollapsed = sidebar.classList.contains('collapsed');
-      localStorage.setItem('sidebar-collapsed', nowCollapsed);
+    // Sidebar toggle logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.querySelector('.admin-sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const toggleIcon = document.getElementById('toggleIcon');
       
-      if (nowCollapsed) {
-        toggleIcon.className = 'fa fa-chevron-right';
-      } else {
-        toggleIcon.className = 'fa fa-chevron-left';
+      if (sidebar && toggleBtn && toggleIcon) {
+        let isCollapsed = localStorage.getItem('sidebar-collapsed');
+        if (isCollapsed === null) {
+          isCollapsed = window.innerWidth <= 768;
+        } else {
+          isCollapsed = isCollapsed === 'true';
+        }
+        
+        if (isCollapsed) {
+          sidebar.classList.add('collapsed');
+          toggleIcon.className = 'fa fa-chevron-right';
+        } else {
+          sidebar.classList.remove('collapsed');
+          toggleIcon.className = 'fa fa-chevron-left';
+        }
+        
+        toggleBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          sidebar.classList.toggle('collapsed');
+          const nowCollapsed = sidebar.classList.contains('collapsed');
+          localStorage.setItem('sidebar-collapsed', nowCollapsed);
+          
+          if (nowCollapsed) {
+            toggleIcon.className = 'fa fa-chevron-right';
+          } else {
+            toggleIcon.className = 'fa fa-chevron-left';
+          }
+        });
       }
     });
-  }
-});
-</script>
+
+    // Admin Theme Toggle Logic
+    const adminThemeToggle = document.getElementById('adminThemeToggle');
+    const adminThemeIcon = document.getElementById('adminThemeIcon');
+
+    function applyAdminTheme(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (adminThemeIcon) {
+          adminThemeIcon.className = 'fa fa-sun';
+          adminThemeToggle.querySelector('span').textContent = 'Light Mode';
+        }
+      } else {
+        document.body.classList.remove('dark-mode');
+        if (adminThemeIcon) {
+          adminThemeIcon.className = 'fa fa-moon';
+          adminThemeToggle.querySelector('span').textContent = 'Dark Mode';
+        }
+      }
+    }
+
+    let savedTheme = localStorage.getItem('admin-theme');
+    if (!savedTheme) {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        savedTheme = 'dark';
+      } else {
+        savedTheme = 'light';
+      }
+    }
+    applyAdminTheme(savedTheme);
+
+    if (adminThemeToggle) {
+      adminThemeToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const activeTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+        localStorage.setItem('admin-theme', activeTheme);
+        applyAdminTheme(activeTheme);
+      });
+    }
+  </script>
 </body>
 </html>

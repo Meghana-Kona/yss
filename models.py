@@ -20,6 +20,7 @@ class Admin(UserMixin, db.Model):
     is_main_admin = db.Column(db.Boolean, default=False)
     reset_token = db.Column(db.String(100), nullable=True)
     reset_token_expiry = db.Column(db.DateTime, nullable=True)
+    last_active = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -58,6 +59,9 @@ class Registration(db.Model):
     payment_status = db.Column(db.String(20), default='Pending')  # Pending, Paid
     reg_status = db.Column(db.String(20), default='Pending')  # Pending, Approved, Rejected
     notified = db.Column(db.Boolean, default=False)
+    reminder_7d_sent = db.Column(db.Boolean, default=False)
+    reminder_3d_sent = db.Column(db.Boolean, default=False)
+    reminder_1d_sent = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -86,6 +90,9 @@ class Registration(db.Model):
             'payment_status': self.payment_status,
             'reg_status': self.reg_status,
             'notified': self.notified,
+            'reminder_7d_sent': self.reminder_7d_sent,
+            'reminder_3d_sent': self.reminder_3d_sent,
+            'reminder_1d_sent': self.reminder_1d_sent,
             'created_at': self.created_at.strftime('%d %b %Y') if self.created_at else ''
         }
 
@@ -172,3 +179,59 @@ class RoomAllotment(db.Model):
     
     registration = db.relationship('Registration', backref=db.backref('allotment', uselist=False))
     room = db.relationship('Room', backref=db.backref('allotments', lazy='dynamic'))
+
+
+class ActivityLog(db.Model):
+    __tablename__ = 'activity_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admins.id'), nullable=True)
+    admin_name = db.Column(db.String(100), nullable=True)
+    action = db.Column(db.String(500), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    admin = db.relationship('Admin', backref=db.backref('activities', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'admin_name': self.admin_name or 'System',
+            'action': self.action,
+            'ip_address': self.ip_address or '-',
+            'timestamp': self.timestamp.strftime('%d %b %Y, %I:%M %p') if self.timestamp else ''
+        }
+
+
+class WhatsAppTemplate(db.Model):
+    __tablename__ = 'whatsapp_templates'
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False) # e.g. reg_success, room_allot, reminder_7d, reminder_3d, reminder_1d
+    description = db.Column(db.String(200), nullable=True)
+    template_text = db.Column(db.Text, nullable=False)
+    variables = db.Column(db.String(200), nullable=True) # e.g. name, reg_id
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'key': self.key,
+            'description': self.description or '',
+            'template_text': self.template_text,
+            'variables': self.variables or ''
+        }
+
+
+class GalleryImage(db.Model):
+    __tablename__ = 'gallery_images'
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    caption = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'filename': self.filename,
+            'caption': self.caption or '',
+            'created_at': self.created_at.strftime('%d %b %Y') if self.created_at else ''
+        }
+

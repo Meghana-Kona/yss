@@ -25,6 +25,38 @@
   </div>
 </section>
 
+<!-- COUNTDOWN -->
+<section style="background:var(--cream); padding:3rem 1rem; text-align:center; border-bottom:1px solid var(--light);">
+  <div class="container" style="max-width:800px; margin:0 auto;">
+    <h2 style="font-family:'Cinzel',serif; color:var(--primary); font-size:1.8rem; margin-bottom:1.5rem;" data-i18n="countdown_title">Program Starts In</h2>
+    <div id="countdown" style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+      <div style="background:#fff; border:1px solid var(--light); border-radius:12px; min-width:85px; padding:1rem; box-shadow:var(--shadow);">
+        <span id="days" style="display:block; font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Outfit',sans-serif;">00</span>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;" data-i18n="days">Days</span>
+      </div>
+      <div style="background:#fff; border:1px solid var(--light); border-radius:12px; min-width:85px; padding:1rem; box-shadow:var(--shadow);">
+        <span id="hours" style="display:block; font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Outfit',sans-serif;">00</span>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;" data-i18n="hours">Hours</span>
+      </div>
+      <div style="background:#fff; border:1px solid var(--light); border-radius:12px; min-width:85px; padding:1rem; box-shadow:var(--shadow);">
+        <span id="minutes" style="display:block; font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Outfit',sans-serif;">00</span>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;" data-i18n="minutes">Minutes</span>
+      </div>
+      <div style="background:#fff; border:1px solid var(--light); border-radius:12px; min-width:85px; padding:1rem; box-shadow:var(--shadow);">
+        <span id="seconds" style="display:block; font-size:2.2rem; font-weight:800; color:var(--primary); font-family:'Outfit',sans-serif;">00</span>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;" data-i18n="seconds">Seconds</span>
+      </div>
+    </div>
+    <div id="countdown-message" style="display:none; font-family:'Cinzel',serif; font-size:1.4rem; color:var(--primary-dark); font-weight:bold; margin-bottom:1.5rem;" data-i18n="countdown_started">
+      🪷 The Spiritual Program has commenced! Welcome all devotees. 🪷
+    </div>
+    <div style="margin-top:1.5rem; display:flex; justify-content:center; gap:1.5rem; align-items:center; flex-wrap:wrap;">
+      <a href="{{ url_for('gallery') }}" class="btn btn-outline" style="border-color:var(--primary); color:var(--primary); font-weight:700;" data-i18n="view_photos">📸 View Photo Gallery</a>
+      <a href="{{ url_for('schedule') }}" class="btn btn-primary" style="background:var(--primary); color:#fff;" data-i18n="view_schedule">🗓 View Schedule</a>
+    </div>
+  </div>
+</section>
+
 <!-- QUOTE -->
 <section style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);padding:2rem 1rem;text-align:center;">
   <div class="container">
@@ -36,4 +68,44 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const targetDate = new Date('2026-07-24T09:00:00+05:30').getTime(); // July 24, 2026 at 9:00 AM IST
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const difference = targetDate - now;
+
+    if (difference <= 0) {
+      const cd = document.getElementById('countdown');
+      const cdm = document.getElementById('countdown-message');
+      if (cd) cd.style.display = 'none';
+      if (cdm) cdm.style.display = 'block';
+      clearInterval(timerInterval);
+      return;
+    }
+
+    const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+    const dEl = document.getElementById('days');
+    const hEl = document.getElementById('hours');
+    const mEl = document.getElementById('minutes');
+    const sEl = document.getElementById('seconds');
+
+    if (dEl) dEl.innerText = String(d).padStart(2, '0');
+    if (hEl) hEl.innerText = String(h).padStart(2, '0');
+    if (mEl) mEl.innerText = String(m).padStart(2, '0');
+    if (sEl) sEl.innerText = String(s).padStart(2, '0');
+  }
+
+  updateCountdown();
+  const timerInterval = setInterval(updateCountdown, 1000);
+});
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, make_response
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail, Message
-from models import db, Admin, Registration, Donation, EventSchedule, Room, RoomAllotment
+from models import db, Admin, Registration, Donation, EventSchedule, Room, RoomAllotment, ActivityLog, WhatsAppTemplate, GalleryImage
 from config import Config
 from datetime import datetime, timedelta
 import os, openpyxl, uuid
@@ -10,6 +10,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'gallery'), exist_ok=True) # Ensure gallery upload directory exists
 
 db.init_app(app)
 mail = Mail(app)
@@ -68,7 +69,141 @@ with app.app_context():
             except Exception as sqlite_err:
                 db.session.rollback()
                 print(f"Skipping migration (column might already exist): {sqlite_err}")
+
+        # Check registrations reminder columns
+        for col_name in ['reminder_7d_sent', 'reminder_3d_sent', 'reminder_1d_sent']:
+            try:
+                db.session.execute(db.text(f"ALTER TABLE registrations ADD COLUMN IF NOT EXISTS {col_name} BOOLEAN DEFAULT FALSE"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                try:
+                    db.session.execute(db.text(f"ALTER TABLE registrations ADD COLUMN {col_name} BOOLEAN DEFAULT FALSE"))
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    print(f"Column {col_name} might already exist: {e}")
+
+        # Check admins last_active column
+        try:
+            db.session.execute(db.text("ALTER TABLE admins ADD COLUMN IF NOT EXISTS last_active TIMESTAMP"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            try:
+                db.session.execute(db.text("ALTER TABLE admins ADD COLUMN last_active TIMESTAMP"))
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(f"Column last_active might already exist: {e}")
                 
+        # Seed WhatsApp templates if empty
+        templates_to_seed = [
+            {
+                'key': 'reg_success',
+                'description': 'Sent automatically to devotees when their registration is approved by the admin.',
+                'variables': 'name,reg_id,phone,email,city,accommodation',
+                'template_text': (
+                    "Dear {name},\n\n"
+                    "With divine blessings and heartfelt joy, we are happy to confirm your successful registration for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
+                    "Your Registration Details:\n\n"
+                    "Name: {name}\n"
+                    "Phone Number: {phone}\n"
+                    "Email: {email}\n"
+                    "City: {city}\n"
+                    "Accommodation: {accommodation}\n\n"
+                    "Program Details:\n\n"
+                    "Event: 3-Day Spiritual Program Anantapur\n"
+                    "Venue: Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh\n"
+                    "Dates: July 24-26, 2026\n"
+                    "Venue Location: https://www.google.com/maps/place/MHJW%2BQGV+Krishna+Kala+Mandir,+near+Clock+Tower,+Kamalanagar,+Anantapur,+Andhra+Pradesh+515001/\n\n"
+                    "May this sacred gathering fill your heart with peace, devotion, positivity, and spiritual upliftment. We sincerely thank you for choosing to be part of this divine journey.\n\n"
+                    "Please carry your registration confirmation during your visit. Further updates and instructions will be shared soon.\n\n"
+                    "We look forward to welcoming you with love and prayers.\n\n"
+                    "Jai Guru"
+                )
+            },
+            {
+                'key': 'room_allot',
+                'description': 'Sent to devotees when room numbers are assigned or changed.',
+                'variables': 'name,reg_id,room_number,arrival_date,departure_date',
+                'template_text': (
+                    "Dear {name},\n\n"
+                    "With divine blessings, we are happy to inform you that your accommodation has been successfully allotted for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
+                    "Accommodation Details:\n\n"
+                    "Name: {name}\n"
+                    "Room Number: {room_number}\n"
+                    "Check-In Date: {arrival_date}\n"
+                    "Check-Out Date: {departure_date}\n\n"
+                    "We kindly request you to carry your registration confirmation during your visit and maintain the peaceful and spiritual atmosphere throughout the program.\n\n"
+                    "May this sacred gathering bring peace, devotion, joy, and spiritual upliftment into your life.\n\n"
+                    "We look forward to welcoming you with love and prayers.\n\n"
+                    "Jai Guru"
+                )
+            },
+            {
+                'key': 'reminder_7d',
+                'description': 'Sent 7 days before the event (July 17, 2026).',
+                'variables': 'name,reg_id',
+                'template_text': (
+                    "Dear {name},\n\n"
+                    "Jai Guru!\n\n"
+                    "This is a loving reminder that the 3-Day Spiritual Program in Anantapur starts in exactly 7 days, on July 24, 2026! We are eagerly looking forward to meditating and serving together.\n\n"
+                    "Venue Details:\n"
+                    "Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh\n"
+                    "Location: https://www.google.com/maps/place/MHJW%2BQGV+Krishna+Kala+Mandir,+near+Clock+Tower,+Kamalanagar,+Anantapur,+Andhra+Pradesh+515001/\n\n"
+                    "Please complete your travel arrangements. If you need any assistance, feel free to reply to this message.\n\n"
+                    "In divine friendship,\n"
+                    "YSS Anantapur Team"
+                )
+            },
+            {
+                'key': 'reminder_3d',
+                'description': 'Sent 3 days before the event (July 21, 2026).',
+                'variables': 'name,reg_id',
+                'template_text': (
+                    "Dear {name},\n\n"
+                    "Jai Guru!\n\n"
+                    "Only 3 days left until our sacred 3-Day Spiritual Program begins on July 24, 2026.\n\n"
+                    "Important Checklist for Your Visit:\n"
+                    "1. Carrying registration ID: {reg_id}\n"
+                    "2. Bring your personal meditation shawl or cushion if preferred.\n"
+                    "3. Keep loose, comfortable clothing (preferably white or light colors).\n"
+                    "4. Accommodation check-in begins on July 23rd afternoon.\n\n"
+                    "For any urgent queries, contact us at 9441665181 or 8019682209.\n\n"
+                    "Warm regards,\n"
+                    "YSS Anantapur Team"
+                )
+            },
+            {
+                'key': 'reminder_1d',
+                'description': 'Sent 1 day before the event (July 23, 2026).',
+                'variables': 'name,reg_id',
+                'template_text': (
+                    "Dear {name},\n\n"
+                    "Jai Guru!\n\n"
+                    "The 3-Day Spiritual Program starts TOMORROW at 9:00 AM!\n\n"
+                    "Please ensure you arrive at the venue by 8:00 AM for check-in and seating.\n"
+                    "Venue: Revenue Kalyana Mandapam, Anantapur.\n\n"
+                    "Please show this message or your Registration ID: {reg_id} at the reception desk to collect your entry badge.\n\n"
+                    "Safe travels! We pray for a deeply uplifting spiritual experience for you.\n\n"
+                    "In Master's Service,\n"
+                    "YSS Anantapur Team"
+                )
+            }
+        ]
+        for t in templates_to_seed:
+            existing = WhatsAppTemplate.query.filter_by(key=t['key']).first()
+            if not existing:
+                new_t = WhatsAppTemplate(
+                    key=t['key'],
+                    description=t['description'],
+                    variables=t['variables'],
+                    template_text=t['template_text']
+                )
+                db.session.add(new_t)
+        db.session.commit()
+
         print("Database tables verified/created successfully.")
     except Exception as e:
         print("!!! DATABASE INITIALIZATION FAILED !!!")
@@ -149,6 +284,91 @@ def seed_data():
         # 25 rooms with 3 beds
         for i in range(11, 36):
             db.session.add(Room(room_number=f"Room {i}", capacity=3))
+        db.session.commit()
+
+    # Seed WhatsApp Templates
+    if not WhatsAppTemplate.query.first():
+        templates = [
+            {
+                "key": "reg_success",
+                "description": "Sent to devotees upon registration approval and payment validation.",
+                "variables": "name, reg_id, phone, email, city, accommodation",
+                "template_text": (
+                    "Dear {name},\n\n"
+                    "With divine blessings and heartfelt joy, we are happy to confirm your successful registration for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
+                    "Your Registration Details:\n\n"
+                    "Name: {name}\n"
+                    "Registration ID: {reg_id}\n"
+                    "Phone Number: {phone}\n"
+                    "Email: {email}\n"
+                    "City: {city}\n"
+                    "Accommodation: {accommodation}\n\n"
+                    "Program Details:\n\n"
+                    "Event: 3-Day Spiritual Program Anantapur\n"
+                    "Venue: Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh\n"
+                    "Dates: July 24-26, 2026\n"
+                    "Venue Location: https://www.google.com/maps/place/MHJW%2BQGV+Krishna+Kala+Mandir,+near+Clock+Tower,+Kamalanagar,+Anantapur,+Andhra+Pradesh+515001/\n\n"
+                    "May this sacred gathering fill your heart with peace, devotion, positivity, and spiritual upliftment.\n\n"
+                    "Please carry your registration confirmation during your visit.\n\n"
+                    "Jai Guru"
+                )
+            },
+            {
+                "key": "room_allot",
+                "description": "Sent to devotees when accommodation rooms are assigned.",
+                "variables": "name, reg_id, room_number, arrival_date, departure_date",
+                "template_text": (
+                    "Dear {name},\n\n"
+                    "With divine blessings, we are happy to inform you that your accommodation has been successfully allotted for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
+                    "Accommodation Details:\n\n"
+                    "Name: {name}\n"
+                    "Registration ID: {reg_id}\n"
+                    "Room Number: {room_number}\n"
+                    "Check-In Date: {arrival_date}\n"
+                    "Check-Out Date: {departure_date}\n\n"
+                    "We kindly request you to carry your registration confirmation during your visit and maintain the peaceful and spiritual atmosphere throughout the program.\n\n"
+                    "Jai Guru"
+                )
+            },
+            {
+                "key": "reminder_7d",
+                "description": "Reminder sent 7 days before the event starts.",
+                "variables": "name, reg_id",
+                "template_text": (
+                    "Dear {name},\n\n"
+                    "Jai Guru! Just 7 days left for our sacred 3-Day Spiritual Program at Anantapur (starting 24 July 2026).\n\n"
+                    "We request you to prepare for your travel. Please ensure to check your assigned accommodation details (if registered for lodging) and keep your registration ID {reg_id} handy.\n\n"
+                    "Looking forward to welcoming you soon.\n\n"
+                    "In Divine Friendship,\nYSS Anantapur Committee"
+                )
+            },
+            {
+                "key": "reminder_3d",
+                "description": "Reminder sent 3 days before the event starts.",
+                "variables": "name, reg_id",
+                "template_text": (
+                    "Dear {name},\n\n"
+                    "Jai Guru! Only 3 days left until the start of the 3-Day Spiritual Program at Anantapur.\n\n"
+                    "Venue: Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur\n\n"
+                    "Please pack light spiritual attire and carry your registration details. May Guruji's blessings guide your journey!\n\n"
+                    "Jai Guru"
+                )
+            },
+            {
+                "key": "reminder_1d",
+                "description": "Final reminder sent 1 day before the event starts.",
+                "variables": "name, reg_id",
+                "template_text": (
+                    "Dear {name},\n\n"
+                    "Jai Guru! The YSS Anantapur 3-Day Spiritual Program begins tomorrow, 24 July 2026, at 9:30 AM!\n\n"
+                    "Please plan to arrive by 8:30 AM to complete check-in and room assignment validations smoothly.\n\n"
+                    "Let us gather in love and devotion.\n\n"
+                    "Jai Guru"
+                )
+            }
+        ]
+        for t in templates:
+            db.session.add(WhatsAppTemplate(**t))
         db.session.commit()
 
 # ─── EXCEL HELPERS ────────────────────────────────────────────────────────────
@@ -394,29 +614,72 @@ def send_admin_email_alert(reg):
     except Exception as e:
         app.logger.warning(f"Failed to send admin email: {e}")
 
+def log_action(action_desc):
+    """
+    Saves an entry into ActivityLog with details of the current logged-in admin.
+    """
+    try:
+        admin_id = None
+        admin_name = 'System'
+        if current_user and current_user.is_authenticated:
+            admin_id = current_user.id
+            admin_name = current_user.username
+            
+            # Update last_active timestamp
+            try:
+                current_user.last_active = datetime.utcnow()
+                db.session.commit()
+            except Exception as ex:
+                db.session.rollback()
+                print(f"Error updating admin last active: {ex}")
+                
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if ip and ',' in ip:
+            ip = ip.split(',')[0].strip()
+            
+        log_entry = ActivityLog(
+            admin_id=admin_id,
+            admin_name=admin_name,
+            action=action_desc,
+            ip_address=ip
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+    except Exception as e:
+        print(f"Failed to write ActivityLog: {e}")
+
+def format_whatsapp_template(key, **kwargs):
+    """
+    Retrieves a template by key, performs variable substitution, and returns the formatted text.
+    If the template is not found, falls back to empty string.
+    """
+    t = WhatsAppTemplate.query.filter_by(key=key).first()
+    if not t:
+        return ""
+    text = t.template_text
+    import re
+    def replace_var(match):
+        var_name = match.group(1)
+        return str(kwargs.get(var_name, match.group(0)))
+    return re.sub(r'\{([a-zA-Z0-9_]+)\}', replace_var, text)
+
 def send_member_whatsapp(reg):
     """
-    Sends a WhatsApp message to the member after Admin approval.
+    Sends a WhatsApp message to the member after Admin approval using db template.
     """
-    message = (
-        f"Dear {reg.full_name},\n\n"
-        f"With divine blessings and heartfelt joy, we are happy to confirm your successful registration for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
-        f"Your Registration Details:\n\n"
-        f"Name: {reg.full_name}\n"
-        f"Phone Number: {reg.whatsapp}\n"
-        f"Email: {reg.email}\n"
-        f"City: {reg.place}\n"
-        f"Accommodation: {'Yes' if reg.accommodation else 'No'}\n\n"
-        f"Program Details:\n\n"
-        f"Event: 3-Day Spiritual Program Anantapur\n"
-        f"Venue: Revenue Kalyana Mandapam (Revenue Bhavan), Beside Krishna Kalamandir, Near Clock Tower, Anantapur, Andhra Pradesh\n"
-        f"Dates: June 24-26, 2026\n"
-        f"Venue Location: https://www.google.com/maps/place/MHJW%2BQGV+Krishna+Kala+Mandir,+near+Clock+Tower,+Kamalanagar,+Anantapur,+Andhra+Pradesh+515001/\n\n"
-        f"May this sacred gathering fill your heart with peace, devotion, positivity, and spiritual upliftment. We sincerely thank you for choosing to be part of this divine journey.\n\n"
-        f"Please carry your registration confirmation during your visit. Further updates and instructions will be shared soon.\n\n"
-        f"We look forward to welcoming you with love and prayers.\n\n"
-        f"Jai Guru"
+    message = format_whatsapp_template(
+        'reg_success',
+        name=reg.full_name,
+        reg_id=reg.reg_id,
+        phone=reg.whatsapp,
+        email=reg.email or 'N/A',
+        city=reg.place,
+        accommodation='Yes' if reg.accommodation else 'No'
     )
+    if not message:
+        print(f"WHATSAPP ERROR: Template reg_success not found in database.")
+        return
+        
     print(f"WHATSAPP LOG: {message}")
     
     # Try sending via self-hosted gateway
@@ -438,6 +701,23 @@ def send_member_whatsapp(reg):
 
 
 # ─── PUBLIC ROUTES ────────────────────────────────────────────────────────────
+@app.route('/sw.js')
+def serve_sw():
+    response = make_response(send_file(os.path.join(app.root_path, 'static', 'sw.js')))
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+@app.route('/manifest.json')
+def serve_manifest():
+    response = make_response(send_file(os.path.join(app.root_path, 'static', 'manifest.json')))
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+@app.route('/offline')
+def offline():
+    return render_template('offline.html')
+
 @app.route('/')
 def index():
     return render_template('index.html', config=app.config)
@@ -445,6 +725,11 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html', config=app.config)
+
+@app.route('/gallery')
+def gallery():
+    images = GalleryImage.query.order_by(GalleryImage.uploaded_at.desc()).all()
+    return render_template('gallery.html', images=images, config=app.config)
 
 @app.route('/schedule')
 def schedule():
@@ -723,6 +1008,7 @@ def admin_login():
         
         if admin and admin.check_password(password):
             login_user(admin)
+            log_action("Admin logged in successfully")
             return redirect(url_for('admin_registrations'))
         flash('Invalid Admin Name or password.', 'error')
     return render_template('admin/login.html', config=app.config)
@@ -730,6 +1016,7 @@ def admin_login():
 @app.route('/admin/logout')
 @login_required
 def admin_logout():
+    log_action("Admin logged out")
     logout_user()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('admin_login'))
@@ -1005,6 +1292,7 @@ def approve_registration(rid):
     reg.notified = True
     db.session.commit()
     update_registrations_excel()
+    log_action(f"Approved registration {reg.reg_id} for {reg.full_name}")
     send_member_whatsapp(reg) # Send WhatsApp to Member
     send_registration_email(reg) # Send Email with printable ID Card
     return jsonify({'success': True, 'message': 'Registration approved successfully'})
@@ -1017,6 +1305,7 @@ def decline_registration(rid):
     reg.reg_status = 'Rejected'
     db.session.commit()
     update_registrations_excel()
+    log_action(f"Declined/Rejected registration {reg.reg_id} for {reg.full_name}")
     return jsonify({'success': True, 'message': 'Registration declined'})
 
 @app.route('/api/registrations/<int:rid>/notified', methods=['POST'])
@@ -1387,10 +1676,13 @@ def admin_room_allot():
     # Check if already allotted
     existing = RoomAllotment.query.filter_by(registration_id=reg.id).first()
     if existing:
+        old_room = existing.room.room_number if existing.room else "None"
         existing.room_id = room.id
+        log_action(f"Re-allotted room from {old_room} to {room.room_number} for devotee {reg.full_name} ({reg.reg_id})")
     else:
         new_allotment = RoomAllotment(registration_id=reg.id, room_id=room.id)
         db.session.add(new_allotment)
+        log_action(f"Allotted room {room.room_number} to devotee {reg.full_name} ({reg.reg_id})")
         
     db.session.commit()
     flash(f'{reg.full_name} allotted to {room.room_number}.', 'success')
@@ -1402,8 +1694,11 @@ def admin_room_unallot():
     registration_id = request.form.get('registration_id')
     allotment = RoomAllotment.query.filter_by(registration_id=registration_id).first()
     if allotment:
+        reg = allotment.registration
+        room_name = allotment.room.room_number if allotment.room else "None"
         db.session.delete(allotment)
         db.session.commit()
+        log_action(f"Removed room allotment ({room_name}) for devotee {reg.full_name} ({reg.reg_id})")
         flash('Allotment removed.', 'success')
     return redirect(url_for('admin_room_allotment'))
 
@@ -1436,20 +1731,25 @@ def admin_room_notify():
         reg = a.registration
         room = a.room
         try:
-            body_text = (
-                f"Dear {reg.full_name},\n\n"
-                f"With divine blessings, we are happy to inform you that your accommodation has been successfully allotted for the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\n"
-                f"Accommodation Details:\n\n"
-                f"Name: {reg.full_name}\n"
-                f"Room Number: {room.room_number}\n"
-                f"Number of Members: {room.capacity}-Bed Room\n"
-                f"Check-In Date: {reg.arrival_date if reg.arrival_date else '24-06-2026'}\n"
-                f"Check-Out Date: {reg.departure_date if reg.departure_date else '26-06-2026'}\n\n"
-                f"We kindly request you to carry your registration confirmation during your visit and maintain the peaceful and spiritual atmosphere throughout the program.\n\n"
-                f"May this sacred gathering bring peace, devotion, joy, and spiritual upliftment into your life.\n\n"
-                f"We look forward to welcoming you with love and prayers.\n\n"
-                f"Jai Guru"
+            body_text = format_whatsapp_template(
+                'room_allot',
+                name=reg.full_name,
+                reg_id=reg.reg_id,
+                room_number=room.room_number,
+                arrival_date=reg.arrival_date if reg.arrival_date else '24-07-2026',
+                departure_date=reg.departure_date if reg.departure_date else '26-07-2026'
             )
+            if not body_text:
+                body_text = (
+                    f"Dear {reg.full_name},\n\n"
+                    f"With divine blessings, we are happy to inform you that your accommodation has been successfully allotted for the 3-Day Spiritual Program at Anantapur.\n\n"
+                    f"Accommodation Details:\n\n"
+                    f"Name: {reg.full_name}\n"
+                    f"Room Number: {room.room_number}\n"
+                    f"Check-In Date: {reg.arrival_date if reg.arrival_date else '24-07-2026'}\n"
+                    f"Check-Out Date: {reg.departure_date if reg.departure_date else '26-07-2026'}\n\n"
+                    f"Jai Guru"
+                )
             r = requests.post(
                 f"{gateway_url}/send",
                 json={
@@ -1583,11 +1883,213 @@ def admin_credentials():
         
     return render_template('admin/manage.html', config=app.config)
 
+# ─── ADMIN GALLERY MANAGEMENT ─────────────────────────────────────────────────
+@app.route('/admin/gallery')
+@login_required
+def admin_gallery():
+    images = GalleryImage.query.order_by(GalleryImage.uploaded_at.desc()).all()
+    return render_template('admin/gallery_mgmt.html', images=images, config=app.config)
+
+@app.route('/admin/gallery/upload', methods=['POST'])
+@login_required
+def admin_gallery_upload():
+    if 'image' not in request.files:
+        flash("No file selected.", "error")
+        return redirect(url_for('admin_gallery'))
+        
+    file = request.files['image']
+    caption = request.form.get('caption', '').strip()
+    
+    if file.filename == '':
+        flash("No file selected.", "error")
+        return redirect(url_for('admin_gallery'))
+        
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+        flash("Unsupported image format. Please upload JPG, PNG, WEBP or GIF.", "error")
+        return redirect(url_for('admin_gallery'))
+        
+    try:
+        filename = f"{uuid.uuid4().hex}{ext}"
+        filepath = os.path.join(app.root_path, 'static', 'uploads', 'gallery', filename)
+        file.save(filepath)
+        
+        new_photo = GalleryImage(filename=filename, caption=caption)
+        db.session.add(new_photo)
+        db.session.commit()
+        
+        log_action(f"Uploaded gallery photo '{filename}' (caption: '{caption}')")
+        flash("Photo uploaded and published successfully!", "success")
+    except Exception as e:
+        print(f"Gallery upload error: {e}")
+        flash(f"Failed to upload photo: {e}", "error")
+        
+    return redirect(url_for('admin_gallery'))
+
+@app.route('/admin/gallery/delete/<int:photo_id>', methods=['POST'])
+@login_required
+def admin_gallery_delete(photo_id):
+    photo = GalleryImage.query.get_or_404(photo_id)
+    try:
+        filepath = os.path.join(app.root_path, 'static', 'uploads', 'gallery', photo.filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            
+        filename = photo.filename
+        caption = photo.caption
+        db.session.delete(photo)
+        db.session.commit()
+        
+        log_action(f"Deleted gallery photo '{filename}' (caption: '{caption}')")
+        flash("Photo deleted successfully.", "success")
+    except Exception as e:
+        print(f"Gallery delete error: {e}")
+        flash(f"Failed to delete photo: {e}", "error")
+        
+    return redirect(url_for('admin_gallery'))
+
+# ─── ADMIN ACTIVITY LOG & ACTIVE TRACKER ──────────────────────────────────────
+@app.route('/admin/activity-log')
+@login_required
+def admin_activity_log():
+    page = request.args.get('page', 1, type=int)
+    per_page = 25
+    
+    five_mins_ago = datetime.utcnow() - timedelta(minutes=5)
+    online_admins = Admin.query.filter(Admin.last_active >= five_mins_ago).all()
+    all_admins = Admin.query.order_by(Admin.name.asc()).all()
+    
+    logs_paginated = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    now = datetime.utcnow()
+    
+    return render_template(
+        'admin/activity_log.html',
+        logs=logs_paginated.items,
+        pagination=logs_paginated,
+        online_admins=online_admins,
+        all_admins=all_admins,
+        now=now,
+        config=app.config
+    )
+
+@app.route('/admin/activity-log/clear', methods=['POST'])
+@login_required
+def admin_clear_activity_log():
+    if not current_user.is_main_admin:
+        flash("Only the Main Admin can clear activity logs.", "error")
+        return redirect(url_for('admin_activity_log'))
+        
+    try:
+        ActivityLog.query.delete()
+        db.session.commit()
+        log_action("Cleared all activity logs")
+        flash("Activity logs cleared successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Failed to clear activity logs: {e}", "error")
+        
+    return redirect(url_for('admin_activity_log'))
+
 # ─── ADMIN WHATSAPP SETUP ───────────────────────────────────────────────────
 @app.route('/admin/whatsapp-setup')
 @login_required
 def admin_whatsapp_setup():
-    return render_template('admin/whatsapp_setup.html', config=app.config)
+    templates = WhatsAppTemplate.query.order_by(WhatsAppTemplate.key.asc()).all()
+    count_7d_pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).count()
+    count_3d_pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).count()
+    count_1d_pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).count()
+    return render_template(
+        'admin/whatsapp_setup.html',
+        config=app.config,
+        templates=templates,
+        count_7d_pending=count_7d_pending,
+        count_3d_pending=count_3d_pending,
+        count_1d_pending=count_1d_pending
+    )
+
+@app.route('/admin/whatsapp-templates/update', methods=['POST'])
+@login_required
+def admin_whatsapp_template_update():
+    key = request.form.get('key')
+    template_text = request.form.get('template_text')
+    t = WhatsAppTemplate.query.filter_by(key=key).first()
+    if t:
+        t.template_text = template_text
+        db.session.commit()
+        log_action(f"Updated WhatsApp template '{key}'")
+        flash(f"WhatsApp template '{key}' updated successfully.", "success")
+    else:
+        flash("Template not found.", "error")
+    return redirect(url_for('admin_whatsapp_setup'))
+
+@app.route('/admin/whatsapp-send-reminders/<int:days>', methods=['POST'])
+@login_required
+def admin_whatsapp_send_reminders(days):
+    if days not in [7, 3, 1]:
+        flash("Invalid reminder interval.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    if days == 7:
+        pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).all()
+        key = 'reminder_7d'
+    elif days == 3:
+        pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).all()
+        key = 'reminder_3d'
+    else:
+        pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).all()
+        key = 'reminder_1d'
+        
+    if not pending:
+        flash(f"No pending approved devotees require the {days}-day reminder.", "info")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
+    if not gateway_url:
+        flash("WhatsApp Gateway URL is not configured. Please set it up first.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    import requests
+    success_count = 0
+    fail_count = 0
+    
+    for reg in pending:
+        try:
+            body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
+            if not body:
+                fail_count += 1
+                continue
+                
+            r = requests.post(
+                f"{gateway_url}/send",
+                json={
+                    'to': reg.whatsapp,
+                    'message': body
+                },
+                timeout=5
+            )
+            if r.status_code == 200:
+                if days == 7:
+                    reg.reminder_7d_sent = True
+                elif days == 3:
+                    reg.reminder_3d_sent = True
+                else:
+                    reg.reminder_1d_sent = True
+                success_count += 1
+            else:
+                fail_count += 1
+        except Exception as e:
+            print(f"Error sending {days}-day reminder to {reg.whatsapp}: {e}")
+            fail_count += 1
+            
+    db.session.commit()
+    log_action(f"Manually sent {days}-day reminder WhatsApp messages to {success_count} devotees (failed: {fail_count})")
+    
+    if fail_count > 0:
+        flash(f"Sent {success_count} reminders. {fail_count} messages failed to dispatch.", "warning")
+    else:
+        flash(f"Successfully sent {success_count} reminders!", "success")
+        
+    return redirect(url_for('admin_whatsapp_setup'))
 
 @app.route('/admin/whatsapp-status')
 @login_required
@@ -1621,6 +2123,70 @@ def admin_whatsapp_messages():
     except Exception as e:
         print(f"Error fetching recent messages: {e}")
     return jsonify({'messages': []})
+
+def run_automatic_reminders_scheduler():
+    """
+    Background worker thread that runs every hour to check if the current date matches the reminder dates,
+    and automatically triggers reminders.
+    """
+    import time
+    from datetime import date
+    while True:
+        try:
+            with app.app_context():
+                today = date.today()
+                # Target dates in UTC or IST. Event is 2026-07-24
+                event_date = date(2026, 7, 24)
+                days_left = (event_date - today).days
+                
+                if days_left in [7, 3, 1]:
+                    gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
+                    if gateway_url:
+                        import requests
+                        
+                        if days_left == 7:
+                            pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).all()
+                            key = 'reminder_7d'
+                        elif days_left == 3:
+                            pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).all()
+                            key = 'reminder_3d'
+                        else:
+                            pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).all()
+                            key = 'reminder_1d'
+                            
+                        sent_count = 0
+                        for reg in pending:
+                            body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
+                            if body:
+                                try:
+                                    r = requests.post(
+                                        f"{gateway_url}/send",
+                                        json={'to': reg.whatsapp, 'message': body},
+                                        timeout=5
+                                    )
+                                    if r.status_code == 200:
+                                        if days_left == 7:
+                                            reg.reminder_7d_sent = True
+                                        elif days_left == 3:
+                                            reg.reminder_3d_sent = True
+                                        else:
+                                            reg.reminder_1d_sent = True
+                                        sent_count += 1
+                                except Exception as e:
+                                    print(f"Auto-scheduler sending error: {e}")
+                        if sent_count > 0:
+                            db.session.commit()
+                            log_action(f"Auto-scheduled daemon successfully sent {days_left}-day reminders to {sent_count} devotees")
+        except Exception as e:
+            print(f"Auto-reminder background scheduler error: {e}")
+        
+        # Sleep for 1 hour
+        time.sleep(3600)
+
+# Start background scheduler thread
+import threading
+scheduler_thread = threading.Thread(target=run_automatic_reminders_scheduler, daemon=True)
+scheduler_thread.start()
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 with app.app_context():
