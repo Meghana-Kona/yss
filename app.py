@@ -417,7 +417,25 @@ def send_member_whatsapp(reg):
         f"We look forward to welcoming you with love and prayers.\n\n"
         f"Jai Guru"
     )
-    print(f"WHATSAPP SENT TO {reg.whatsapp}: {message}")
+    print(f"WHATSAPP LOG: {message}")
+    
+    # Try sending via self-hosted gateway
+    import requests
+    try:
+        gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
+        if gateway_url:
+            r = requests.post(
+                f"{gateway_url}/send",
+                json={
+                    'to': reg.whatsapp,
+                    'message': message
+                },
+                timeout=5
+            )
+            print(f"AUTOMATED WHATSAPP STATUS: {r.status_code} - {r.text}")
+    except Exception as e:
+        print(f"Failed to send automated WhatsApp: {e}")
+
 
 # ─── PUBLIC ROUTES ────────────────────────────────────────────────────────────
 @app.route('/')
@@ -1512,6 +1530,30 @@ def admin_credentials():
         return redirect(url_for('admin_credentials'))
         
     return render_template('admin/manage.html', config=app.config)
+
+# ─── ADMIN WHATSAPP SETUP ───────────────────────────────────────────────────
+@app.route('/admin/whatsapp-setup')
+@login_required
+def admin_whatsapp_setup():
+    import requests
+    gateway_url = app.config.get('WHATSAPP_GATEWAY_URL', 'http://localhost:3000')
+    
+    status_data = {
+        'status': 'Offline',
+        'qr': None,
+        'gateway_url': gateway_url
+    }
+    
+    try:
+        r = requests.get(f"{gateway_url}/status", timeout=3)
+        if r.status_code == 200:
+            res = r.json()
+            status_data['status'] = res.get('status', 'Disconnected')
+            status_data['qr'] = res.get('qr')
+    except Exception as e:
+        print(f"Error fetching WhatsApp gateway status: {e}")
+        
+    return render_template('admin/whatsapp_setup.html', status=status_data, config=app.config)
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 with app.app_context():

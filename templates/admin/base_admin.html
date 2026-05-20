@@ -52,6 +52,9 @@
       <a href="{{ url_for('admin_room_allotment') }}" class="{% if request.endpoint=='admin_room_allotment' %}active{% endif %}">
         <i class="fa fa-bed"></i><span>Room Allotment</span>
       </a>
+      <a href="{{ url_for('admin_whatsapp_setup') }}" class="{% if request.endpoint=='admin_whatsapp_setup' %}active{% endif %}">
+        <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i><span>WhatsApp Setup</span>
+      </a>
       {% if current_user.is_main_admin %}
       <a href="{{ url_for('admin_manage') }}" class="{% if request.endpoint=='admin_manage' %}active{% endif %}">
         <i class="fa fa-user-shield"></i><span>Admins</span>

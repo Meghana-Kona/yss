@@ -53,3 +53,4 @@ class Config:
     # Admin defaults
     ADMIN_EMAIL = 'anantapur@ysscenters.org'
     ADMIN_PASSWORD = 'yssatp2026'
+    WHATSAPP_GATEWAY_URL = os.environ.get('WHATSAPP_GATEWAY_URL', 'http://localhost:3000')
