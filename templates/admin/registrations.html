@@ -59,7 +59,7 @@
       <thead>
         <tr>
           <th>S.No</th><th>Reg ID</th><th>Lesson No</th><th>Name</th><th>Mobile No</th><th>Place</th><th>Amount</th><th>Date</th>
-          <th>Payment Mode</th><th>Payment Status</th><th>Reg Status</th><th>Action</th>
+          <th>Payment Mode</th><th>Screenshot</th><th>Payment Status</th><th>Reg Status</th><th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -87,6 +87,7 @@
               <option value="UPI">UPI</option>
             </select>
           </td>
+          <td>—</td>
           <td style="color:#2E7D32; font-weight:bold;">Paid</td>
           <td style="color:#2E7D32; font-weight:bold;">Approved</td>
           <td><button onclick="saveManual()" class="btn btn-gold btn-sm" style="min-width:80px;"><i class="fa fa-save"></i> Save</button></td>
@@ -102,6 +103,15 @@
         <td>₹{{ r.amount|int if r.amount else 0 }}</td>
         <td>{{ r.created_at.strftime('%d %b %Y, %I:%M %p') if r.created_at else '' }}</td>
         <td>{{ r.payment_mode }}</td>
+        <td>
+          {% if r.payment_screenshot %}
+          <button onclick="showScreenshot('{{ url_for('static', filename='uploads/' + r.payment_screenshot) }}')" class="btn btn-outline btn-sm" title="View Screenshot" style="font-size:.75rem;">
+            <i class="fa fa-eye"></i> View
+          </button>
+          {% else %}
+          <span style="color:var(--muted);font-size:.8rem;">No file</span>
+          {% endif %}
+        </td>
         <td>
           <span style="
             display:inline-block;
@@ -131,9 +141,6 @@
         </td>
         <td>
           <div class="action-btns">
-            {% if r.payment_screenshot %}
-            <button onclick="showScreenshot('{{ url_for('static', filename='uploads/' + r.payment_screenshot) }}')" class="btn btn-outline btn-sm" title="View Screenshot"><i class="fa fa-eye"></i></button>
-            {% endif %}
             <button onclick="showIDCard('{{ r.reg_id }}')" class="btn btn-outline btn-sm" title="View ID Card" style="border-color:var(--gold); color:var(--gold);"><i class="fa fa-id-card"></i></button>
             <a href="{{ url_for('admin_edit_registration', reg_id=r.id) }}" class="btn btn-sm" style="background:#E3F2FD;color:#1565C0;border:none;" title="Edit"><i class="fa fa-edit"></i></a>
             <button onclick="confirmDelete({{ r.id }}, 'reg')" class="btn btn-sm" style="background:#FFEBEE;color:#C62828;border:none;" title="Delete"><i class="fa fa-trash"></i></button>

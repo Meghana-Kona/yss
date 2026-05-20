@@ -973,13 +973,7 @@ def admin_registrations():
 def admin_requests():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    # Show Pending payment OR (Approved but Not Notified)
-    q = Registration.query.filter(
-        db.or_(
-            Registration.payment_status == 'Pending',
-            db.and_(Registration.reg_status == 'Approved', Registration.notified == False)
-        )
-    )
+    q = Registration.query.filter(Registration.payment_status == 'Pending')
     if search:
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%'),
