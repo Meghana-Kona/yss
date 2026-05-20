@@ -14,10 +14,10 @@
   </div>
 </div>
 
-<div class="form-grid form-grid-2" style="align-items:start; gap:2rem;">
+<div style="display:flex; justify-content:center; align-items:start; margin-top:1rem;">
   <!-- Connection Status Dashboard -->
-  <div class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
-    <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
+  <div id="whatsapp-setup-container" class="card" style="width:100%; max-width:600px; padding:2.5rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
+    <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
       <i class="fa fa-plug" style="color:var(--gold);"></i> Connection Status
     </h3>
     
@@ -83,75 +83,6 @@
       </div>
     {% endif %}
   </div>
-
-  <!-- Step-by-Step Railway Guide -->
-  <div class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
-    <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
-      <i class="fa-brands fa-railway" style="color:var(--gold);"></i> Deploy Gateway on Railway
-    </h3>
-    
-    <p style="font-size:0.9rem; color:var(--muted); line-height:1.5; margin-bottom:1.5rem;">
-      Since you purchased the <strong>Railway Hobby Plan</strong>, you can host your private WhatsApp API container inside the exact same project! Follow this simple 3-step guide:
-    </p>
-
-    <div class="setup-steps" style="display:flex; flex-direction:column; gap:1.5rem;">
-      <!-- Step 1 -->
-      <div style="display:flex; gap:1rem; align-items:start;">
-        <div style="background:var(--primary); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">1</div>
-        <div>
-          <h4 style="margin:0 0 0.25rem 0; color:var(--text); font-size:0.95rem;">Add New Service in Railway</h4>
-          <p style="margin:0; font-size:0.85rem; color:var(--muted); line-height:1.4;">
-            Go to your Railway Dashboard project, click <strong>+ New</strong> ➔ <strong>GitHub Repo</strong> ➔ Select your <code>yss</code> repository.
-          </p>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div style="display:flex; gap:1rem; align-items:start;">
-        <div style="background:var(--primary); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">2</div>
-        <div>
-          <h4 style="margin:0 0 0.25rem 0; color:var(--text); font-size:0.95rem;">Configure Service Settings</h4>
-          <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:var(--muted); line-height:1.4;">
-            Click on the newly created service ➔ go to <strong>Settings</strong> and set:
-          </p>
-          <ul style="margin:0; padding-left:1.2rem; font-size:0.8rem; color:var(--text); line-height:1.5;">
-            <li><strong>Root Directory:</strong> <code>/whatsapp</code></li>
-            <li><strong>Service Name:</strong> Rename it to <code>whatsapp-gateway</code></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div style="display:flex; gap:1rem; align-items:start;">
-        <div style="background:var(--primary); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">3</div>
-        <div>
-          <h4 style="margin:0 0 0.25rem 0; color:var(--text); font-size:0.95rem;">Enable Persistent Session Storage</h4>
-          <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:var(--muted); line-height:1.4;">
-            To ensure you don't have to scan the QR code again when the container restarts, attach a Volume:
-          </p>
-          <ul style="margin:0; padding-left:1.2rem; font-size:0.8rem; color:var(--text); line-height:1.5; margin-bottom:0.5rem;">
-            <li>Go to the service's <strong>Volume</strong> tab ➔ Click <strong>+ Add Volume</strong>.</li>
-            <li>Mount Path: Set to <code>/app/auth_info_baileys</code></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div style="display:flex; gap:1rem; align-items:start;">
-        <div style="background:var(--primary); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">4</div>
-        <div>
-          <h4 style="margin:0 0 0.25rem 0; color:var(--text); font-size:0.95rem;">Configure Backend Environment Variable</h4>
-          <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:var(--muted); line-height:1.4;">
-            Go to your **Main Flask App** service on Railway ➔ **Variables** tab ➔ Click **New Variable**:
-          </p>
-          <div style="background:#f8f9fa; border:1px dashed #ccc; padding:0.5rem 0.75rem; border-radius:6px; font-family:monospace; font-size:0.8rem; color:#333; line-height:1.4;">
-            <strong>NAME:</strong> <code style="color:var(--primary); font-weight:bold;">WHATSAPP_GATEWAY_URL</code><br>
-            <strong>VALUE:</strong> <code>http://whatsapp-gateway.railway.internal:3000</code>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <style>
@@ -178,9 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // Parse status from retrieved HTML page
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          const newStatusElement = doc.querySelector('.form-grid');
+          const newStatusElement = doc.querySelector('#whatsapp-setup-container');
           if (newStatusElement) {
-            const oldGrid = document.querySelector('.form-grid');
+            const oldGrid = document.querySelector('#whatsapp-setup-container');
             // If the status text changed, refresh page to present updated status layout!
             if (html.includes('CONNECTED') && !document.body.innerHTML.includes('CONNECTED')) {
               window.location.reload();
