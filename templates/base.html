@@ -506,14 +506,7 @@
       }
     }
 
-    let currentTheme = localStorage.getItem('public-theme');
-    if (!currentTheme) {
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        currentTheme = 'dark';
-      } else {
-        currentTheme = 'light';
-      }
-    }
+    let currentTheme = localStorage.getItem('public-theme') || 'light';
     applyPublicTheme(currentTheme);
 
     if (publicThemeToggle) {

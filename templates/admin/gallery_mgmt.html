@@ -70,7 +70,7 @@
               <p style="margin:0; font-size:0.82rem; font-weight:bold; color:var(--text); overflow:hidden; text-overflow:ellipsis; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical; line-height:1.3; min-height:2.6em;">
                 {{ img.caption or '(No caption)' }}
               </p>
-              <span style="font-size:0.68rem; color:var(--muted);">{{ img.uploaded_at.strftime('%d %b %Y') if img.uploaded_at else '' }}</span>
+              <span style="font-size:0.68rem; color:var(--muted);">{{ img.created_at.strftime('%d %b %Y') if img.created_at else '' }}</span>
             </div>
           </div>
         {% endfor %}

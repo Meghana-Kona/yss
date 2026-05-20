@@ -34,7 +34,7 @@
           {% if img.caption %}
             <div style="padding: 1rem; text-align: center;">
               <p style="margin: 0; font-size: 0.95rem; color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ img.caption }}</p>
-              <span style="font-size: 0.75rem; color: var(--muted);">{{ img.uploaded_at.strftime('%d %b %Y') if img.uploaded_at else '' }}</span>
+              <span style="font-size: 0.75rem; color: var(--muted);">{{ img.created_at.strftime('%d %b %Y') if img.created_at else '' }}</span>
             </div>
           {% endif %}
         </div>

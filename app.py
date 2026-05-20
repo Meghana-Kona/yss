@@ -728,7 +728,7 @@ def about():
 
 @app.route('/gallery')
 def gallery():
-    images = GalleryImage.query.order_by(GalleryImage.uploaded_at.desc()).all()
+    images = GalleryImage.query.order_by(GalleryImage.created_at.desc()).all()
     return render_template('gallery.html', images=images, config=app.config)
 
 @app.route('/schedule')
@@ -1887,7 +1887,7 @@ def admin_credentials():
 @app.route('/admin/gallery')
 @login_required
 def admin_gallery():
-    images = GalleryImage.query.order_by(GalleryImage.uploaded_at.desc()).all()
+    images = GalleryImage.query.order_by(GalleryImage.created_at.desc()).all()
     return render_template('admin/gallery_mgmt.html', images=images, config=app.config)
 
 @app.route('/admin/gallery/upload', methods=['POST'])
@@ -1950,6 +1950,7 @@ def admin_gallery_delete(photo_id):
 
 # ─── ADMIN ACTIVITY LOG & ACTIVE TRACKER ──────────────────────────────────────
 @app.route('/admin/activity-log')
+@app.route('/admin/activity_log')
 @login_required
 def admin_activity_log():
     page = request.args.get('page', 1, type=int)
@@ -1992,6 +1993,7 @@ def admin_clear_activity_log():
 
 # ─── ADMIN WHATSAPP SETUP ───────────────────────────────────────────────────
 @app.route('/admin/whatsapp-setup')
+@app.route('/admin/whatsapp_setup')
 @login_required
 def admin_whatsapp_setup():
     templates = WhatsAppTemplate.query.order_by(WhatsAppTemplate.key.asc()).all()

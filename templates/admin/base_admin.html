@@ -303,14 +303,7 @@ function closeCustomConfirm() {
       }
     }
 
-    let savedTheme = localStorage.getItem('admin-theme');
-    if (!savedTheme) {
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        savedTheme = 'dark';
-      } else {
-        savedTheme = 'light';
-      }
-    }
+    let savedTheme = localStorage.getItem('admin-theme') || 'light';
     applyAdminTheme(savedTheme);
 
     if (adminThemeToggle) {

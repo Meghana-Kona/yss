@@ -209,9 +209,9 @@ body.dark-mode #templateDescription {
 const templatesData = {
   {% for t in templates %}
     "{{ t.key }}": {
-      "description": "{{ t.description|escape }}",
-      "variables": "{{ t.variables|escape }}",
-      "template_text": `{{ t.template_text|safe }}`
+      "description": {{ t.description|tojson }},
+      "variables": {{ t.variables|tojson }},
+      "template_text": {{ t.template_text|tojson }}
     }{% if not loop.last %},{% endif %}
   {% endfor %}
 };
