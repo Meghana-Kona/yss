@@ -29,7 +29,7 @@
     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
   </form>
 
-  {% if pagination.items %}
+  {% if donations %}
   <div style="overflow-x:auto;">
     <table>
       <thead>
@@ -51,9 +51,9 @@
         </tr>
       </thead>
       <tbody>
-      {% for d in pagination.items %}
+      {% for d in donations %}
       <tr id="row-{{ d.id }}" style="transition:opacity .4s;">
-        <td>{{ (pagination.page-1)*10 + loop.index }}</td>
+        <td>{{ loop.index }}</td>
         <td><small style="color:var(--muted);">{{ d.donation_id }}</small></td>
         <td>{{ d.lesson_no }}</td>
         <td><strong>{{ d.name }}</strong><br><small style="color:var(--muted);">{{ d.age }} yrs</small></td>
@@ -127,7 +127,7 @@
     </table>
   </div>
   <div style="padding:1rem;color:var(--muted);font-size:.85rem;">
-    Showing {{ (pagination.page-1)*10+1 }} to {{ [(pagination.page-1)*10+10, pagination.total]|min }} entries
+    Showing all {{ donations|length }} entries
   </div>
   {% else %}
   <div class="empty-state">
@@ -137,20 +137,6 @@
   </div>
   {% endif %}
 
-  <!-- PAGINATION -->
-  {% if pagination.pages > 1 %}
-  <div class="pagination">
-    <a href="?page={{ pagination.prev_num }}&search={{ search }}" class="page-btn" {% if not pagination.has_prev %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-left"></i></a>
-    {% for p in pagination.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
-      {% if p %}
-        <a href="?page={{ p }}&search={{ search }}" class="page-btn {% if p==pagination.page %}active{% endif %}">{{ p }}</a>
-      {% else %}
-        <span class="page-btn" style="border:none;">…</span>
-      {% endif %}
-    {% endfor %}
-    <a href="?page={{ pagination.next_num }}&search={{ search }}" class="page-btn" {% if not pagination.has_next %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-right"></i></a>
-  </div>
-  {% endif %}
 </div>
 
 <!-- SCREENSHOT MODAL -->

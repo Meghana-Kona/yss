@@ -45,9 +45,9 @@
   </form>
 </div>
 
-{% if pagination.items %}
+{% if registrations %}
 <div class="id-cards-grid">
-  {% for r in pagination.items %}
+  {% for r in registrations %}
   <div class="id-card-wrapper" style="border:2px solid #333;background:#fff;border-radius:4px;overflow:hidden;">
     <div style="background:var(--primary);color:#fff;text-align:center;padding:.75rem;">
       <div style="font-weight:700;font-size:.9rem;letter-spacing:1px;">Y.S.D.K., ANANTAPUR</div>
@@ -72,19 +72,10 @@
 </div>
 
 <div style="margin-top:1.5rem;color:var(--muted);font-size:.85rem;text-align:center;">
-  Showing {{ (pagination.page-1)*8+1 }} to {{ [(pagination.page-1)*8+8, pagination.total]|min }} of {{ pagination.total }} entries
+  Showing all {{ registrations|length }} entries
 </div>
 
-{% if pagination.pages > 1 %}
-<div class="pagination" style="margin-top:1rem;">
-  <a href="?page={{ pagination.prev_num }}&search={{ search }}" class="page-btn" {% if not pagination.has_prev %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-left"></i></a>
-  {% for p in pagination.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
-    {% if p %}<a href="?page={{ p }}&search={{ search }}" class="page-btn {% if p==pagination.page %}active{% endif %}">{{ p }}</a>
-    {% else %}<span class="page-btn" style="border:none;">…</span>{% endif %}
-  {% endfor %}
-  <a href="?page={{ pagination.next_num }}&search={{ search }}" class="page-btn" {% if not pagination.has_next %}style="opacity:.4;pointer-events:none"{% endif %}><i class="fa fa-chevron-right"></i></a>
-</div>
-{% endif %}
+
 
 {% else %}
 <div class="empty-state"><div class="empty-icon">🪪</div><h3>No ID Cards Found</h3><p>ID cards appear here once registrations are submitted.</p></div>

@@ -960,8 +960,8 @@ def admin_requests():
                              Registration.whatsapp.ilike(f'%{search}%'),
                              Registration.reg_id.ilike(f'%{search}%')))
     pending_count = q.count()
-    pagination = q.order_by(Registration.id.asc()).paginate(page=page, per_page=10)
-    return render_template('admin/requests.html', pagination=pagination,
+    registrations = q.order_by(Registration.id.asc()).all()
+    return render_template('admin/requests.html', registrations=registrations,
                            search=search, pending_count=pending_count, config=app.config)
 
 @app.route('/api/registrations/<int:rid>/approve', methods=['POST'])
@@ -1136,7 +1136,7 @@ def admin_donations():
         q = q.filter(db.or_(Donation.name.ilike(f'%{search}%'),
                              Donation.whatsapp.ilike(f'%{search}%'),
                              Donation.donation_id.ilike(f'%{search}%')))
-    pagination = q.order_by(Donation.id.asc()).paginate(page=page, per_page=10)
+    donations = q.order_by(Donation.id.asc()).all()
     
     total_donations = Donation.query.filter_by(payment_status='Received').count()
     donated_amount = db.session.query(db.func.sum(Donation.amount)).filter(Donation.payment_status == 'Received').scalar() or 0
@@ -1146,7 +1146,7 @@ def admin_donations():
         'donated_amount': donated_amount
     }
     
-    return render_template('admin/donations.html', pagination=pagination,
+    return render_template('admin/donations.html', donations=donations,
                            search=search, stats=stats, config=app.config)
 
 @app.route('/admin/donation-requests')
@@ -1166,8 +1166,8 @@ def admin_donation_requests():
                              Donation.whatsapp.ilike(f'%{search}%'),
                              Donation.donation_id.ilike(f'%{search}%')))
     pending_count = q.count()
-    pagination = q.order_by(Donation.id.asc()).paginate(page=page, per_page=10)
-    return render_template('admin/donation_requests.html', pagination=pagination,
+    donations = q.order_by(Donation.id.asc()).all()
+    return render_template('admin/donation_requests.html', donations=donations,
                            search=search, pending_count=pending_count, config=app.config)
 
 @app.route('/admin/donations/export')
@@ -1234,8 +1234,8 @@ def admin_id_cards():
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%')))
                              
-    pagination = q.order_by(Registration.id).paginate(page=page, per_page=8)
-    return render_template('admin/id_cards.html', pagination=pagination,
+    registrations = q.order_by(Registration.id).all()
+    return render_template('admin/id_cards.html', registrations=registrations,
                            search=search, config=app.config)
 
 # ─── ADMIN ROOM ALLOTMENT ────────────────────────────────────────────────────
