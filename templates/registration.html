@@ -277,9 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('upi-modal-amount').textContent = `₹${total}`;
             
             // Set App-specific Deep Links with Correct Payee Name
-            document.getElementById('modal-gpay').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
-            document.getElementById('modal-phonepe').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
-            document.getElementById('modal-paytm').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
+            document.getElementById('modal-gpay').href = `tez://upi/pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
+            document.getElementById('modal-phonepe').href = `phonepe://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
+            document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
             document.getElementById('modal-generic').href = upiLink;
             
             document.getElementById('upiModal').style.display = 'flex';

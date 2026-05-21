@@ -156,9 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // Mobile: Show UPI Chooser Modal
           document.getElementById('upi-modal-amount').textContent = `₹${amt}`;
           
-          document.getElementById('modal-gpay').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
-          document.getElementById('modal-phonepe').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
-          document.getElementById('modal-paytm').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-gpay').href = `tez://upi/pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-phonepe').href = `phonepe://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
           document.getElementById('modal-generic').href = upiLink;
           
           document.getElementById('upiModal').style.display = 'flex';
