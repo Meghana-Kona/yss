@@ -440,8 +440,12 @@ def update_registrations_excel():
     create_sheet('Non-Kriyabans', [r for r in regs if not r.is_kriyaban])
     create_sheet('Accommodation', [r for r in regs if r.accommodation])
 
-    wb.save(path)
-    wb.close()
+    try:
+        wb.save(path)
+    except Exception as e:
+        app.logger.error(f"Error saving registrations excel: {e}")
+    finally:
+        wb.close()
 
 def update_donations_excel():
     path = os.path.join(app.config['EXPORTS_DIR'], 'donations.xlsx')
@@ -469,8 +473,12 @@ def update_donations_excel():
             except: pass
         ws.column_dimensions[column].width = max_length + 2
 
-    wb.save(path)
-    wb.close()
+    try:
+        wb.save(path)
+    except Exception as e:
+        app.logger.error(f"Error saving donations excel: {e}")
+    finally:
+        wb.close()
 
 def send_registration_email(reg):
     try:
@@ -955,8 +963,12 @@ def forgot_password():
                          sender=app.config['MAIL_USERNAME'],
                          recipients=[admin.email])
             msg.body = f"Jai Guru!\n\nTo reset your admin password, please click the link below:\n{reset_url}\n\nIf you did not request this, please ignore this email.\n\nRegards,\nYSS Spiritual Program Team"
-            mail.send(msg)
-            flash('A password reset link has been sent to your email.', 'success')
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'success')
+            except Exception as e:
+                app.logger.warning(f'Forgot password email failed: {e}')
+                flash('Failed to send password reset email. Please contact the main admin.', 'error')
         else:
             flash('Email address not found.', 'error')
     return render_template('admin/forgot_password.html', config=app.config)
@@ -997,11 +1009,18 @@ def admin_manage():
             mobile = request.form.get('mobile')
             password = request.form.get('password')
             
-            new_admin = Admin(lesson_no=lesson_no, name=name, email=email, mobile=mobile)
-            new_admin.set_password(password)
-            db.session.add(new_admin)
-            db.session.commit()
-            flash('New admin added successfully.', 'success')
+            if not name or not email or not mobile or not password:
+                flash('Name, Email, Mobile, and Password are required.', 'error')
+            else:
+                try:
+                    new_admin = Admin(lesson_no=lesson_no, name=name, email=email, mobile=mobile)
+                    new_admin.set_password(password)
+                    db.session.add(new_admin)
+                    db.session.commit()
+                    flash('New admin added successfully.', 'success')
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f'Error adding admin: {e}', 'error')
         elif action == 'delete':
             admin_id = request.form.get('admin_id')
             admin_to_del = Admin.query.get(int(admin_id))
@@ -1173,6 +1192,14 @@ def admin_edit_registration(reg_id):
             uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
             os.makedirs(uploads_dir, exist_ok=True)
             file.save(os.path.join(uploads_dir, new_filename))
+            
+            if reg.payment_screenshot:
+                try:
+                    old_path = os.path.join(uploads_dir, reg.payment_screenshot)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                except: pass
+                
             reg.payment_screenshot = new_filename
 
         if not lesson_no: errors.append('Lesson Number is required.')
@@ -1495,6 +1522,19 @@ def manual_registration():
 def api_registration(rid):
     reg = Registration.query.get_or_404(rid)
     if request.method == 'DELETE':
+        if reg.payment_screenshot:
+            try:
+                filepath = os.path.join(app.root_path, 'static', 'uploads', reg.payment_screenshot)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            except Exception as e:
+                app.logger.error(f"Failed to delete screenshot {reg.payment_screenshot}: {e}")
+                
+        # Delete associated room allotment to prevent foreign key constraint errors
+        allotment = RoomAllotment.query.filter_by(registration_id=reg.id).first()
+        if allotment:
+            db.session.delete(allotment)
+            
         db.session.delete(reg)
         db.session.commit()
         update_registrations_excel()
@@ -1597,6 +1637,14 @@ def manual_donation():
 def api_donation(did):
     don = Donation.query.get_or_404(did)
     if request.method == 'DELETE':
+        if don.payment_screenshot:
+            try:
+                filepath = os.path.join(app.root_path, 'static', 'uploads', don.payment_screenshot)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            except Exception as e:
+                app.logger.error(f"Failed to delete screenshot {don.payment_screenshot}: {e}")
+                
         db.session.delete(don)
         db.session.commit()
         update_donations_excel()
@@ -1690,7 +1738,11 @@ def admin_room_rename():
     new_capacity = request.form.get('new_capacity')
     room = Room.query.get(room_id)
     if room:
-        if new_name:
+        if new_name and new_name != room.room_number:
+            existing = Room.query.filter_by(room_number=new_name).first()
+            if existing:
+                flash('Another room with this name already exists.', 'error')
+                return redirect(url_for('admin_room_allotment'))
             room.room_number = new_name
         if new_capacity and new_capacity.isdigit():
             room.capacity = int(new_capacity)
