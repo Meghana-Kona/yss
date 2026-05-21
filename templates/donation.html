@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (amountInput && upiBtn) {
     const updateLink = () => {
       const amt = amountInput.value || 0;
-      const upiLink = `upi://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
+      const upiLink = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
       upiBtn.href = upiLink;
       
       upiBtn.onclick = function(e) {
@@ -149,10 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // Mobile: Show UPI Chooser Modal
           document.getElementById('upi-modal-amount').textContent = `₹${amt}`;
           
-          // Set App-specific Deep Links
-          document.getElementById('modal-gpay').href = `gpay://upi/pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
-          document.getElementById('modal-phonepe').href = `phonepe://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
-          document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${amt}&cu=INR`;
+          document.getElementById('modal-gpay').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-phonepe').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-paytm').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
           document.getElementById('modal-generic').href = upiLink;
           
           document.getElementById('upiModal').style.display = 'flex';

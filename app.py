@@ -1616,6 +1616,7 @@ def api_donation(did):
 def admin_id_cards():
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
+    is_kriyaban = request.args.get('is_kriyaban', '')
     
     # Only show approved participants in ID cards section
     q = Registration.query.filter_by(reg_status='Approved')
@@ -1624,9 +1625,14 @@ def admin_id_cards():
         q = q.filter(db.or_(Registration.full_name.ilike(f'%{search}%'),
                              Registration.whatsapp.ilike(f'%{search}%')))
                              
+    if is_kriyaban == 'true':
+        q = q.filter_by(is_kriyaban=True)
+    elif is_kriyaban == 'false':
+        q = q.filter_by(is_kriyaban=False)
+                             
     registrations = q.order_by(Registration.id).all()
     return render_template('admin/id_cards.html', registrations=registrations,
-                           search=search, config=app.config)
+                           search=search, is_kriyaban=is_kriyaban, config=app.config)
 
 # ─── ADMIN ROOM ALLOTMENT ────────────────────────────────────────────────────
 @app.route('/admin/room-allotment')

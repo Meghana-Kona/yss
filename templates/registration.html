@@ -19,7 +19,7 @@
         <div class="form-grid form-grid-2">
           <div class="form-group" id="lesson-no-container">
             <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.4rem; justify-content:space-between;">
-              <label style="margin:0;" data-i18n="lesson_no_label" id="lesson-label">Lesson No *</label>
+            <label data-i18n="lesson_no_label" id="lesson-label">Lesson No</label>
               <label style="display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer; font-weight:normal; font-size:0.85rem; margin:0; background:rgba(204,68,20,0.1); padding:0.2rem 0.6rem; border-radius:4px;">
                 <input type="checkbox" name="is_new_member" id="is_new_member" value="yes" {% if form.get('is_new_member')=='yes' %}checked{% endif %}>
                 <span data-i18n="new_member_opt" style="font-weight:600; color:var(--primary);">New Member?</span>
@@ -28,14 +28,14 @@
             <input type="text" name="lesson_no" id="lesson_no" class="form-control" data-i18n-placeholder="lesson_no_placeholder" placeholder="Enter lesson number" value="{{ form.get('lesson_no','') }}" required>
           </div>
           <div class="form-group">
-            <label data-i18n="full_name_label">Full Name *</label>
+            <label data-i18n="full_name_label">Full Name</label>
             <input type="text" name="full_name" class="form-control" data-i18n-placeholder="full_name_placeholder" placeholder="Enter your full name" value="{{ form.get('full_name','') }}" required>
           </div>
         </div>
         
         <div class="form-grid form-grid-3" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label data-i18n="gender_label">Gender *</label>
+            <label data-i18n="gender_label">Gender</label>
             <select name="gender" class="form-control" required>
               <option value="" data-i18n="select_gender">-- Select Gender --</option>
               <option value="Male" data-i18n="male" {% if form.get('gender')=='Male' %}selected{% endif %}>Male</option>
@@ -44,11 +44,11 @@
             </select>
           </div>
           <div class="form-group">
-            <label data-i18n="age_label">Age *</label>
+            <label data-i18n="age_label">Age</label>
             <input type="number" name="age" class="form-control" data-i18n-placeholder="age_placeholder" placeholder="Enter your age" value="{{ form.get('age','') }}" min="5" max="120" required>
           </div>
           <div class="form-group">
-            <label data-i18n="city_label">City/Village/Town *</label>
+            <label data-i18n="city_label">City/Village/Town</label>
             <input type="text" name="place" class="form-control" data-i18n-placeholder="city_placeholder" placeholder="Enter city/village/town" value="{{ form.get('place','') }}" required>
           </div>
         </div>
@@ -59,25 +59,25 @@
             <input type="text" name="district" class="form-control" data-i18n-placeholder="district_placeholder" placeholder="Enter your district" value="{{ form.get('district','') }}">
           </div>
           <div class="form-group">
-            <label data-i18n="state_label">State *</label>
+            <label data-i18n="state_label">State</label>
             <input type="text" name="state" class="form-control" data-i18n-placeholder="state_placeholder" placeholder="Enter your state" value="{{ form.get('state','') }}" required>
           </div>
           <div class="form-group">
-            <label data-i18n="email_label">Email Address *</label>
+            <label data-i18n="email_label">Email Address</label>
             <input type="email" name="email" class="form-control" data-i18n-placeholder="email_placeholder" placeholder="Enter your email" value="{{ form.get('email','') }}" required>
           </div>
         </div>
         
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label data-i18n="kriyaban_label">Kriya *</label>
+            <label data-i18n="kriyaban_label">Kriya</label>
             <div class="radio-group">
               <label><input type="radio" name="is_kriyaban" value="yes" {% if form.get('is_kriyaban')=='yes' %}checked{% endif %}><span data-i18n="kriyaban">Kriyaban</span></label>
               <label><input type="radio" name="is_kriyaban" value="no" {% if form.get('is_kriyaban')=='no' %}checked{% endif %}><span data-i18n="non_kriyaban">Non-Kriyaban</span></label>
             </div>
           </div>
           <div class="form-group">
-            <label data-i18n="whatsapp_label">WhatsApp No *</label>
+            <label data-i18n="whatsapp_label">WhatsApp No</label>
             <div style="display:flex;gap:0.5rem;">
               <select name="country_code" class="form-control" style="width:auto;flex-shrink:0;">
                 <option value="+91" selected>+91 (IND)</option>
@@ -95,14 +95,14 @@
         
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label data-i18n="accommodation_label">Accommodation Required *</label>
+            <label data-i18n="accommodation_label">Accommodation Required</label>
             <div class="radio-group">
               <label><input type="radio" name="accommodation" value="yes" {% if form.get('accommodation')=='yes' %}checked{% endif %}><span data-i18n="yes">Yes</span></label>
               <label><input type="radio" name="accommodation" value="no" {% if form.get('accommodation')=='no' %}checked{% endif %}><span data-i18n="no">No</span></label>
             </div>
           </div>
           <div class="form-group">
-            <label data-i18n="volunteer_label">Volunteer *</label>
+            <label data-i18n="volunteer_label">Volunteer</label>
             <div class="radio-group">
               <label><input type="radio" name="volunteer" value="yes" {% if form.get('volunteer')=='yes' %}checked{% endif %}><span data-i18n="yes">Yes</span></label>
               <label><input type="radio" name="volunteer" value="no" {% if form.get('volunteer')=='no' %}checked{% endif %}><span data-i18n="no">No</span></label>
@@ -112,26 +112,26 @@
         
         <div class="form-grid form-grid-3" style="margin-top:1.25rem;">
           <div class="form-group">
-            <label data-i18n="arrival_date_label">Date of Arrival *</label>
+            <label data-i18n="arrival_date_label">Date of Arrival</label>
             <input type="date" name="arrival_date" class="form-control" value="{{ form.get('arrival_date','') }}" min="2026-07-23" max="2026-07-27" required>
           </div>
           <div class="form-group">
-            <label data-i18n="departure_date_label">Date of Departure *</label>
+            <label data-i18n="departure_date_label">Date of Departure</label>
             <input type="date" name="departure_date" class="form-control" value="{{ form.get('departure_date','') }}" min="2026-07-23" max="2026-07-27" required>
           </div>
           <div class="form-group">
-            <label data-i18n="payment_mode_label">Payment Mode *</label>
+            <label data-i18n="payment_mode_label">Payment Mode</label>
             <input type="text" name="payment_mode" id="payment_mode" class="form-control" value="UPI" readonly style="background:#e9ecef; cursor:not-allowed; font-weight:700; color:var(--primary);">
           </div>
         </div>
 
         <div class="form-grid form-grid-2" style="margin-top:1.25rem;" id="upi_fields">
           <div class="form-group">
-            <label data-i18n="transaction_id_label">Transaction ID *</label>
+            <label data-i18n="transaction_id_label">Transaction ID</label>
             <input type="text" name="transaction_id" id="transaction_id" class="form-control" data-i18n-placeholder="transaction_id_placeholder" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}">
           </div>
           <div class="form-group">
-            <label data-i18n="screenshot_label">Upload Payment Screenshot *</label>
+            <label data-i18n="screenshot_label">Upload Payment Screenshot</label>
             <input type="file" name="payment_screenshot" id="payment_screenshot" class="form-control" accept="image/*">
           </div>
         </div>
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const upiBtn = document.getElementById('upi-pay-btn');
       if (upiBtn) {
-        const upiLink = `upi://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${total}&cu=INR`;
+        const upiLink = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
         upiBtn.href = upiLink;
         upiBtn.onclick = function(e) {
           e.preventDefault();
@@ -268,10 +268,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mobile: Show UPI Chooser Modal
             document.getElementById('upi-modal-amount').textContent = `₹${total}`;
             
-            // Set App-specific Deep Links
-            document.getElementById('modal-gpay').href = `gpay://upi/pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${total}&cu=INR`;
-            document.getElementById('modal-phonepe').href = `phonepe://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${total}&cu=INR`;
-            document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=YSS%20Anantapur&am=${total}&cu=INR`;
+            // Set App-specific Deep Links with Correct Payee Name
+            document.getElementById('modal-gpay').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
+            document.getElementById('modal-phonepe').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
+            document.getElementById('modal-paytm').href = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${total}&cu=INR`;
             document.getElementById('modal-generic').href = upiLink;
             
             document.getElementById('upiModal').style.display = 'flex';

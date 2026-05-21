@@ -5,7 +5,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 5mm;
   }
   body {
     -webkit-print-color-adjust: exact;
@@ -17,7 +17,7 @@
   .id-cards-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 15mm 10mm !important;
+    gap: 5mm 5mm !important;
     width: 100% !important;
   }
   .id-card-wrapper {
@@ -41,6 +41,11 @@
       <span class="si"><i class="fa fa-search"></i></span>
       <input type="text" name="search" placeholder="Search by name, mobile number..." value="{{ search }}">
     </div>
+    <select name="is_kriyaban" class="filter-select" style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:#fff;">
+      <option value="" {% if is_kriyaban=='' %}selected{% endif %}>All (Kriyaban)</option>
+      <option value="true" {% if is_kriyaban=='true' %}selected{% endif %}>Kriyabans Only</option>
+      <option value="false" {% if is_kriyaban=='false' %}selected{% endif %}>Non-Kriyabans</option>
+    </select>
     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Search</button>
   </form>
 </div>
@@ -49,19 +54,19 @@
 <div class="id-cards-grid">
   {% for r in registrations %}
   <div class="id-card-wrapper" style="border:2px solid #333;background:#fff;border-radius:4px;overflow:hidden;">
-    <div style="background:var(--primary);color:#fff;text-align:center;padding:.75rem;">
+    <div style="background:var(--primary);color:#fff;text-align:center;padding:.5rem;">
       <div style="font-weight:700;font-size:.9rem;letter-spacing:1px;">Y.S.D.K., ANANTAPUR</div>
       <div style="font-weight:700;font-size:.9rem;">3-DAY SADHANA SANGAM</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #ccc;">
-      <div style="padding:.5rem 1rem;font-weight:700;font-size:1.1rem;text-align:center;border-right:1px solid #ccc;">{{ r.id }}</div>
-      <div style="padding:.5rem 1rem;text-align:center;font-size:.85rem;">({{ r.created_at.strftime('%d-%m-%Y') if r.created_at else '' }})</div>
+      <div style="padding:.3rem .5rem;font-weight:700;font-size:1.1rem;text-align:center;border-right:1px solid #ccc;">{{ r.id }}</div>
+      <div style="padding:.3rem .5rem;text-align:center;font-size:.85rem;">({{ r.created_at.strftime('%d-%m-%Y') if r.created_at else '' }})</div>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;color:#333;width:40%;">Name :</td><td style="padding:.4rem .75rem;">{{ r.full_name }}</td></tr>
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;">Lesson No :</td><td style="padding:.4rem .75rem;">{{ r.lesson_no }}</td></tr>
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.4rem .75rem;font-weight:700;">Mobile No :</td><td style="padding:.4rem .75rem;">{{ r.whatsapp }}</td></tr>
-      <tr><td style="padding:.4rem .75rem;font-weight:700;">Place :</td><td style="padding:.4rem .75rem;">{{ r.place }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;color:#333;width:40%;">Name :</td><td style="padding:.2rem .4rem;">{{ r.full_name }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;">Lesson No :</td><td style="padding:.2rem .4rem;">{{ r.lesson_no }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;">Mobile No :</td><td style="padding:.2rem .4rem;">{{ r.whatsapp }}</td></tr>
+      <tr><td style="padding:.2rem .4rem;font-weight:700;">Place :</td><td style="padding:.2rem .4rem;">{{ r.place }}</td></tr>
     </table>
     <div class="card-actions" style="padding:.5rem;display:flex;gap:.5rem;justify-content:center;border-top:1px solid #eee;">
       <a href="{{ url_for('reg_success', reg_id=r.reg_id) }}" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Print</a>

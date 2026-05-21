@@ -51,7 +51,7 @@
       <tbody>
       {% for r in registrations %}
       <tr id="row-{{ r.id }}" style="transition:opacity .4s;">
-        <td>{{ loop.index }}</td>
+        <td>{{ (pagination.page - 1) * pagination.per_page + loop.index }}</td>
         <td><small style="color:var(--muted);">{{ r.reg_id }}</small></td>
         <td>{{ r.lesson_no }}</td>
         <td><strong>{{ r.full_name }}</strong><br><small style="color:var(--muted);">{{ r.gender }}, {{ r.age }} yrs</small></td>
