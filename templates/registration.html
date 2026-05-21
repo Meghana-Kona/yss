@@ -142,8 +142,8 @@
 </div>
 
 <div id="fee-section" style="margin-top:1.5rem; padding:1.5rem; background:#fdf6ec; border-radius:8px; border:1px solid #e0d0bb; text-align:center;">
-  <h3 style="color:var(--primary);margin-bottom:1rem;font-family:'Cinzel',serif;">Fee Breakdown</h3>
-  <div id="fee-breakdown" style="font-size:1.1rem;color:var(--text);line-height:1.6;">Registration Fee : ₹1500<br><strong>Total Amount : ₹1500</strong></div>
+  <h3 style="color:var(--primary);margin-bottom:1rem;font-family:'Cinzel',serif;">Fee Details</h3>
+  <div id="fee-breakdown" style="font-size:1.1rem;color:var(--text);line-height:1.6;"><strong>Fee : ₹1800</strong></div>
 </div>
 
 <div class="form-grid form-grid-2" style="margin-top:1.25rem;">
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (amount === 2800) {
             qrImg.src = "{{ url_for('static', filename='images/qr_2800.png') }}";
         } else {
-            qrImg.src = "{{ url_for('static', filename='images/qr_1500.png') }}";
+            qrImg.src = "{{ url_for('static', filename='images/qr_1800.png') }}";
         }
     }
   }
@@ -270,20 +270,20 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', (e) => {
       if (feeSection) feeSection.style.display = 'block';
       if (qrPaymentSection) qrPaymentSection.style.display = 'block';
-      let total = 1500;
+      let total = 1800;
       if(e.target.value === 'yes') {
         total = 2800;
-        if(feeBreakdown) feeBreakdown.innerHTML = `Registration Fee : ₹1500<br>Accommodation Fee : ₹1300<br><strong>Total Amount : ₹2800</strong>`;
+        if(feeBreakdown) feeBreakdown.innerHTML = `<strong>Fee : ₹2800</strong>`;
       } else {
-        total = 1500;
-        if(feeBreakdown) feeBreakdown.innerHTML = `Registration Fee : ₹1500<br><strong>Total Amount : ₹1500</strong>`;
+        total = 1800;
+        if(feeBreakdown) feeBreakdown.innerHTML = `<strong>Fee : ₹1800</strong>`;
       }
       updateUpiPayment(total);
     });
   });
 
-  // Initialise with default ₹1500 on page load
-  updateUpiPayment(1500);
+  // Initialise with default ₹1800 on page load
+  updateUpiPayment(1800);
 
   // Trigger fee section if accommodation already selected (e.g. after validation error)
   const checkedRadio = document.querySelector('input[name="accommodation"]:checked');
