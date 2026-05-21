@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show payment section
       if (paymentDetails) paymentDetails.style.display = 'block';
       
-      const upiLink = `upi://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+      const upiLink = `upi://pay?pa=9441665181@ybl&pn=AKKALURU NARASIMHULU&am=${amt}&cu=INR`;
       upiBtn.href = upiLink;
       
       // Generate QR code
@@ -155,8 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (/Mobi|Android/i.test(navigator.userAgent)) {
           // Mobile: show UPI chooser modal
           document.getElementById('upi-modal-amount').textContent = `₹${amt}`;
-          document.getElementById('modal-gpay').href = `tez://upi/pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
-          document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=AKKALURU%20NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-gpay').href = `tez://upi/pay?pa=9441665181@ybl&pn=AKKALURU NARASIMHULU&am=${amt}&cu=INR`;
+          document.getElementById('modal-paytm').href = `paytmmp://pay?pa=9441665181@ybl&pn=AKKALURU NARASIMHULU&am=${amt}&cu=INR`;
           document.getElementById('modal-generic').href = upiLink;
           document.getElementById('upiModal').style.display = 'flex';
         } else {
