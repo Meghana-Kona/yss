@@ -245,7 +245,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (upiBtn) {
         upiBtn.href = upiLink;
-        upiBtn.onclick = null; // Open link directly
+        upiBtn.onclick = function(e) {
+            e.preventDefault();
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // Update modal links and amount
+                const modalAmount = document.getElementById('upi-modal-amount');
+                if (modalAmount) modalAmount.textContent = `₹${amount}`;
+                
+                const gpayBtn = document.getElementById('modal-gpay');
+                if (gpayBtn) gpayBtn.href = `tez://upi/pay?pa=9441665181@ybl&pn=AKKALURU NARASIMHULU&am=${amount}&cu=INR`;
+                
+                const paytmBtn = document.getElementById('modal-paytm');
+                if (paytmBtn) paytmBtn.href = `paytmmp://pay?pa=9441665181@ybl&pn=AKKALURU NARASIMHULU&am=${amount}&cu=INR`;
+                
+                const genericBtn = document.getElementById('modal-generic');
+                if (genericBtn) genericBtn.href = upiLink;
+                
+                const modal = document.getElementById('upiModal');
+                if (modal) modal.style.display = 'flex';
+            } else {
+                // Desktop: Do nothing (just let them scan the QR below)
+                // or open the link if they want
+                window.location.href = upiLink;
+            }
+        };
     }
     if (qrImg) {
         if (amount === 2800) {
