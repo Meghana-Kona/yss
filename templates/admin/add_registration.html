@@ -11,7 +11,7 @@
     <div class="form-grid form-grid-2">
       <div class="form-group" style="margin-bottom:1rem;">
         <label style="display:block;margin-bottom:.5rem;font-weight:600;">Lesson No</span></label>
-        <input type="text" name="lesson_no" class="filter-select" style="width:100%;padding:.75rem;border:1px solid #ccc;border-radius:4px;" placeholder="Enter lesson number" value="{{ form.get('lesson_no','') }}" required>
+        <input type="text" name="lesson_no" class="filter-select" style="width:100%;padding:.75rem;border:1px solid #ccc;border-radius:4px;" placeholder="Enter lesson number" value="{{ form.get('lesson_no','L ') }}" required>
       </div>
       <div class="form-group" style="margin-bottom:1rem;">
         <label style="display:block;margin-bottom:.5rem;font-weight:600;">Full Name</span></label>
@@ -112,12 +112,13 @@
 
     <div class="form-grid form-grid-2" style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
       <div class="form-group">
-        <label style="display:block;margin-bottom:.5rem;font-weight:600;">Transaction ID <span style="color:#888;font-weight:normal;">(Optional)</span></label>
-        <input type="text" name="transaction_id" class="filter-select" style="width:100%;padding:.75rem;border:1px solid #ccc;border-radius:4px;" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}">
+        <label style="display:block;margin-bottom:.5rem;font-weight:600;">Upload Payment Screenshot <span style="color:#888;font-weight:normal;">(Optional)</span></label>
+        <input type="file" name="payment_screenshot" id="payment_screenshot" class="filter-select" style="width:100%;padding:.5rem;border:1px solid #ccc;border-radius:4px;" accept="image/*">
+        <small id="ocr_status" style="color:var(--primary);display:none;margin-top:5px;"><i class="fa fa-spinner fa-spin"></i> Extracting Transaction ID...</small>
       </div>
       <div class="form-group">
-        <label style="display:block;margin-bottom:.5rem;font-weight:600;">Upload Payment Screenshot <span style="color:#888;font-weight:normal;">(Optional)</span></label>
-        <input type="file" name="payment_screenshot" class="filter-select" style="width:100%;padding:.5rem;border:1px solid #ccc;border-radius:4px;" accept="image/*">
+        <label style="display:block;margin-bottom:.5rem;font-weight:600;">Transaction ID <span style="color:#888;font-weight:normal;">(Optional)</span></label>
+        <input type="text" name="transaction_id" id="transaction_id" class="filter-select" style="width:100%;padding:.75rem;border:1px solid #ccc;border-radius:4px;" placeholder="Enter Transaction ID" value="{{ form.get('transaction_id','') }}">
       </div>
     </div>
 
@@ -126,4 +127,45 @@
     </div>
   </form>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('payment_screenshot');
+    const txnInput = document.getElementById('transaction_id');
+    const statusText = document.getElementById('ocr_status');
+
+    if (fileInput && txnInput) {
+        fileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            statusText.style.display = 'block';
+            statusText.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Extracting Transaction ID...';
+            
+            try {
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(file);
+                const text = ret.data.text;
+                await worker.terminate();
+
+                // Match 12 digit number (common for UPI) or typical transaction ID formats
+                // Adjust regex if needed. Looking for 12 digits minimum.
+                const match = text.match(/\b\d{12}\b/);
+                if (match) {
+                    txnInput.value = match[0];
+                    statusText.innerHTML = '<i class="fa fa-check-circle" style="color:green;"></i> Extracted ID automatically!';
+                    setTimeout(() => { statusText.style.display = 'none'; }, 3000);
+                } else {
+                    statusText.innerHTML = '<i class="fa fa-exclamation-triangle" style="color:orange;"></i> Could not find a 12-digit ID. Please enter manually.';
+                }
+            } catch (err) {
+                console.error(err);
+                statusText.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
