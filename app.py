@@ -1574,9 +1574,6 @@ def export_registrations_pdf():
             pdf.ln()
 
     add_section('Overall Summary & All Records', regs)
-    add_section('Kriyabans', [r for r in regs if r.is_kriyaban])
-    add_section('Non-Kriyabans', [r for r in regs if not r.is_kriyaban])
-    add_section('Accommodation Needed', [r for r in regs if r.accommodation])
         
     import io
     pdf_out = io.BytesIO(pdf.output())
