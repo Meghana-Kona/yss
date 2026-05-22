@@ -205,6 +205,55 @@
     body.dark-mode textarea::placeholder {
       color: #64748b !important;
     }
+    
+    /* Print Styles to ensure A4 Landscape Fit */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 10mm;
+      }
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      .admin-sidebar, 
+      .admin-header, 
+      .table-toolbar, 
+      .manual-entry-row,
+      .action-btns,
+      .btn,
+      .toast-container,
+      .stat-cards {
+        display: none !important;
+      }
+      .admin-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+      .table-card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 10pt !important;
+      }
+      th, td {
+        border: 1px solid #ccc !important;
+        padding: 4px !important;
+        color: #000 !important;
+      }
+      /* Hide the Action column */
+      th:last-child, td:last-child {
+        display: none !important;
+      }
+      /* Hide screenshot/eye buttons from cells */
+      td button { display: none !important; }
+    }
   </style>
 </head>
 <body>

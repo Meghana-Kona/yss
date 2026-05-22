@@ -1577,7 +1577,10 @@ def export_registrations_pdf():
         
     import io
     pdf_out = io.BytesIO(pdf.output())
-    return send_file(pdf_out, mimetype='application/pdf', as_attachment=True, download_name='registrations_report.pdf')
+    
+    # If view=1 is passed, open inline so the user can print it. Otherwise download it.
+    as_attachment = request.args.get('view') != '1'
+    return send_file(pdf_out, mimetype='application/pdf', as_attachment=as_attachment, download_name='registrations_report.pdf')
 
 @app.route('/api/registrations/manual', methods=['POST'])
 @login_required
