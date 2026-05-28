@@ -107,8 +107,8 @@
       icon.className = 'fa fa-sync fa-spin';
       text.textContent = 'Checking connection...';
 
-      // Try direct server fetch first
-      fetch('/?cb=' + Date.now(), { cache: 'no-store' })
+      // Try direct server fetch first (bypass service worker to detect actual server status)
+      fetch('/?cb=' + Date.now() + '&bypass-sw=true', { cache: 'no-store' })
         .then(resp => {
           if (resp.ok) {
             // Server reachable, reload page

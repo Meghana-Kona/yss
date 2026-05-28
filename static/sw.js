@@ -71,6 +71,9 @@ self.addEventListener('fetch', (e) => {
   // Skip browser extension requests or non-http protocols
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip requests with bypass-sw parameter (used for direct network checks)
+  if (url.searchParams.has('bypass-sw')) return;
+
   // Intercept POST requests and proxy if direct connection fails
   if (e.request.method === 'POST') {
     if (url.hostname === RAILWAY_HOST) {
