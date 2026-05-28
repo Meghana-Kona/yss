@@ -33,5 +33,5 @@ USER appuser
 # Expose the default port (Railway provides $PORT at runtime)
 EXPOSE 8080
 
-# Set the entrypoint to Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8080}", "--workers", "2", "--threads", "4", "app:app"]
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --threads 4 app:app
+
