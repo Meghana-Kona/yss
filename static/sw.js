@@ -114,26 +114,12 @@ self.addEventListener('fetch', (e) => {
           }
           return networkResponse;
         })
-        .catch(async (err) => {
-          console.warn('[Service Worker] Navigation fetch failed. Trying proxy fallback...', err);
-          
-          const proxyUrl = new URL(e.request.url);
-          proxyUrl.hostname = PROXY_HOST;
-          
-          try {
-            const proxyResponse = await fetch(new Request(proxyUrl.toString(), {
-              method: 'GET',
-              headers: e.request.headers,
-              redirect: 'manual'
-            }));
-            return proxyResponse;
-          } catch (proxyErr) {
-            console.warn('[Service Worker] Proxy navigation failed. Serving from cache/offline.', proxyErr);
-            return caches.match(e.request).then((cachedResponse) => {
-              if (cachedResponse) return cachedResponse;
-              return caches.match('/offline');
-            });
-          }
+        .catch((err) => {
+          console.warn('[Service Worker] Navigation fetch failed. Serving offline fallback.', err);
+          return caches.match(e.request).then((cachedResponse) => {
+            if (cachedResponse) return cachedResponse;
+            return caches.match('/offline');
+          });
         })
     );
     return;

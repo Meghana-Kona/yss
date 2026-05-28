@@ -124,27 +124,9 @@
         });
 
       function tryProxy() {
-        // Use the newly deployed custom Cloudflare Worker proxy
+        // Redirect the user's browser directly to the unblocked Cloudflare Worker URL
         const proxyUrl = 'https://holy-glitter-a694.224g1a3254.workers.dev' + window.location.pathname + window.location.search;
-        return fetch(proxyUrl, { cache: 'no-store' })
-          .then(proxyResp => {
-            if (!proxyResp.ok) throw new Error('Proxy fetch failed');
-            return proxyResp.text();
-          })
-          .then(html => {
-            // Replace current document with proxied content
-            document.open();
-            document.write(html);
-            document.close();
-          })
-          .catch(() => {
-            // Proxy also failed – show DNS warning banner and toast
-            btn.disabled = false;
-            icon.className = 'fa fa-sync';
-            text.textContent = 'Retry Connection';
-            showToast('Unable to reach site. Please change DNS or use a VPN.', 'warning', 8000);
-            showDnsWarningBanner();
-          });
+        window.location.replace(proxyUrl);
       }
     }
 
