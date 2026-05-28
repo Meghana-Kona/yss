@@ -102,47 +102,50 @@
       const btn = document.querySelector('button');
       const icon = document.getElementById('retry-icon');
       const text = document.getElementById('retry-text');
-      
+
       btn.disabled = true;
       icon.className = 'fa fa-sync fa-spin';
-      text.textContent = 'Checking Connection...';
-      
-      // Perform two fetches in parallel:
-      // 1. Direct cache-busted fetch to our server to see if it is reachable
-      const checkServer = fetch('/?cb=' + Date.now(), { cache: 'no-store' })
-        .then(response => {
-          if (response.ok) return true;
-          throw new Error('Server unreachable');
-        })
-        .catch(() => false);
+      text.textContent = 'Checking connection...';
 
-      // 2. Fetch a reliable, IP-based external address (Cloudflare DNS check endpoint)
-      // Since it uses the direct IP (https://1.1.1.1), it bypasses normal ISP DNS resolution.
-      const checkInternet = fetch('https://1.1.1.1/cdn-cgi/trace', { mode: 'no-cors', cache: 'no-store' })
-        .then(() => true)
-        .catch(() => false);
-
-      Promise.all([checkServer, checkInternet]).then(([serverOnline, internetOnline]) => {
-        btn.disabled = false;
-        icon.className = 'fa fa-sync';
-        text.textContent = 'Retry Connection';
-
-        if (serverOnline) {
-          // Server is fully reachable!
-          if (window.location.pathname === '/offline') {
-            window.location.href = '/';
-          } else {
+      // Try direct server fetch first
+      fetch('/?cb=' + Date.now(), { cache: 'no-store' })
+        .then(resp => {
+          if (resp.ok) {
+            // Server reachable, reload page
             window.location.reload();
+          } else {
+            // Server responded but error, try proxy fallback
+            return tryProxy();
           }
-        } else if (internetOnline) {
-          // Device has internet access, but cannot reach the server (DNS issue / ISP block)
-          showToast('Connected to internet, but server is unreachable. Likely DNS/ISP issue. Try changing DNS (e.g. 8.8.8.8) or use a VPN.', 'warning', 7000);
-          showDnsWarningBanner();
-        } else {
-          // Device is completely offline (no internet)
-          showToast('Still offline. Please check your network connection and try again.', 'error');
-        }
-      });
+        })
+        .catch(() => {
+          // Direct fetch failed, try proxy fallback
+          return tryProxy();
+        });
+
+      function tryProxy() {
+        // Use a public proxy (e.g., jina.ai) to fetch the site via HTTP
+        const proxyUrl = 'https://r.jina.ai/http://' + window.location.host;
+        return fetch(proxyUrl, { cache: 'no-store' })
+          .then(proxyResp => {
+            if (!proxyResp.ok) throw new Error('Proxy fetch failed');
+            return proxyResp.text();
+          })
+          .then(html => {
+            // Replace current document with proxied content
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(() => {
+            // Proxy also failed – show DNS warning banner and toast
+            btn.disabled = false;
+            icon.className = 'fa fa-sync';
+            text.textContent = 'Retry Connection';
+            showToast('Unable to reach site. Please change DNS or use a VPN.', 'warning', 8000);
+            showDnsWarningBanner();
+          });
+      }
     }
 
     function showDnsWarningBanner() {
