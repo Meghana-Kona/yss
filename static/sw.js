@@ -9,12 +9,39 @@ const ASSETS_TO_CACHE = [
   '/offline'
 ];
 
+// Helper function to fetch with a timeout
+function fetchWithTimeout(request, timeoutMs = 3500) {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error('Network request timed out'));
+    }, timeoutMs);
+
+    fetch(request).then(
+      (response) => {
+        clearTimeout(timeoutId);
+        resolve(response);
+      },
+      (err) => {
+        clearTimeout(timeoutId);
+        reject(err);
+      }
+    );
+  });
+}
+
 // Install Event
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[Service Worker] Pre-caching offline page and assets');
-      return cache.addAll(ASSETS_TO_CACHE);
+      // Cache assets individually so that a failure on one (e.g. DNS CDN block) doesn't prevent SW installation
+      const cachePromises = ASSETS_TO_CACHE.map((asset) => {
+        return cache.add(asset).catch((err) => {
+          console.warn(`[Service Worker] Failed to pre-cache: ${asset}`, err);
+          return null; // Return null to keep Promise.all from failing
+        });
+      });
+      return Promise.all(cachePromises);
     }).then(() => self.skipWaiting())
   );
 });
@@ -45,19 +72,20 @@ self.addEventListener('fetch', (e) => {
   // Skip browser extension requests or non-http protocols
   if (!url.protocol.startsWith('http')) return;
 
-  // 1. Navigation requests: Network-First, fallback to Cache, fallback to Offline
+  // 1. Navigation requests: Network-First (with timeout), fallback to Cache, fallback to Offline
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request)
+      fetchWithTimeout(e.request, 3500)
         .then((networkResponse) => {
           // Cache the successful home page load for offline use
           if (networkResponse.status === 200 && url.pathname === '/') {
             caches.open(CACHE_NAME).then((cache) => cache.put('/', networkResponse.clone()));
           }
           return networkResponse;
-        })
-        .catch(() => {
-          // Network failed, try cache
+         })
+        .catch((err) => {
+          console.warn('[Service Worker] Navigation fetch failed or timed out. Serving fallback.', err);
+          // Network failed or timed out, try cache
           return caches.match(e.request).then((cachedResponse) => {
             if (cachedResponse) {
               return cachedResponse;
@@ -89,3 +117,4 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+
