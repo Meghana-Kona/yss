@@ -41,7 +41,7 @@
 
 <!-- ADD MODAL -->
 <div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
+  <div class="modal-content" style="background:var(--white);border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
     <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Add Schedule Item</h3>
     <form method="POST">
       <input type="hidden" name="action" value="add">
@@ -93,7 +93,7 @@
 
 <!-- EDIT MODAL -->
 <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
+  <div class="modal-content" style="background:var(--white);border-radius:16px;padding:2rem;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;">
     <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Edit Schedule Item</h3>
     <form method="POST" id="editForm">
       <input type="hidden" name="action" value="edit">

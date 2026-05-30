@@ -15,7 +15,7 @@
   {% for a in admins %}
   {% set stats = admin_stats.get(a.id, {}) %}
   {% set is_online = stats.get('is_online', false) %}
-  <div style="background:#fff; border-radius:14px; padding:1.25rem 1.5rem; border:1.5px solid {% if is_online %}#bbf7d0{% else %}#e5e7eb{% endif %}; box-shadow:0 4px 16px rgba(0,0,0,0.06); position:relative; overflow:hidden;">
+  <div class="admin-card" style="background:var(--white); border-radius:14px; padding:1.25rem 1.5rem; border:1.5px solid {% if is_online %}#bbf7d0{% else %}#e5e7eb{% endif %}; box-shadow:0 4px 16px rgba(0,0,0,0.06); position:relative; overflow:hidden;">
     <!-- Online/Offline indicator -->
     <div style="position:absolute; top:1rem; right:1rem; display:flex; align-items:center; gap:0.35rem;">
       <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:{% if is_online %}#22c55e{% else %}#9ca3af{% endif %}; {% if is_online %}box-shadow:0 0 8px #22c55e; animation:pulse 1.5s infinite;{% endif %}"></span>
@@ -82,7 +82,7 @@
 
 <!-- ADD ADMIN MODAL -->
 <div id="addAdminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:2.5rem;max-width:500px;width:95%;box-shadow:0 10px 40px rgba(0,0,0,.2);">
+  <div class="modal-content" style="background:var(--white);border-radius:16px;padding:2.5rem;max-width:500px;width:95%;box-shadow:0 10px 40px rgba(0,0,0,.2);">
     <h3 style="font-family:'Cinzel',serif;color:var(--primary);margin-bottom:1.5rem;">Add New Administrator</h3>
     <form method="POST">
       <input type="hidden" name="action" value="add">
@@ -123,6 +123,11 @@
   0% { transform:scale(0.95); opacity:0.8; }
   50% { transform:scale(1.1); opacity:1; }
   100% { transform:scale(0.95); opacity:0.8; }
+}
+/* Dark Mode overrides for Admin Card */
+body.dark-mode .admin-card {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
 }
 </style>
 {% endblock %}

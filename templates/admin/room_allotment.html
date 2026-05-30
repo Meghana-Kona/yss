@@ -37,7 +37,7 @@
       <div style="overflow-y:auto; flex:1; padding-right:.5rem;">
         {% if unallocated %}
           {% for u in unallocated %}
-          <div style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:1rem; margin-bottom:.75rem;">
+          <div class="attendee-item-unallocated" style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:1rem; margin-bottom:.75rem;">
             <div style="font-weight:700; color:var(--text); margin-bottom:.25rem;">{{ u.full_name }} <span style="font-size:0.8rem; color:var(--muted); font-weight:normal;">({{ u.gender }}, {{ u.age }})</span></div>
             <div style="font-size:0.85rem; color:var(--muted); margin-bottom:.5rem;">{{ u.place }} • {{ u.whatsapp }}</div>
             
@@ -73,7 +73,7 @@
                 {% set room_info.name = r.room_number %}
               {% endif %}
             {% endfor %}
-          <div style="background:#f0f8f0; border:1px solid #c8e6c9; border-radius:6px; padding:.75rem; margin-bottom:.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <div class="attendee-item-allocated" style="background:#f0f8f0; border:1px solid #c8e6c9; border-radius:6px; padding:.75rem; margin-bottom:.5rem; display:flex; justify-content:space-between; align-items:center;">
             <div>
               <div style="font-weight:600; font-size:.9rem; color:#2E7D32; display:flex; align-items:center; flex-wrap:wrap; gap:.35rem;">
                 {{ a.full_name }}
@@ -129,7 +129,7 @@
     </div>
     
     <!-- Add Room Form -->
-    <form action="{{ url_for('admin_room_add') }}" method="POST" style="display:flex; gap:.5rem; margin-bottom:1.5rem; background:#f9f9f9; padding:1rem; border-radius:6px; border:1px solid #ddd;">
+    <form class="add-room-form" action="{{ url_for('admin_room_add') }}" method="POST" style="display:flex; gap:.5rem; margin-bottom:1.5rem; background:#f9f9f9; padding:1rem; border-radius:6px; border:1px solid #ddd;">
       <input type="text" name="room_number" placeholder="New Room Name" required style="flex:2; padding:.5rem; border:1px solid #ccc; border-radius:4px;">
       <input type="number" name="capacity" placeholder="Capacity" required min="1" style="flex:1; padding:.5rem; border:1px solid #ccc; border-radius:4px;">
       <button type="submit" class="btn btn-primary btn-sm" style="padding:.5rem 1rem;"><i class="fa fa-plus"></i> Add</button>
@@ -137,13 +137,13 @@
 
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
       {% for r in rooms %}
-      <div style="border:1.5px solid {% if room_occupancy[r.id]|length == r.capacity %}#C62828{% else %}#1565C0{% endif %}; border-radius:8px; overflow:hidden; background:#fff;">
-        <div style="background:{% if room_occupancy[r.id]|length == r.capacity %}#FFEBEE{% else %}#E3F2FD{% endif %}; padding:.75rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
+      <div class="room-overview-card" style="border:1.5px solid {% if room_occupancy[r.id]|length == r.capacity %}#C62828{% else %}#1565C0{% endif %}; border-radius:8px; overflow:hidden; background:var(--white);">
+        <div class="{% if room_occupancy[r.id]|length == r.capacity %}room-card-header-full{% else %}room-card-header-available{% endif %}" style="background:{% if room_occupancy[r.id]|length == r.capacity %}#FFEBEE{% else %}#E3F2FD{% endif %}; padding:.75rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee;">
           <form action="{{ url_for('admin_room_rename') }}" method="POST" style="display:flex; align-items:center; justify-content:space-between; flex:1;">
             <input type="hidden" name="room_id" value="{{ r.id }}">
             <input type="text" name="new_name" value="{{ r.room_number }}" style="border:none; background:transparent; font-weight:700; width:65%; color:var(--text); font-size:.9rem;" onfocus="this.style.background='#fff'; this.style.border='1px solid #ccc';" onblur="this.form.submit()" title="Edit Room Name">
             
-            <div style="font-size:.8rem; font-weight:700; color:{% if room_occupancy[r.id]|length == r.capacity %}#C62828{% else %}#1565C0{% endif %}; background:#fff; padding:.1rem .3rem; border-radius:12px; display:flex; align-items:center;">
+            <div style="font-size:.8rem; font-weight:700; color:{% if room_occupancy[r.id]|length == r.capacity %}#C62828{% else %}#1565C0{% endif %}; background:var(--white); padding:.1rem .3rem; border-radius:12px; display:flex; align-items:center;">
               {{ room_occupancy[r.id]|length }}/
               <input type="number" name="new_capacity" value="{{ r.capacity }}" min="{{ room_occupancy[r.id]|length }}" style="width:30px; border:none; background:transparent; font-weight:700; font-size:.8rem; color:inherit; text-align:center; outline:none;" onfocus="this.style.background='#eee';" onblur="this.form.submit()" title="Edit Room Capacity">
             </div>
@@ -153,7 +153,7 @@
           {% if room_occupancy[r.id] %}
             <ul style="list-style:none; padding:0; margin:0; font-size:.85rem;">
             {% for occ in room_occupancy[r.id] %}
-              <li style="padding:.3rem 0; border-bottom:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center;">
+              <li class="room-list-item" style="padding:.3rem 0; border-bottom:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center;">
                 <span title="{{ occ.gender }}, Age {{ occ.age }}">{{ occ.full_name }}</span>
                 <form action="{{ url_for('admin_room_unallot') }}" method="POST" onsubmit="return showCustomConfirm('Remove allotment for {{ occ.full_name }}?', this)" style="display:inline; margin:0;">
                   <input type="hidden" name="registration_id" value="{{ occ.id }}">
@@ -188,13 +188,13 @@
 {% endfor %}
 
 <div id="whatsappQueueModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99999; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s ease;">
-  <div style="background:#fff; border-radius:12px; padding:2rem; width:90%; max-width:550px; box-shadow:0 15px 40px rgba(0,0,0,0.25); border: 2px solid var(--gold); display:flex; flex-direction:column; max-height:80vh;">
+  <div class="modal-content" style="background:var(--white); border-radius:12px; padding:2rem; width:90%; max-width:550px; box-shadow:0 15px 40px rgba(0,0,0,0.25); border: 2px solid var(--gold); display:flex; flex-direction:column; max-height:80vh;">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--gold); padding-bottom:.5rem; margin-bottom:1rem;">
       <h3 style="font-family:'Cinzel',serif; color:var(--primary); font-size:1.3rem; margin:0; display:flex; align-items:center; gap:.5rem;"><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp Dispatcher</h3>
       <button type="button" onclick="closeWhatsAppQueue()" style="background:none; border:none; font-size:1.5rem; color:#666; cursor:pointer;">&times;</button>
     </div>
     
-    <div style="background:#fff3cd; color:#856404; border:1px solid #ffeeba; padding:.75rem; border-radius:6px; font-size:0.8rem; margin-bottom:1rem; line-height:1.4;">
+    <div class="warning-banner" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba; padding:.75rem; border-radius:6px; font-size:0.8rem; margin-bottom:1rem; line-height:1.4;">
       <strong>⚠️ Browser Setting Required:</strong> Clicking "Send All" will sequentially open a chat tab for each person. Please make sure to click the <strong>"Pop-up blocked"</strong> icon in your browser's address bar and select <strong>"Always allow pop-ups from this site"</strong> so all tabs can open!
     </div>
     
@@ -217,7 +217,7 @@
         {% endfor %}
         
         {% if not a.allotment.notified_room_whatsapp or a.allotment.notified_room_whatsapp != room_info.name %}
-          <div id="queue-item-{{ a.id }}" style="background:#f9f9f9; border:1px solid #ddd; border-radius:8px; padding:.75rem 1rem; display:flex; justify-content:space-between; align-items:center; transition: all 0.3s ease;">
+          <div id="queue-item-{{ a.id }}" class="queue-item" style="background:#f9f9f9; border:1px solid #ddd; border-radius:8px; padding:.75rem 1rem; display:flex; justify-content:space-between; align-items:center; transition: all 0.3s ease;">
             <div>
               <div style="font-weight:700; color:var(--text); font-size:.95rem;">{{ a.full_name }}</div>
               <div style="font-size:0.8rem; color:var(--muted); margin-top:.15rem;">
@@ -347,4 +347,42 @@ function sendAllWhatsApp() {
   });
 }
 </script>
+<style>
+/* Dark Mode compatibility overrides for Room Allotment page */
+body.dark-mode .attendee-item-unallocated {
+  background-color: #121212 !important;
+  border-color: #333 !important;
+}
+body.dark-mode .attendee-item-allocated {
+  background-color: #1b3d22 !important;
+  border-color: #2e7d32 !important;
+}
+body.dark-mode .add-room-form {
+  background-color: #121212 !important;
+  border-color: #333 !important;
+}
+body.dark-mode .room-overview-card {
+  border-color: #2d2d2d !important;
+}
+body.dark-mode .room-card-header-full {
+  background-color: #3c1e22 !important;
+  border-bottom-color: #333 !important;
+}
+body.dark-mode .room-card-header-available {
+  background-color: #1a2f4c !important;
+  border-bottom-color: #333 !important;
+}
+body.dark-mode .room-list-item {
+  border-bottom-color: #2d2d2d !important;
+}
+body.dark-mode .warning-banner {
+  background-color: #2d230d !important;
+  color: #cbd5e1 !important;
+  border-color: var(--gold) !important;
+}
+body.dark-mode .queue-item {
+  background-color: #121212 !important;
+  border-color: #333 !important;
+}
+</style>
 {% endblock %}
