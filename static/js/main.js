@@ -1,11 +1,17 @@
 // ── PAGE LOADER ─────────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
+function hidePublicLoader() {
   const loader = document.getElementById('loader');
   if (loader) {
     loader.style.opacity = '0';
     setTimeout(() => loader.remove(), 400);
   }
-});
+}
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  hidePublicLoader();
+} else {
+  window.addEventListener('DOMContentLoaded', hidePublicLoader);
+  window.addEventListener('load', hidePublicLoader);
+}
 
 // Smooth exit transitions for public navigation links
 document.addEventListener('DOMContentLoaded', () => {
