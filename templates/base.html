@@ -158,7 +158,7 @@
           <p>FOUNDED 1917 BY PARAMAHANSA YOGANANDA</p>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:nowrap;">
         <!-- Public Dark Mode Toggle -->
         <button id="publicThemeToggle" type="button" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;height:35px;width:35px;" title="Toggle Dark/Light Mode">
           <i class="fa fa-moon" id="publicThemeIcon"></i>
@@ -256,6 +256,10 @@
     <a href="{{ url_for('about') }}" class="mobile-nav-item {% if request.endpoint in ['about', 'contact'] %}active{% endif %}">
       <i class="fa fa-info-circle"></i>
       <span>Info</span>
+    </a>
+    <a href="{{ url_for('admin_login') }}" class="mobile-nav-item {% if request.endpoint=='admin_login' %}active{% endif %}">
+      <i class="fa fa-user-shield"></i>
+      <span>Admin</span>
     </a>
   </nav>
   <script>
