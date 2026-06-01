@@ -12,6 +12,16 @@ app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'gallery'), exist_ok=True) # Ensure gallery upload directory exists
 
+def to_ist(dt, format_str=None):
+    if not dt:
+        return ""
+    ist_dt = dt + timedelta(hours=5, minutes=30)
+    if format_str:
+        return ist_dt.strftime(format_str)
+    return ist_dt
+
+app.jinja_env.filters['to_ist'] = to_ist
+
 db.init_app(app)
 mail = Mail(app)
 

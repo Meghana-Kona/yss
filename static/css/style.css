@@ -461,3 +461,117 @@ tbody td{padding:.8rem 1rem;font-size:.88rem;color:var(--text);}
   }
 }
 
+/* ==========================================================================
+   Centralized Premium Dark Mode Styles for YSS Admin Portal
+   ========================================================================== */
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .admin-content {
+  background-color: #121212 !important;
+}
+
+/* Cards & Containers */
+body.dark-mode .card,
+body.dark-mode .reg-card,
+body.dark-mode .form-card,
+body.dark-mode .stat-card,
+body.dark-mode .table-card {
+  background-color: #1e1e1e !important;
+  background: #1e1e1e !important;
+  border-color: #2d2d2d !important;
+  color: #e2e8f0 !important;
+}
+
+/* Inputs & Form elements */
+body.dark-mode .form-control,
+body.dark-mode .filter-select,
+body.dark-mode .search-box input,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #2d2d2d !important;
+  background: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .filter-select:focus,
+body.dark-mode .search-box input:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(212,175,55,.15) !important;
+}
+
+/* Table styling in dark mode */
+body.dark-mode table,
+body.dark-mode .table {
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode thead th,
+body.dark-mode th {
+  background-color: #262626 !important;
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #333333 !important;
+}
+
+body.dark-mode tbody tr {
+  border-bottom-color: #2d2d2d !important;
+}
+
+body.dark-mode tbody tr:hover {
+  background-color: #262626 !important;
+  background: #262626 !important;
+}
+
+body.dark-mode td {
+  color: #cbd5e1 !important;
+  border-bottom-color: #2d2d2d !important;
+}
+
+/* Status Cards & Activity Log Sub-widgets */
+body.dark-mode .admin-status-card {
+  background-color: #1a1a1a !important;
+  background: #1a1a1a !important;
+  border-color: #2d2d2d !important;
+}
+
+body.dark-mode .admin-status-card div {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .admin-status-card span {
+  color: #cbd5e1 !important;
+}
+
+/* Modals & Confirmation Dialogs */
+body.dark-mode #deleteModal > div,
+body.dark-mode #customConfirmModal > div,
+body.dark-mode #whatsappDialog > div,
+body.dark-mode .modal-content,
+body.dark-mode .dialog-content {
+  background-color: #1e1e1e !important;
+  background: #1e1e1e !important;
+  border-color: #404040 !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode #confirmCancelBtn {
+  background-color: #2d2d2d !important;
+  background: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode #filterPanel {
+  background-color: #1e1e1e !important;
+  background: #1e1e1e !important;
+  border-color: #404040 !important;
+  color: #cbd5e1 !important;
+}
+
+

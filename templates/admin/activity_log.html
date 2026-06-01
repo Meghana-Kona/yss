@@ -42,7 +42,7 @@
               {% if admin.is_main_admin %}Main{% else %}Assistant{% endif %}
             </span>
             <div style="font-size:0.65rem; color:var(--muted); margin-top:0.25rem;">
-              {% if admin.last_active %}Active {{ admin.last_active.strftime('%I:%M %p') }}{% else %}Never active{% endif %}
+              {% if admin.last_active %}Active {{ admin.last_active|to_ist('%I:%M %p') }}{% else %}Never active{% endif %}
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@
       <table class="table" style="width:100%; border-collapse:collapse; font-size:0.9rem;">
         <thead>
           <tr style="border-bottom:2px solid #eaeaea; text-align:left;">
-            <th style="padding:0.75rem; font-weight:bold; color:var(--primary);">Timestamp (UTC)</th>
+            <th style="padding:0.75rem; font-weight:bold; color:var(--primary);">Timestamp (Delhi Time)</th>
             <th style="padding:0.75rem; font-weight:bold; color:var(--primary);">Administrator</th>
             <th style="padding:0.75rem; font-weight:bold; color:var(--primary);">IP Address</th>
             <th style="padding:0.75rem; font-weight:bold; color:var(--primary);">Action Details</th>
@@ -89,7 +89,7 @@
           {% for log in logs %}
             <tr style="border-bottom:1px solid #eaeaea;" class="log-row">
               <td style="padding:0.75rem; white-space:nowrap; color:var(--text); font-size:0.82rem;">
-                {{ log.timestamp.strftime('%d %b %Y, %I:%M %p') if log.timestamp else 'N/A' }}
+                {{ log.timestamp|to_ist('%d %b %Y, %I:%M %p') if log.timestamp else 'N/A' }}
               </td>
               <td style="padding:0.75rem; font-weight:700; color:var(--text);">
                 <span style="display:inline-flex;align-items:center;gap:0.3rem;">

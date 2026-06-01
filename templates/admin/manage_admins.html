@@ -60,7 +60,7 @@
     <div style="font-size:0.72rem; color:var(--muted); margin-bottom:0.75rem;">
       <i class="fa fa-clock"></i>
       {% if a.last_active %}
-        Last active: {{ a.last_active.strftime('%d %b %Y, %I:%M %p') }}
+        Last active: {{ a.last_active|to_ist('%d %b %Y, %I:%M %p') }}
       {% else %}
         Never active
       {% endif %}

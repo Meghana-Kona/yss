@@ -88,7 +88,7 @@
           <td>{{ d.whatsapp }}</td>
           <td>{{ d.place }}</td>
           <td><strong>₹{{ d.amount|int }}</strong></td>
-          <td style="font-size:.85rem;">{{ d.created_at.strftime('%d %b %Y') if d.created_at else '' }}</td>
+          <td style="font-size:.85rem;">{{ d.created_at|to_ist('%d %b %Y') }}</td>
           <td>{{ d.payment_mode }}</td>
           <td>
             {% if d.payment_status == 'Received' %}

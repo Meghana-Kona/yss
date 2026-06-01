@@ -59,7 +59,7 @@
         <td>{{ r.whatsapp }}</td>
         <td>{{ r.place }}<br><small style="color:var(--muted);">{{ r.state }}</small></td>
         <td><strong>₹{{ r.amount|int if r.amount else 0 }}</strong></td>
-        <td style="font-size:.8rem;">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}</td>
+        <td style="font-size:.8rem;">{{ r.created_at|to_ist('%d %b %Y') }}</td>
         <td>
           <span style="background:#EEF2FF;color:#3730a3;padding:.2rem .6rem;border-radius:6px;font-size:.8rem;font-weight:600;">
             {{ r.payment_mode }}

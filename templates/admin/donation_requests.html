@@ -60,7 +60,7 @@
         <td>{{ d.whatsapp }}</td>
         <td>{{ d.place }}</td>
         <td><strong style="color:var(--primary);">₹{{ d.amount|int }}</strong></td>
-        <td style="font-size:.8rem;">{{ d.created_at.strftime('%d %b %Y') if d.created_at else '' }}</td>
+        <td style="font-size:.8rem;">{{ d.created_at|to_ist('%d %b %Y') }}</td>
         <td>
           <span style="background:#EEF2FF;color:#3730a3;padding:.2rem .6rem;border-radius:6px;font-size:.8rem;font-weight:600;">
             {{ d.payment_mode }}
@@ -87,7 +87,7 @@
         <td style="text-align:center;">
           {% if d.payment_status == 'Received' %}
           <div style="display:flex; flex-direction:column; gap:0.25rem;">
-            {% set msg_text = "Dear " ~ d.name ~ ",\n\nWith heartfelt gratitude and divine blessings, we sincerely thank you for your generous donation of ₹" ~ d.amount|int ~ " towards the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\nYour kind contribution and support for this sacred event are deeply appreciated. Acts of generosity offered with devotion help spread spirituality, meditation, peace, and service to many seekers.\n\nDonation Details:\n\nName: " ~ d.name ~ "\nDonation Amount: ₹" ~ d.amount|int ~ "\nTransaction ID: " ~ (d.transaction_id or '-') ~ "\nDate: " ~ (d.created_at.strftime('%d %b %Y') if d.created_at else '') ~ "\n\nMay the Divine Guru bless you and your family with peace, happiness, good health, prosperity, and spiritual upliftment.\n\nThank you once again for being part of this noble and spiritual journey.\n\nJai Guru" %}
+            {% set msg_text = "Dear " ~ d.name ~ ",\n\nWith heartfelt gratitude and divine blessings, we sincerely thank you for your generous donation of ₹" ~ d.amount|int ~ " towards the 3-Day Spiritual Program at Anantapur inspired by the teachings of Paramahansa Yogananda.\n\nYour kind contribution and support for this sacred event are deeply appreciated. Acts of generosity offered with devotion help spread spirituality, meditation, peace, and service to many seekers.\n\nDonation Details:\n\nName: " ~ d.name ~ "\nDonation Amount: ₹" ~ d.amount|int ~ "\nTransaction ID: " ~ (d.transaction_id or '-') ~ "\nDate: " ~ (d.created_at|to_ist('%d %b %Y')) ~ "\n\nMay the Divine Guru bless you and your family with peace, happiness, good health, prosperity, and spiritual upliftment.\n\nThank you once again for being part of this noble and spiritual journey.\n\nJai Guru" %}
             <a href="https://wa.me/91{{ d.whatsapp }}?text={{ msg_text|urlencode }}" 
                target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; border:none; padding: 0.35rem; border-radius: 6px;" 
                onclick="markDonNotified({{ d.id }})" title="Send WhatsApp & Mark as Done">

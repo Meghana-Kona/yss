@@ -179,7 +179,7 @@
         <td>{{ r.whatsapp }}</td>
         <td>{{ r.place }}</td>
         <td>₹{{ r.amount|int if r.amount else 0 }}</td>
-        <td>{{ r.created_at.strftime('%d %b %Y, %I:%M %p') if r.created_at else '' }}</td>
+        <td>{{ r.created_at|to_ist('%d %b %Y, %I:%M %p') }}</td>
         <td>{{ r.payment_mode }}</td>
         <td>
           {% if r.payment_screenshot %}
