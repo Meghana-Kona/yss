@@ -806,6 +806,34 @@ def serve_manifest():
 def offline():
     return render_template('offline.html')
 
+@app.route('/test-admin-mail')
+def test_admin_mail():
+    admin_email = app.config.get('ADMIN_EMAIL', app.config.get('MAIL_USERNAME'))
+    try:
+        msg = Message(
+            subject='YSS Admin Email Test Alert',
+            sender=app.config.get('MAIL_DEFAULT_SENDER'),
+            recipients=[admin_email],
+            body="Jai Guru!\n\nThis is a test email sent from the YSS Spiritual Program System to verify your SMTP configuration.\n\nIf you are reading this email, the mail server is successfully sending admin alert emails!\n\nRegards,\nYSS Spiritual Program Team"
+        )
+        mail.send(msg)
+        return jsonify({
+            "status": "Success",
+            "message": f"Test email successfully sent to {admin_email}!",
+            "smtp_server": app.config.get('MAIL_SERVER'),
+            "smtp_port": app.config.get('MAIL_PORT'),
+            "mail_username": app.config.get('MAIL_USERNAME')
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "Failed",
+            "error_details": str(e),
+            "target_admin_email": admin_email,
+            "smtp_server": app.config.get('MAIL_SERVER'),
+            "smtp_port": app.config.get('MAIL_PORT'),
+            "mail_username": app.config.get('MAIL_USERNAME')
+        }), 500
+
 @app.route('/debug-db')
 def debug_db():
     from sqlalchemy import inspect
