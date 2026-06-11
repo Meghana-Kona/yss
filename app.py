@@ -2161,7 +2161,20 @@ def not_found(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    return render_template('errors/500.html', config=app.config), 500
+    import traceback
+    tb = traceback.format_exc()
+    return f"""
+    <html>
+    <head><title>500 Internal Server Error</title></head>
+    <body style="font-family: monospace; padding: 2rem; background: #fff5f5; color: #900;">
+        <h1>500 Internal Server Error</h1>
+        <p>An unexpected error occurred during your request. Here is the traceback:</p>
+        <pre style="background: #eee; padding: 1rem; border-radius: 4px; border: 1px solid #ccc; overflow-x: auto; font-size: 1.1rem; white-space: pre-wrap;">{tb}</pre>
+        <p><a href="/registration">Return to Registration Form</a></p>
+    </body>
+    </html>
+    """, 500
+
 
 # ─── ADMIN CREDENTIALS ────────────────────────────────────────────────────────
 @app.route('/admin/credentials', methods=['GET', 'POST'])
