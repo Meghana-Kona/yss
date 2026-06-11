@@ -26,9 +26,9 @@ RUN pip install --upgrade pip && \
 # Copy the rest of the application code
 COPY . /app
 
-# Adjust ownership and switch to non‑root user
+# Adjust ownership and switch to non‑root user (commented out to run as root and avoid volume permission issues)
 RUN chown -R appuser:appuser /app
-USER appuser
+# USER appuser
 
 # Expose the default port (Railway provides $PORT at runtime)
 EXPOSE 8080
