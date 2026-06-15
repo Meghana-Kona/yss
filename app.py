@@ -1511,11 +1511,9 @@ def admin_registrations():
                            notified=notified, payment_mode=payment_mode,
                            stats=stats, config=app.config)
 
-# ─── ADMIN REQUESTS (Pending payment transactions) ────────────────────────────
 @app.route('/admin/requests')
 @login_required
 def admin_requests():
-    page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     q = Registration.query.filter(Registration.payment_status == 'Pending', Registration.reg_status != 'Rejected')
     if search:
@@ -1523,10 +1521,9 @@ def admin_requests():
                              Registration.whatsapp.ilike(f'%{search}%'),
                              Registration.reg_id.ilike(f'%{search}%')))
     pending_count = q.count()
-    registrations_paginated = q.order_by(Registration.id.desc()).paginate(page=page, per_page=10, error_out=False)
-    registrations = registrations_paginated.items
+    registrations = q.order_by(Registration.id.desc()).all()
     return render_template('admin/requests.html', registrations=registrations,
-                           search=search, pending_count=pending_count, config=app.config, pagination=registrations_paginated)
+                           search=search, pending_count=pending_count, config=app.config)
 
 @app.route('/api/registrations/<int:rid>/approve', methods=['POST'])
 @login_required
