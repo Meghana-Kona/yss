@@ -1487,8 +1487,7 @@ def admin_registrations():
     if payment_mode:
         q = q.filter_by(payment_mode=payment_mode)
 
-    registrations_paginated = q.order_by(Registration.id.desc()).paginate(page=page, per_page=10, error_out=False)
-    registrations = registrations_paginated.items
+    registrations = q.order_by(Registration.id.desc()).all()
     
     total_registered = Registration.query.filter(Registration.reg_status != 'Rejected').count()
     approval_pending = Registration.query.filter_by(reg_status='Pending').count()
@@ -1510,7 +1509,7 @@ def admin_registrations():
                            search=search, reg_status=reg_status,
                            is_kriyaban=is_kriyaban, accommodation=accommodation,
                            notified=notified, payment_mode=payment_mode,
-                           stats=stats, config=app.config, pagination=registrations_paginated)
+                           stats=stats, config=app.config)
 
 # ─── ADMIN REQUESTS (Pending payment transactions) ────────────────────────────
 @app.route('/admin/requests')
