@@ -2405,6 +2405,151 @@ def admin_whatsapp_template_update():
         flash("Template not found.", "error")
     return redirect(url_for('admin_whatsapp_setup'))
 
+def format_custom_message(text, reg):
+    import re
+    room_number = "N/A"
+    if reg.allotment and reg.allotment.room:
+        room_number = reg.allotment.room.room_number
+        
+    kwargs = {
+        'name': reg.full_name,
+        'reg_id': reg.reg_id,
+        'phone': reg.whatsapp,
+        'email': reg.email or 'N/A',
+        'city': reg.place,
+        'accommodation': 'Yes' if reg.accommodation else 'No',
+        'room_number': room_number,
+        'arrival_date': reg.arrival_date or '24-07-2026',
+        'departure_date': reg.departure_date or '26-07-2026'
+    }
+    
+    def replace_var(match):
+        var_name = match.group(1)
+        return str(kwargs.get(var_name, match.group(0)))
+        
+    return re.sub(r'\{([a-zA-Z0-9_]+)\}', replace_var, text)
+
+def send_broadcast_async(reg_ids, message_text, mark_notified_flag, admin_name):
+    import threading
+    def job():
+        with app.app_context():
+            success_count = 0
+            fail_count = 0
+            import requests, time
+            gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
+            if not gateway_url:
+                print("Broadcast failed: Gateway URL is not configured.")
+                return
+                
+            for rid in reg_ids:
+                reg = Registration.query.get(rid)
+                if not reg:
+                    continue
+                try:
+                    formatted_msg = format_custom_message(message_text, reg)
+                    r = requests.post(
+                        f"{gateway_url}/send",
+                        json={
+                            'to': reg.whatsapp,
+                            'message': formatted_msg
+                        },
+                        timeout=10
+                    )
+                    if r.status_code == 200:
+                        success_count += 1
+                        if mark_notified_flag:
+                            reg.notified = True
+                        db.session.commit()
+                    else:
+                        fail_count += 1
+                except Exception as e:
+                    print(f"Failed to send broadcast to {reg.whatsapp}: {e}")
+                    fail_count += 1
+                time.sleep(1.5)  # rate limit safety
+            
+            # Log final action
+            log_desc = f"Sent bulk WhatsApp broadcast to {success_count} devotees (failed: {fail_count})"
+            try:
+                log_entry = ActivityLog(
+                    admin_name=admin_name,
+                    action=log_desc
+                )
+                db.session.add(log_entry)
+                db.session.commit()
+            except Exception as e:
+                print(f"Failed to write broadcast ActivityLog: {e}")
+                
+    threading.Thread(target=job, daemon=True).start()
+
+@app.route('/admin/whatsapp-broadcast/preview-count')
+@login_required
+def admin_whatsapp_broadcast_count():
+    reg_status = request.args.get('reg_status', 'all')
+    notified = request.args.get('notified', 'all')
+    is_kriyaban = request.args.get('is_kriyaban', 'all')
+    accommodation = request.args.get('accommodation', 'all')
+    
+    q = Registration.query
+    if reg_status != 'all':
+        q = q.filter_by(reg_status=reg_status)
+    if notified == 'yes':
+        q = q.filter_by(notified=True)
+    elif notified == 'no':
+        q = q.filter_by(notified=False)
+    if is_kriyaban == 'yes':
+        q = q.filter_by(is_kriyaban=True)
+    elif is_kriyaban == 'no':
+        q = q.filter_by(is_kriyaban=False)
+    if accommodation == 'yes':
+        q = q.filter_by(accommodation=True)
+    elif accommodation == 'no':
+        q = q.filter_by(accommodation=False)
+        
+    return jsonify({'count': q.count()})
+
+@app.route('/admin/whatsapp-broadcast/send', methods=['POST'])
+@login_required
+def admin_whatsapp_broadcast_send():
+    reg_status = request.form.get('reg_status', 'all')
+    notified = request.form.get('notified', 'all')
+    is_kriyaban = request.form.get('is_kriyaban', 'all')
+    accommodation = request.form.get('accommodation', 'all')
+    message_text = request.form.get('message_text', '').strip()
+    mark_notified = request.form.get('mark_notified') == 'yes'
+    
+    if not message_text:
+        flash("Message content cannot be empty.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    q = Registration.query
+    if reg_status != 'all':
+        q = q.filter_by(reg_status=reg_status)
+    if notified == 'yes':
+        q = q.filter_by(notified=True)
+    elif notified == 'no':
+        q = q.filter_by(notified=False)
+    if is_kriyaban == 'yes':
+        q = q.filter_by(is_kriyaban=True)
+    elif is_kriyaban == 'no':
+        q = q.filter_by(is_kriyaban=False)
+    if accommodation == 'yes':
+        q = q.filter_by(accommodation=True)
+    elif accommodation == 'no':
+        q = q.filter_by(accommodation=False)
+        
+    registrants = q.all()
+    if not registrants:
+        flash("No matching registrants found for the selected filters.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    reg_ids = [r.id for r in registrants]
+    
+    admin_name = current_user.name
+    send_broadcast_async(reg_ids, message_text, mark_notified, admin_name)
+    
+    flash(f"Broadcast initiated in the background for {len(reg_ids)} devotees. Check Activity Log for status.", "success")
+    return redirect(url_for('admin_whatsapp_setup'))
+
 @app.route('/admin/whatsapp-send-reminders/<int:days>', methods=['POST'])
 @login_required
 def admin_whatsapp_send_reminders(days):
