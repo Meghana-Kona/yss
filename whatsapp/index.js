@@ -133,9 +133,22 @@ async function connectToWhatsApp() {
         return;
     }
 
-    sock.ev.on('creds.update', saveCreds);
+    const currentSock = sock;
+
+    sock.ev.on('creds.update', () => {
+        if (sock !== currentSock) {
+            console.log('Ignoring creds.update from an older socket instance.');
+            return;
+        }
+        saveCreds();
+    });
 
     sock.ev.on('connection.update', (update) => {
+        if (sock !== currentSock) {
+            console.log('Ignoring connection.update from an older socket instance.');
+            return;
+        }
+
         const { connection, lastDisconnect, qr } = update;
 
         if (connection) {
@@ -162,8 +175,6 @@ async function connectToWhatsApp() {
             const errorReason = lastDisconnect?.error?.message || lastDisconnect?.error;
 
             const isLoggedOut = statusCode === DisconnectReason.loggedOut;
-            const isBadSession = statusCode === DisconnectReason.badSession;
-            const shouldReconnect = !isLoggedOut && !isBadSession;
 
             console.log(`Connection closed (Status ${statusCode}). Reason:`, errorReason);
             if (lastDisconnect?.error) {
@@ -174,16 +185,14 @@ async function connectToWhatsApp() {
             qrCodeData = null;
             connectedPhone = null;
 
-            if (isLoggedOut || isBadSession) {
-                console.log('Session is logged out or bad. Clearing credentials folder contents...');
+            if (isLoggedOut) {
+                console.log('Session is logged out. Clearing credentials folder contents...');
                 clearAuthFolder(authFolder);
                 console.log('Attempting a fresh connection in 2 seconds...');
                 reconnectTimeout = setTimeout(connectToWhatsApp, 2000);
-            } else if (shouldReconnect) {
-                console.log('Attempting reconnection in 10 seconds...');
-                reconnectTimeout = setTimeout(connectToWhatsApp, 10000);
             } else {
-                console.log('Reconnection aborted.');
+                console.log('Attempting reconnection in 5 seconds...');
+                reconnectTimeout = setTimeout(connectToWhatsApp, 5000);
             }
         } else if (connection === 'open') {
             console.log('WhatsApp connection opened successfully!');
