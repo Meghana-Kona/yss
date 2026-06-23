@@ -10,7 +10,9 @@ if os.path.exists(env_path):
             line = line.strip()
             if '=' in line and not line.startswith('#'):
                 key, val = line.split('=', 1)
-                os.environ[key.strip()] = val.strip()
+                key = key.strip()
+                if key not in os.environ:
+                    os.environ[key] = val.strip()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'yss-anantapur-spiritual-2026-secret-key-ravi')

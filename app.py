@@ -2404,6 +2404,40 @@ def admin_whatsapp_template_update():
         flash("Template not found.", "error")
     return redirect(url_for('admin_whatsapp_setup'))
 
+@app.route('/admin/whatsapp-templates/add', methods=['POST'])
+@login_required
+def admin_whatsapp_template_add():
+    key = request.form.get('key', '').strip().lower().replace(' ', '_')
+    description = request.form.get('description', '').strip()
+    template_text = request.form.get('template_text', '').strip()
+    variables = request.form.get('variables', '').strip()
+    
+    if not key:
+        flash("Template key is required.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    existing = WhatsAppTemplate.query.filter_by(key=key).first()
+    if existing:
+        flash(f"Template with key '{key}' already exists.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+        
+    try:
+        new_t = WhatsAppTemplate(
+            key=key,
+            description=description,
+            variables=variables,
+            template_text=template_text
+        )
+        db.session.add(new_t)
+        db.session.commit()
+        log_action(f"Added WhatsApp template '{key}'")
+        flash(f"WhatsApp template '{key}' added successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Failed to add template: {e}", "error")
+        
+    return redirect(url_for('admin_whatsapp_setup'))
+
 @app.route('/admin/whatsapp-send-reminders/<int:days>', methods=['POST'])
 @login_required
 def admin_whatsapp_send_reminders(days):
@@ -2593,5 +2627,5 @@ with app.app_context():
     seed_data()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5001)
+    app.run(host='127.0.0.1', debug=False, port=5002)
 

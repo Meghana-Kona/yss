@@ -176,67 +176,37 @@
 
       <hr style="margin:2rem 0; border:0; border-top:1px solid #e0e0e0;">
 
-      <!-- Broadcast Form -->
-      <form action="/admin/whatsapp-broadcast/send" method="POST" id="broadcastForm" onsubmit="return confirmBroadcast(this)">
+      <!-- Add New Custom Template Form -->
+      <form action="/admin/whatsapp-templates/add" method="POST" id="addTemplateForm">
         <h4 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="fa fa-bullhorn" style="color:var(--gold);"></i> Broadcast Message
+          <i class="fa fa-plus-circle" style="color:var(--gold);"></i> Add Custom Template
         </h4>
         <p style="font-size:0.82rem; color:var(--muted); margin-bottom:1.5rem;">
-          Send the edited text above to matching registered devotees. Dynamic placeholders like <code>{name}</code>, <code>{reg_id}</code>, etc. will be replaced for each recipient.
+          Create a new WhatsApp template in the database. Once added, it will be selectable from the template stage dropdown list.
         </p>
 
-        <input type="hidden" name="message_text" id="broadcastMessageTextInput" value="">
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
-          <div class="form-group">
-            <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Reg Status:</label>
-            <select name="reg_status" id="broadcastFilterRegStatus" class="form-control" style="width:100%;">
-              <option value="Approved">Approved</option>
-              <option value="Pending">Pending</option>
-              <option value="Rejected">Rejected</option>
-              <option value="all">All Statuses</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Notified Status:</label>
-            <select name="notified" id="broadcastFilterNotified" class="form-control" style="width:100%;">
-              <option value="all">All</option>
-              <option value="no" selected>Unnotified only</option>
-              <option value="yes">Notified only</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Kriyaban:</label>
-            <select name="is_kriyaban" id="broadcastFilterKriyaban" class="form-control" style="width:100%;">
-              <option value="all" selected>All</option>
-              <option value="yes">Kriyabans only</option>
-              <option value="no">Non-Kriyabans only</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Accommodation:</label>
-            <select name="accommodation" id="broadcastFilterAccommodation" class="form-control" style="width:100%;">
-              <option value="all" selected>All</option>
-              <option value="yes">Needs Accommodation</option>
-              <option value="no">No Accommodation</option>
-            </select>
-          </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Template Key (unique lowercase, no spaces):</label>
+          <input type="text" name="key" required placeholder="e.g. general_announcement" class="form-control" style="width:100%;" pattern="[a-z0-9_]+">
         </div>
 
-        <div class="form-group" style="margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <input type="checkbox" name="mark_notified" id="broadcastMarkNotified" value="yes" checked style="width:auto; cursor:pointer;">
-          <label for="broadcastMarkNotified" style="font-size:0.85rem; color:var(--text); margin:0; cursor:pointer;">Mark recipients as notified after sending</label>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Description:</label>
+          <input type="text" name="description" placeholder="e.g. Sent for general updates to registered devotees" class="form-control" style="width:100%;">
         </div>
 
-        <div style="background:#eef2ff; border:1px solid #c7d2fe; border-radius:8px; padding:0.75rem; font-size:0.9rem; color:#4f46e5; text-align:center; font-weight:bold; margin-bottom:1.25rem;">
-          Recipient count matching filters: <span id="broadcastRecipientCount">0</span> devotees
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Placeholders (comma separated, optional):</label>
+          <input type="text" name="variables" placeholder="e.g. name, reg_id" class="form-control" style="width:100%;">
         </div>
 
-        <button type="submit" class="btn" style="background:#CC4414; color:#fff; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:none; cursor:pointer; font-weight:bold; padding:0.75rem; border-radius:6px;">
-          <i class="fa fa-paper-plane"></i> Broadcast Message
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label style="font-weight:bold; font-size:0.85rem; color:var(--text); margin-bottom:0.3rem; display:block;">Template Text:</label>
+          <textarea name="template_text" required placeholder="Dear {name}, ..." class="form-control" rows="6" style="width:100%; font-family:monospace; font-size:0.9rem; padding:0.8rem; border-radius:6px; border:1px solid #ccc; outline:none; resize:vertical;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:bold; padding:0.75rem; border-radius:6px;">
+          <i class="fa fa-plus"></i> Add New Template
         </button>
       </form>
     </div>
@@ -290,9 +260,9 @@ body.dark-mode .recent-message-item {
 const templatesData = {
   {% for t in templates %}
     "{{ t.key }}": {
-      "description": {{ t.description|tojson }},
-      "variables": {{ t.variables|tojson }},
-      "template_text": {{ t.template_text|tojson }}
+      "description": {{ t.description|tojson|safe }},
+      "variables": {{ t.variables|tojson|safe }},
+      "template_text": {{ t.template_text|tojson|safe }}
     }{% if not loop.last %},{% endif %}
   {% endfor %}
 };
@@ -389,33 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Recipient Count Live Preview
-  function updateRecipientCount() {
-    const regStatus = document.getElementById('broadcastFilterRegStatus').value;
-    const notified = document.getElementById('broadcastFilterNotified').value;
-    const isKriyaban = document.getElementById('broadcastFilterKriyaban').value;
-    const accommodation = document.getElementById('broadcastFilterAccommodation').value;
-
-    const countContainer = document.getElementById('broadcastRecipientCount');
-    countContainer.textContent = "...";
-
-    fetch(`/admin/whatsapp-broadcast/preview-count?reg_status=${regStatus}&notified=${notified}&is_kriyaban=${isKriyaban}&accommodation=${accommodation}`)
-      .then(response => response.json())
-      .then(data => {
-        countContainer.textContent = data.count;
-      })
-      .catch(err => {
-        console.error("Error fetching preview count:", err);
-        countContainer.textContent = "Error";
-      });
-  }
-
-  // Attach change listeners to filters
-  ['broadcastFilterRegStatus', 'broadcastFilterNotified', 'broadcastFilterKriyaban', 'broadcastFilterAccommodation'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', updateRecipientCount);
-  });
-
   if (selector) {
     selector.addEventListener('change', (e) => {
       updateTemplateForm(e.target.value);
@@ -423,25 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Trigger initial select
     updateTemplateForm(selector.value);
   }
-
-  // Initial count load
-  updateRecipientCount();
 });
-
-// Confirm broadcast submit handler
-function confirmBroadcast(form) {
-  const textArea = document.getElementById('templateTextArea');
-  const hiddenInput = document.getElementById('broadcastMessageTextInput');
-  hiddenInput.value = textArea.value;
-
-  const count = document.getElementById('broadcastRecipientCount').textContent;
-  if (count === "0" || count === "..." || count === "Error") {
-    alert("No devotees match the selected filters or count has not loaded. Broadcast aborted.");
-    return false;
-  }
-
-  return confirm(`Are you sure you want to broadcast this message to ${count} devotees?`);
-}
 
   // Connection Poll Status
   let pollInterval = null;
