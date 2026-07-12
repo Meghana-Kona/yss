@@ -7,13 +7,13 @@
     size: A4 portrait;
     margin: 0; /* Set to 0 to remove browser headers/footers */
   }
-  body {
+  body, body.dark-mode, .admin-content, body.dark-mode .admin-content {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     background-color: #fff !important;
     background: #fff !important;
     color: #000 !important;
-    padding: 8mm 10mm !important; /* Add padding to body since page margin is 0 */
+    padding: 8mm 0 !important; /* Add padding to body since page margin is 0 */
   }
   .admin-header, .table-card, .pagination, .sidebar, .admin-sidebar, .btn, .card-actions, .mobile-menu-toggle, .table-scroll-controls, .toast-container {
     display: none !important;
@@ -21,25 +21,23 @@
   .id-cards-grid {
     display: block !important;
     width: 100% !important;
+    text-align: center !important; /* Center the cards */
   }
   .id-card-wrapper {
     display: inline-block !important;
-    width: 7.5cm !important;
-    margin-right: 1cm !important;
-    margin-bottom: 8mm !important;
+    width: 8cm !important;
+    margin: 4mm !important;
     vertical-align: top !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     border: 2px solid #333 !important;
     border-radius: 4px;
-    height: 5.5cm !important;
+    height: 6cm !important;
     background-color: #fff !important;
     background: #fff !important;
     color: #000 !important;
     box-sizing: border-box !important;
-  }
-  .id-card-wrapper:nth-child(2n) {
-    margin-right: 0 !important;
+    text-align: left !important;
   }
   .id-card-wrapper:nth-child(8n) {
     page-break-after: always !important;
