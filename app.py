@@ -1905,17 +1905,31 @@ def export_registrations_pdf():
         pdf.ln()
         
         pdf.set_font('helvetica', '', 8)
+        
+        def safe_str(val, max_len=None):
+            if val is None: return '-'
+            s = str(val)
+            if max_len: s = s[:max_len]
+            # Replace unsupported unicode with empty string or keep only latin-1
+            return s.encode('latin-1', 'replace').decode('latin-1')
+
         for i, r in enumerate(data_list, 1):
             pdf.cell(10, 8, str(i), 1, 0, 'C')
-            pdf.cell(25, 8, r.reg_id or '-', 1, 0, 'C')
-            pdf.cell(45, 8, (r.full_name[:25] if r.full_name else '-'), 1, 0, 'L')
-            pdf.cell(30, 8, r.whatsapp or '-', 1, 0, 'C')
-            pdf.cell(35, 8, (r.place[:20] if r.place else '-'), 1, 0, 'L')
-            pdf.cell(20, 8, str(int(r.amount)) if r.amount else '0', 1, 0, 'C')
-            pdf.cell(20, 8, r.payment_mode or '-', 1, 0, 'C')
+            pdf.cell(25, 8, safe_str(r.reg_id), 1, 0, 'C')
+            pdf.cell(45, 8, safe_str(r.full_name, 25), 1, 0, 'L')
+            pdf.cell(30, 8, safe_str(r.whatsapp), 1, 0, 'C')
+            pdf.cell(35, 8, safe_str(r.place, 20), 1, 0, 'L')
+            
+            try:
+                amt_str = str(int(float(r.amount))) if r.amount else '0'
+            except (ValueError, TypeError):
+                amt_str = '0'
+                
+            pdf.cell(20, 8, amt_str, 1, 0, 'C')
+            pdf.cell(20, 8, safe_str(r.payment_mode), 1, 0, 'C')
             pdf.cell(25, 8, 'Kriyaban' if r.is_kriyaban else 'Non-Kri', 1, 0, 'C')
             pdf.cell(15, 8, 'Yes' if r.accommodation else 'No', 1, 0, 'C')
-            pdf.cell(25, 8, r.reg_status or '-', 1, 0, 'C')
+            pdf.cell(25, 8, safe_str(r.reg_status), 1, 0, 'C')
             pdf.ln()
 
     add_section('Overall Summary & All Records', regs)
@@ -2061,19 +2075,26 @@ def export_donations_pdf():
     
     pdf.set_font('helvetica', '', 8)
     total_amount = 0
+    
+    def safe_str(val, max_len=None):
+        if val is None: return '-'
+        s = str(val)
+        if max_len: s = s[:max_len]
+        return s.encode('latin-1', 'replace').decode('latin-1')
+        
     for i, d in enumerate(dons, 1):
         amt = float(d.amount) if d.amount else 0.0
         total_amount += amt
         pdf.cell(10, 8, str(i), 1, 0, 'C')
-        pdf.cell(25, 8, str(d.donation_id or '-'), 1, 0, 'C')
-        pdf.cell(25, 8, str(d.lesson_no or '-'), 1, 0, 'C')
-        pdf.cell(45, 8, str(d.name[:25] if d.name else '-'), 1, 0, 'L')
-        pdf.cell(30, 8, str(d.whatsapp or '-'), 1, 0, 'C')
-        pdf.cell(35, 8, str(d.place[:20] if d.place else '-'), 1, 0, 'L')
+        pdf.cell(25, 8, safe_str(d.donation_id), 1, 0, 'C')
+        pdf.cell(25, 8, safe_str(d.lesson_no), 1, 0, 'C')
+        pdf.cell(45, 8, safe_str(d.name, 25), 1, 0, 'L')
+        pdf.cell(30, 8, safe_str(d.whatsapp), 1, 0, 'C')
+        pdf.cell(35, 8, safe_str(d.place, 20), 1, 0, 'L')
         pdf.cell(20, 8, str(int(amt)), 1, 0, 'C')
-        pdf.cell(20, 8, str(d.payment_mode or '-'), 1, 0, 'C')
-        pdf.cell(25, 8, str(d.payment_status or '-'), 1, 0, 'C')
-        pdf.cell(25, 8, str(d.created_at.strftime('%d-%m-%Y') if d.created_at else '-'), 1, 0, 'C')
+        pdf.cell(20, 8, safe_str(d.payment_mode), 1, 0, 'C')
+        pdf.cell(25, 8, safe_str(d.payment_status), 1, 0, 'C')
+        pdf.cell(25, 8, safe_str(d.created_at.strftime('%d-%m-%Y') if d.created_at else '-'), 1, 0, 'C')
         pdf.ln()
         
     pdf.set_font('helvetica', 'B', 9)
