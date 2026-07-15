@@ -2040,6 +2040,40 @@ def export_donations():
     path = os.path.join(app.config['EXPORTS_DIR'], 'donations.xlsx')
     return send_file(path, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='donations.xlsx')
 
+@app.route('/admin/donations/export-pdf')
+@login_required
+def export_donations_pdf():
+    from fpdf import FPDF
+    dons = Donation.query.order_by(Donation.id).all()
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    
+    pdf.set_font('helvetica', 'B', 9)
+    cols = [('S.No', 10), ('Donation ID', 25), ('Lesson No', 25), ('Name', 45), ('Mobile', 30), ('Place', 35), ('Amount', 20), ('Mode', 20), ('Status', 25), ('Date', 25)]
+    for txt, w in cols:
+        pdf.cell(w, 8, txt, 1, 0, 'C')
+    pdf.ln()
+    
+    pdf.set_font('helvetica', '', 8)
+    for i, d in enumerate(dons, 1):
+        pdf.cell(10, 8, str(i), 1, 0, 'C')
+        pdf.cell(25, 8, str(d.donation_id or '-'), 1, 0, 'C')
+        pdf.cell(25, 8, str(d.lesson_no or '-'), 1, 0, 'C')
+        pdf.cell(45, 8, str(d.name[:25] if d.name else '-'), 1, 0, 'L')
+        pdf.cell(30, 8, str(d.whatsapp or '-'), 1, 0, 'C')
+        pdf.cell(35, 8, str(d.place[:20] if d.place else '-'), 1, 0, 'L')
+        pdf.cell(20, 8, str(int(d.amount) if d.amount else '0'), 1, 0, 'C')
+        pdf.cell(20, 8, str(d.payment_mode or '-'), 1, 0, 'C')
+        pdf.cell(25, 8, str(d.payment_status or '-'), 1, 0, 'C')
+        pdf.cell(25, 8, str(d.created_at.strftime('%d-%m-%Y') if d.created_at else '-'), 1, 0, 'C')
+        pdf.ln()
+        
+    import io
+    pdf_out = io.BytesIO(pdf.output())
+    
+    as_attachment = request.args.get('view') != '1'
+    return send_file(pdf_out, mimetype='application/pdf', as_attachment=as_attachment, download_name='donations_report.pdf')
+
 @app.route('/api/donations/<int:did>/notified', methods=['POST'])
 @login_required
 def mark_don_notified(did):

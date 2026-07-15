@@ -2,92 +2,121 @@
 {% block title %}ID Cards – YSS Admin{% endblock %}
 {% block content %}
 <style>
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 0; /* Set to 0 to remove browser headers/footers */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+      /* Set to 0 to remove browser headers/footers */
+    }
+
+    body,
+    body.dark-mode,
+    .admin-content,
+    body.dark-mode .admin-content {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      background-color: #fff !important;
+      background: #fff !important;
+      color: #000 !important;
+      padding: 8mm 0 !important;
+      /* Add padding to body since page margin is 0 */
+    }
+
+    .admin-header,
+    .table-card,
+    .pagination,
+    .sidebar,
+    .admin-sidebar,
+    .btn,
+    .card-actions,
+    .mobile-menu-toggle,
+    .table-scroll-controls,
+    .toast-container {
+      display: none !important;
+    }
+
+    .id-cards-grid {
+      display: block !important;
+      width: 100% !important;
+      text-align: center !important;
+      /* Center the cards */
+    }
+
+    .id-card-wrapper {
+      display: inline-flex !important;
+      flex-direction: column !important;
+      width: 8cm !important;
+      margin: 4mm !important;
+      vertical-align: top !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      border: 2px solid #333 !important;
+      border-radius: 4px;
+      height: 6cm !important;
+      background-color: #fff !important;
+      background: #fff !important;
+      color: #000 !important;
+      box-sizing: border-box !important;
+      text-align: left !important;
+    }
+
+    .id-card-wrapper:nth-child(8n) {
+      page-break-after: always !important;
+      break-after: page !important;
+    }
+
+    .id-card-wrapper table {
+      flex-grow: 1 !important;
+      height: 100% !important;
+    }
+
+    .id-card-wrapper td {
+      color: #000 !important;
+      padding: .15rem .25rem !important;
+      font-size: .75rem !important;
+    }
+
+    .id-card-wrapper td:last-child {
+      display: table-cell !important;
+    }
+
+    .id-card-meta-row div {
+      color: #000 !important;
+      padding: .2rem .25rem !important;
+      font-size: .95rem !important;
+    }
+
+    .id-card-wrapper>div:first-child {
+      padding: .3rem !important;
+    }
+
+    .id-card-wrapper>div:first-child div {
+      font-size: .85rem !important;
+    }
   }
-  body, body.dark-mode, .admin-content, body.dark-mode .admin-content {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    background-color: #fff !important;
-    background: #fff !important;
-    color: #000 !important;
-    padding: 8mm 0 !important; /* Add padding to body since page margin is 0 */
+
+  /* Dark Mode overrides for ID Cards (Screen only) */
+  @media screen {
+    body.dark-mode .id-card-wrapper {
+      background-color: #1e1e1e !important;
+      border-color: #444 !important;
+    }
+
+    body.dark-mode .id-card-wrapper td {
+      color: #cbd5e1 !important;
+      border-bottom-color: #2d2d2d !important;
+    }
+
+    body.dark-mode .id-card-wrapper div {
+      border-color: #2d2d2d !important;
+    }
   }
-  .admin-header, .table-card, .pagination, .sidebar, .admin-sidebar, .btn, .card-actions, .mobile-menu-toggle, .table-scroll-controls, .toast-container {
-    display: none !important;
-  }
-  .id-cards-grid {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important; /* Center the cards */
-  }
-  .id-card-wrapper {
-    display: inline-flex !important;
-    flex-direction: column !important;
-    width: 8cm !important;
-    margin: 4mm !important;
-    vertical-align: top !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    border: 2px solid #333 !important;
-    border-radius: 4px;
-    height: 6cm !important;
-    background-color: #fff !important;
-    background: #fff !important;
-    color: #000 !important;
-    box-sizing: border-box !important;
-    text-align: left !important;
-    font-family: Arial, sans-serif !important;
-  }
-  .id-card-wrapper:nth-child(8n) {
-    page-break-after: always !important;
-    break-after: page !important;
-  }
-  .id-card-wrapper table {
-    flex-grow: 1 !important;
-    height: 100% !important;
-  }
-  .id-card-wrapper td {
-    color: #000 !important;
-    padding: .15rem .25rem !important;
-    font-size: 16px !important;
-  }
-  .id-card-wrapper td:last-child {
-    display: table-cell !important;
-  }
-  .id-card-meta-row div {
-    color: #000 !important;
-    padding: .2rem .25rem !important;
-    font-size: .95rem !important;
-  }
-  .id-card-wrapper > div:first-child {
-    padding: .3rem !important;
-  }
-  .id-card-wrapper > div:first-child div {
-    font-size: 16px !important;
-  }
-}
-/* Dark Mode overrides for ID Cards (Screen only) */
-@media screen {
-  body.dark-mode .id-card-wrapper {
-    background-color: #1e1e1e !important;
-    border-color: #444 !important;
-  }
-  body.dark-mode .id-card-wrapper td {
-    color: #cbd5e1 !important;
-    border-bottom-color: #2d2d2d !important;
-  }
-  body.dark-mode .id-card-wrapper div {
-    border-color: #2d2d2d !important;
-  }
-}
 </style>
 
 <div class="admin-header">
   <h1><i class="fa fa-id-card" style="color:var(--gold);margin-right:.5rem;"></i>ID Cards</h1>
-  <button onclick="window.print()" class="btn btn-primary desktop-only"><i class="fa fa-print"></i> Print ID Cards</button>
+  <button onclick="window.print()" class="btn btn-primary desktop-only"><i class="fa fa-print"></i> Print ID
+    Cards</button>
 </div>
 
 <div class="table-card" style="margin-bottom:1.5rem;">
@@ -96,17 +125,20 @@
       <span class="si"><i class="fa fa-search"></i></span>
       <input type="text" name="search" placeholder="Search by name, mobile number..." value="{{ search }}">
     </div>
-    <select name="is_kriyaban" class="filter-select" style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
+    <select name="is_kriyaban" class="filter-select"
+      style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
       <option value="" {% if is_kriyaban=='' %}selected{% endif %}>All (Kriyaban)</option>
       <option value="true" {% if is_kriyaban=='true' %}selected{% endif %}>Kriyabans Only</option>
       <option value="false" {% if is_kriyaban=='false' %}selected{% endif %}>Non-Kriyabans</option>
     </select>
-    <select name="accommodation" class="filter-select" style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
+    <select name="accommodation" class="filter-select"
+      style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
       <option value="" {% if accommodation=='' %}selected{% endif %}>All (Accommodation)</option>
       <option value="true" {% if accommodation=='true' %}selected{% endif %}>With Accommodation</option>
       <option value="false" {% if accommodation=='false' %}selected{% endif %}>Without Accommodation</option>
     </select>
-    <select name="volunteer" class="filter-select" style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
+    <select name="volunteer" class="filter-select"
+      style="padding:0.4rem; border-radius:4px; border:1px solid #ddd; background:var(--white);">
       <option value="" {% if volunteer=='' %}selected{% endif %}>All (Volunteer)</option>
       <option value="true" {% if volunteer=='true' %}selected{% endif %}>Volunteers Only</option>
       <option value="false" {% if volunteer=='false' %}selected{% endif %}>Non-Volunteers</option>
@@ -127,10 +159,22 @@
       <div style="padding:.3rem .5rem;font-weight:700;font-size:1.1rem;">{{ loop.index }}</div>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;width:40%;">Name :</td><td style="padding:.2rem .4rem;">{{ r.full_name }}</td></tr>
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;">Lesson No :</td><td style="padding:.2rem .4rem;">{{ r.lesson_no }}</td></tr>
-      <tr style="border-bottom:1px solid #ddd;"><td style="padding:.2rem .4rem;font-weight:700;">Mobile No :</td><td style="padding:.2rem .4rem;">{{ r.whatsapp }}</td></tr>
-      <tr><td style="padding:.2rem .4rem;font-weight:700;">Place :</td><td style="padding:.2rem .4rem;">{{ r.place }}</td></tr>
+      <tr style="border-bottom:1px solid #ddd;">
+        <td style="padding:.2rem .4rem;font-weight:700;width:40%;">Name :</td>
+        <td style="padding:.2rem .4rem;">{{ r.full_name }}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #ddd;">
+        <td style="padding:.2rem .4rem;font-weight:700;">Lesson No :</td>
+        <td style="padding:.2rem .4rem;">{{ r.lesson_no }}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #ddd;">
+        <td style="padding:.2rem .4rem;font-weight:700;">Mobile No :</td>
+        <td style="padding:.2rem .4rem;">{{ r.whatsapp }}</td>
+      </tr>
+      <tr>
+        <td style="padding:.2rem .4rem;font-weight:700;">Place :</td>
+        <td style="padding:.2rem .4rem;">{{ r.place }}</td>
+      </tr>
     </table>
 
   </div>
@@ -144,6 +188,10 @@
 
 
 {% else %}
-<div class="empty-state"><div class="empty-icon">🪪</div><h3>No ID Cards Found</h3><p>ID cards appear here once registrations are submitted.</p></div>
+<div class="empty-state">
+  <div class="empty-icon">🪪</div>
+  <h3>No ID Cards Found</h3>
+  <p>ID cards appear here once registrations are submitted.</p>
+</div>
 {% endif %}
 {% endblock %}
