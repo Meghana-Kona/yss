@@ -543,24 +543,38 @@ def update_registrations_excel():
     acco_yes = len([r for r in regs if r.accommodation])
     acco_no = total - acco_yes
 
+    total_amount = sum(float(r.amount) for r in regs if r.amount)
+    modes = {}
+    for r in regs:
+        if r.amount:
+            m = r.payment_mode or 'Unknown'
+            modes[m] = modes.get(m, 0) + float(r.amount)
+
     def create_sheet(name, data_list):
         ws = wb.create_sheet(title=name)
         # Summary table only on 'All Registrations'
         if name == 'All Registrations':
             ws.append(['SUMMARY STATISTICS'])
-            ws.append(['Category', 'Count'])
+            ws.append(['Category', 'Value'])
             ws.append(['Total Registrations', total])
             ws.append(['Kriyabans', kriyabans])
             ws.append(['Non-Kriyabans', non_kriyabans])
             ws.append(['Accommodation Needed', acco_yes])
             ws.append(['Accommodation Not Needed', acco_no])
+            ws.append(['Total Amount', total_amount])
+            for m, amt in modes.items():
+                ws.append([f'Amount ({m})', amt])
             ws.append([]) # Spacer row
         
         headers = ['S.No','Reg ID','Lesson No','Full Name','Gender','Age','WhatsApp','Email','City/Town','District','State',
                    'Kriya','Accommodation','Volunteer','Arrival','Departure',
                    'Amount','Payment Mode','Transaction ID','Status','Date']
         ws.append(headers)
+        
+        sheet_total = 0
         for i, r in enumerate(data_list, 1):
+            amt = float(r.amount) if r.amount else 0.0
+            sheet_total += amt
             # For admin entries, some fields should be hyphenated
             is_admin = r.lesson_no == 'ADMIN' or r.gender == '-'
             ws.append([i, r.reg_id or '-', r.lesson_no or '-', r.full_name or '-', 
@@ -576,9 +590,11 @@ def update_registrations_excel():
                        ('-' if is_admin else ('Yes' if r.volunteer else 'No')),
                        ('-' if is_admin else (r.arrival_date or '-')), 
                        ('-' if is_admin else (r.departure_date or '-')),
-                       r.amount or 0, r.payment_mode or '-', r.transaction_id or '-', 
+                       amt, r.payment_mode or '-', r.transaction_id or '-', 
                        r.reg_status or '-',
                        r.created_at.strftime('%d-%m-%Y %I:%M %p') if r.created_at else '-'])
+                       
+        ws.append(['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Total:', sheet_total, '', '', '', ''])
         
         # Auto-adjust column widths
         for col in ws.columns:
@@ -1873,6 +1889,12 @@ def export_registrations_pdf():
     non_kriyabans = total - kriyabans
     acco_yes = len([r for r in regs if r.accommodation])
     acco_no = total - acco_yes
+    total_amount = sum(float(r.amount) for r in regs if r.amount)
+    modes = {}
+    for r in regs:
+        if r.amount:
+            m = r.payment_mode or 'Unknown'
+            modes[m] = modes.get(m, 0) + float(r.amount)
 
     def add_section(title, data_list):
         pdf.add_page()
@@ -1884,15 +1906,18 @@ def export_registrations_pdf():
         if title == 'Overall Summary & All Records':
             pdf.set_font('helvetica', 'B', 10)
             pdf.cell(60, 8, 'Category', 1, 0, 'C')
-            pdf.cell(30, 8, 'Count', 1, 1, 'C')
+            pdf.cell(30, 8, 'Value', 1, 1, 'C')
             pdf.set_font('helvetica', '', 10)
             stats = [
                 ('Total Registrations', total),
                 ('Kriyabans', kriyabans),
                 ('Non-Kriyabans', non_kriyabans),
                 ('Accommodation Yes', acco_yes),
-                ('Accommodation No', acco_no)
+                ('Accommodation No', acco_no),
+                ('Total Amount', int(total_amount))
             ]
+            for m, amt in modes.items():
+                stats.append((f'Amount ({m})', int(amt)))
             for cat, val in stats:
                 pdf.cell(60, 8, cat, 1, 0, 'L')
                 pdf.cell(30, 8, str(val), 1, 1, 'C')
@@ -1913,6 +1938,7 @@ def export_registrations_pdf():
             # Replace unsupported unicode with empty string or keep only latin-1
             return s.encode('latin-1', 'replace').decode('latin-1')
 
+        table_total = 0
         for i, r in enumerate(data_list, 1):
             pdf.cell(10, 8, str(i), 1, 0, 'C')
             pdf.cell(25, 8, safe_str(r.reg_id), 1, 0, 'C')
@@ -1921,7 +1947,9 @@ def export_registrations_pdf():
             pdf.cell(35, 8, safe_str(r.place, 20), 1, 0, 'L')
             
             try:
-                amt_str = str(int(float(r.amount))) if r.amount else '0'
+                amt_val = float(r.amount) if r.amount else 0.0
+                amt_str = str(int(amt_val))
+                table_total += amt_val
             except (ValueError, TypeError):
                 amt_str = '0'
                 
@@ -1931,6 +1959,12 @@ def export_registrations_pdf():
             pdf.cell(15, 8, 'Yes' if r.accommodation else 'No', 1, 0, 'C')
             pdf.cell(25, 8, safe_str(r.reg_status), 1, 0, 'C')
             pdf.ln()
+
+        pdf.set_font('helvetica', 'B', 9)
+        pdf.cell(145, 8, 'Total Amount:', 1, 0, 'R')
+        pdf.cell(20, 8, str(int(table_total)), 1, 0, 'C')
+        pdf.cell(85, 8, '', 1, 0, 'C')
+        pdf.ln()
 
     add_section('Overall Summary & All Records', regs)
         
