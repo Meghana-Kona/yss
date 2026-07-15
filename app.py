@@ -615,11 +615,16 @@ def update_donations_excel():
                'Amount (₹)','Payment Mode','Transaction ID','Payment Screenshot','Payment Status','Date']
     ws.append(headers)
     dons = Donation.query.order_by(Donation.id).all()
+    total_amount = 0
     for i, d in enumerate(dons, 1):
+        amt = float(d.amount) if d.amount else 0.0
+        total_amount += amt
         ws.append([i, d.donation_id or '-', d.lesson_no or '-', d.name or '-', d.age or 0, d.place or '-',
-                   d.whatsapp or '-', d.amount or 0, d.payment_mode or '-', d.transaction_id or '-',
+                   d.whatsapp or '-', amt, d.payment_mode or '-', d.transaction_id or '-',
                    d.payment_screenshot or '-', d.payment_status or '-',
                    d.created_at.strftime('%d-%m-%Y') if d.created_at else '-'])
+    
+    ws.append(['', '', '', '', '', '', 'Total:', total_amount, '', '', '', '', ''])
     
     # Auto-adjust column widths
     for col in ws.columns:
@@ -2055,18 +2060,27 @@ def export_donations_pdf():
     pdf.ln()
     
     pdf.set_font('helvetica', '', 8)
+    total_amount = 0
     for i, d in enumerate(dons, 1):
+        amt = float(d.amount) if d.amount else 0.0
+        total_amount += amt
         pdf.cell(10, 8, str(i), 1, 0, 'C')
         pdf.cell(25, 8, str(d.donation_id or '-'), 1, 0, 'C')
         pdf.cell(25, 8, str(d.lesson_no or '-'), 1, 0, 'C')
         pdf.cell(45, 8, str(d.name[:25] if d.name else '-'), 1, 0, 'L')
         pdf.cell(30, 8, str(d.whatsapp or '-'), 1, 0, 'C')
         pdf.cell(35, 8, str(d.place[:20] if d.place else '-'), 1, 0, 'L')
-        pdf.cell(20, 8, str(int(d.amount) if d.amount else '0'), 1, 0, 'C')
+        pdf.cell(20, 8, str(int(amt)), 1, 0, 'C')
         pdf.cell(20, 8, str(d.payment_mode or '-'), 1, 0, 'C')
         pdf.cell(25, 8, str(d.payment_status or '-'), 1, 0, 'C')
         pdf.cell(25, 8, str(d.created_at.strftime('%d-%m-%Y') if d.created_at else '-'), 1, 0, 'C')
         pdf.ln()
+        
+    pdf.set_font('helvetica', 'B', 9)
+    pdf.cell(170, 8, 'Total Amount:', 1, 0, 'R')
+    pdf.cell(20, 8, str(int(total_amount)), 1, 0, 'C')
+    pdf.cell(70, 8, '', 1, 0, 'C')
+    pdf.ln()
         
     import io
     pdf_out = io.BytesIO(pdf.output())
