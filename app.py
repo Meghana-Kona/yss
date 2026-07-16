@@ -1924,7 +1924,7 @@ def export_registrations_pdf():
             pdf.ln(10)
 
         pdf.set_font('helvetica', 'B', 8)
-        cols = [('S.No', 10), ('Reg ID', 25), ('Name', 45), ('Mobile', 30), ('Place', 35), ('Amount', 20), ('Mode', 20), ('Kriya', 25), ('Acco', 15), ('Status', 25)]
+        cols = [('S.No', 10), ('Reg ID', 20), ('Lesson', 20), ('Name', 40), ('Mobile', 25), ('Place', 30), ('Amount', 20), ('Mode', 20), ('Kriya', 25), ('Acco', 15), ('Status', 25)]
         for txt, w in cols:
             pdf.cell(w, 8, txt, 1, 0, 'C')
         pdf.ln()
@@ -1941,10 +1941,11 @@ def export_registrations_pdf():
         table_total = 0
         for i, r in enumerate(data_list, 1):
             pdf.cell(10, 8, str(i), 1, 0, 'C')
-            pdf.cell(25, 8, safe_str(r.reg_id), 1, 0, 'C')
-            pdf.cell(45, 8, safe_str(r.full_name, 25), 1, 0, 'L')
-            pdf.cell(30, 8, safe_str(r.whatsapp), 1, 0, 'C')
-            pdf.cell(35, 8, safe_str(r.place, 20), 1, 0, 'L')
+            pdf.cell(20, 8, safe_str(r.reg_id), 1, 0, 'C')
+            pdf.cell(20, 8, safe_str(r.lesson_no, 15), 1, 0, 'C')
+            pdf.cell(40, 8, safe_str(r.full_name, 22), 1, 0, 'L')
+            pdf.cell(25, 8, safe_str(r.whatsapp), 1, 0, 'C')
+            pdf.cell(30, 8, safe_str(r.place, 15), 1, 0, 'L')
             
             try:
                 amt_val = float(r.amount) if r.amount else 0.0
