@@ -1890,11 +1890,8 @@ def export_registrations_pdf():
     acco_yes = len([r for r in regs if r.accommodation])
     acco_no = total - acco_yes
     total_amount = sum(float(r.amount) for r in regs if r.amount)
-    modes = {}
-    for r in regs:
-        if r.amount:
-            m = r.payment_mode or 'Unknown'
-            modes[m] = modes.get(m, 0) + float(r.amount)
+    total_reg_fee = sum(1800 for r in regs if r.amount)
+    total_acco_fee = sum(1000 for r in regs if r.amount and r.accommodation)
 
     def add_section(title, data_list):
         pdf.add_page()
@@ -1914,10 +1911,10 @@ def export_registrations_pdf():
                 ('Non-Kriyabans', non_kriyabans),
                 ('Accommodation Yes', acco_yes),
                 ('Accommodation No', acco_no),
-                ('Total Amount', int(total_amount))
+                ('Total Amount', int(total_amount)),
+                ('Registration Fees', total_reg_fee),
+                ('Accommodation Fees', total_acco_fee)
             ]
-            for m, amt in modes.items():
-                stats.append((f'Amount ({m})', int(amt)))
             for cat, val in stats:
                 pdf.cell(60, 8, cat, 1, 0, 'L')
                 pdf.cell(30, 8, str(val), 1, 1, 'C')
