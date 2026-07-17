@@ -2786,9 +2786,26 @@ def admin_whatsapp_send_all_due_reminders():
             pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).all()
             
         for reg in pending:
+            # Refresh to get latest state and prevent double sending
+            db.session.refresh(reg)
+            if days == 7 and reg.reminder_7d_sent: continue
+            if days == 3 and reg.reminder_3d_sent: continue
+            if days == 1 and reg.reminder_1d_sent: continue
+            
+            # Mark as sent immediately to 'lock' this record
+            if days == 7: reg.reminder_7d_sent = True
+            elif days == 3: reg.reminder_3d_sent = True
+            elif days == 1: reg.reminder_1d_sent = True
+            db.session.commit()
+            
             try:
                 body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
                 if not body:
+                    # Revert lock
+                    if days == 7: reg.reminder_7d_sent = False
+                    elif days == 3: reg.reminder_3d_sent = False
+                    elif days == 1: reg.reminder_1d_sent = False
+                    db.session.commit()
                     fail_count += 1
                     continue
                     
@@ -2801,17 +2818,21 @@ def admin_whatsapp_send_all_due_reminders():
                     timeout=5
                 )
                 if r.status_code == 200:
-                    if days == 7:
-                        reg.reminder_7d_sent = True
-                    elif days == 3:
-                        reg.reminder_3d_sent = True
-                    else:
-                        reg.reminder_1d_sent = True
                     success_count += 1
                 else:
+                    # Revert lock
+                    if days == 7: reg.reminder_7d_sent = False
+                    elif days == 3: reg.reminder_3d_sent = False
+                    elif days == 1: reg.reminder_1d_sent = False
+                    db.session.commit()
                     fail_count += 1
             except Exception as e:
                 print(f"Error sending {days}-day reminder to {reg.whatsapp}: {e}")
+                # Revert lock
+                if days == 7: reg.reminder_7d_sent = False
+                elif days == 3: reg.reminder_3d_sent = False
+                elif days == 1: reg.reminder_1d_sent = False
+                db.session.commit()
                 fail_count += 1
                 
     db.session.commit()
@@ -2855,9 +2876,26 @@ def admin_whatsapp_send_reminders(days):
     fail_count = 0
     
     for reg in pending:
+        # Refresh to get latest state and prevent double sending
+        db.session.refresh(reg)
+        if days == 7 and reg.reminder_7d_sent: continue
+        if days == 3 and reg.reminder_3d_sent: continue
+        if days == 1 and reg.reminder_1d_sent: continue
+        
+        # Mark as sent immediately to 'lock' this record
+        if days == 7: reg.reminder_7d_sent = True
+        elif days == 3: reg.reminder_3d_sent = True
+        elif days == 1: reg.reminder_1d_sent = True
+        db.session.commit()
+        
         try:
             body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
             if not body:
+                # Revert lock
+                if days == 7: reg.reminder_7d_sent = False
+                elif days == 3: reg.reminder_3d_sent = False
+                elif days == 1: reg.reminder_1d_sent = False
+                db.session.commit()
                 fail_count += 1
                 continue
                 
@@ -2870,17 +2908,21 @@ def admin_whatsapp_send_reminders(days):
                 timeout=5
             )
             if r.status_code == 200:
-                if days == 7:
-                    reg.reminder_7d_sent = True
-                elif days == 3:
-                    reg.reminder_3d_sent = True
-                else:
-                    reg.reminder_1d_sent = True
                 success_count += 1
             else:
+                # Revert lock
+                if days == 7: reg.reminder_7d_sent = False
+                elif days == 3: reg.reminder_3d_sent = False
+                elif days == 1: reg.reminder_1d_sent = False
+                db.session.commit()
                 fail_count += 1
         except Exception as e:
             print(f"Error sending {days}-day reminder to {reg.whatsapp}: {e}")
+            # Revert lock
+            if days == 7: reg.reminder_7d_sent = False
+            elif days == 3: reg.reminder_3d_sent = False
+            elif days == 1: reg.reminder_1d_sent = False
+            db.session.commit()
             fail_count += 1
             
     db.session.commit()
@@ -2976,6 +3018,18 @@ def run_automatic_reminders_scheduler():
                             
                         sent_count = 0
                         for reg in pending:
+                            # Refresh to get latest state and prevent double sending
+                            db.session.refresh(reg)
+                            if days_left == 7 and reg.reminder_7d_sent: continue
+                            if days_left == 3 and reg.reminder_3d_sent: continue
+                            if days_left == 1 and reg.reminder_1d_sent: continue
+                            
+                            # Mark as sent immediately to 'lock' this record
+                            if days_left == 7: reg.reminder_7d_sent = True
+                            elif days_left == 3: reg.reminder_3d_sent = True
+                            elif days_left == 1: reg.reminder_1d_sent = True
+                            db.session.commit()
+                            
                             body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
                             if body:
                                 try:
@@ -2985,17 +3039,21 @@ def run_automatic_reminders_scheduler():
                                         timeout=5
                                     )
                                     if r.status_code == 200:
-                                        if days_left == 7:
-                                            reg.reminder_7d_sent = True
-                                        elif days_left == 3:
-                                            reg.reminder_3d_sent = True
-                                        else:
-                                            reg.reminder_1d_sent = True
                                         sent_count += 1
+                                    else:
+                                        # Revert lock
+                                        if days_left == 7: reg.reminder_7d_sent = False
+                                        elif days_left == 3: reg.reminder_3d_sent = False
+                                        elif days_left == 1: reg.reminder_1d_sent = False
+                                        db.session.commit()
                                 except Exception as e:
                                     print(f"Auto-scheduler sending error: {e}")
+                                    # Revert lock
+                                    if days_left == 7: reg.reminder_7d_sent = False
+                                    elif days_left == 3: reg.reminder_3d_sent = False
+                                    elif days_left == 1: reg.reminder_1d_sent = False
+                                    db.session.commit()
                         if sent_count > 0:
-                            db.session.commit()
                             log_action(f"Auto-scheduled daemon successfully sent {days_left}-day reminders to {sent_count} devotees")
         except Exception as e:
             print(f"Auto-reminder background scheduler error: {e}")
