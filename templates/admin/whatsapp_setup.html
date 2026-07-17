@@ -75,9 +75,31 @@
 
     <!-- Trigger Event Reminders Card -->
     <div class="card" style="padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,0.05); border-radius:12px; border:1px solid #e0e0e0; background:#fff;">
-      <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-top:0; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
-        <i class="fa fa-hourglass-half" style="color:var(--gold);"></i> Event Reminders
-      </h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+        <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin:0; display:flex; align-items:center; gap:0.5rem;">
+          <i class="fa fa-hourglass-half" style="color:var(--gold);"></i> Event Reminders
+        </h3>
+        
+        <!-- Toggle Reminders Button -->
+        <form action="/admin/whatsapp-toggle-reminders" method="POST" style="margin:0;">
+          {% if reminders_enabled %}
+            <button type="submit" class="btn btn-sm" style="background:#dc2626; color:#fff; font-weight:bold; display:flex; align-items:center; gap:0.4rem;">
+              <i class="fa fa-power-off"></i> Disable Reminders
+            </button>
+          {% else %}
+            <button type="submit" class="btn btn-sm" style="background:#16a34a; color:#fff; font-weight:bold; display:flex; align-items:center; gap:0.4rem;">
+              <i class="fa fa-power-off"></i> Enable Reminders
+            </button>
+          {% endif %}
+        </form>
+      </div>
+
+      {% if not reminders_enabled %}
+      <div style="background:#fee2e2; border:1px solid #ef4444; color:#b91c1c; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; font-weight:bold; font-size:0.9rem;">
+        <i class="fa fa-exclamation-triangle"></i> Reminders are currently DISABLED. No automatic or manual dispatches will go out.
+      </div>
+      {% endif %}
+
       <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1.5rem;">
         Manually trigger scheduled broadcast notifications to approved devotees based on days remaining to the program start date (24 July 2026).
       </p>

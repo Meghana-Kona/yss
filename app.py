@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, make_response
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail, Message
-from models import db, Admin, Registration, Donation, EventSchedule, Room, RoomAllotment, ActivityLog, WhatsAppTemplate, GalleryImage
+from models import db, Admin, Registration, Donation, EventSchedule, Room, RoomAllotment, ActivityLog, WhatsAppTemplate, GalleryImage, AppSetting
 from config import Config
 from datetime import datetime, timedelta
 import os, openpyxl, uuid
@@ -402,6 +402,11 @@ def seed_data():
             main_admin.mobile = '9441665181'
             main_admin.set_password(app.config['ADMIN_PASSWORD'])
             db.session.commit()
+            
+    # Seed Settings
+    if not AppSetting.query.filter_by(key='reminders_enabled').first():
+        db.session.add(AppSetting(key='reminders_enabled', value='true'))
+        db.session.commit()
 
     # Seed schedule
     if not EventSchedule.query.first():
@@ -2690,14 +2695,36 @@ def admin_whatsapp_setup():
     count_7d_pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).count()
     count_3d_pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).count()
     count_1d_pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).count()
+    
+    setting = AppSetting.query.filter_by(key='reminders_enabled').first()
+    reminders_enabled = setting.value == 'true' if setting else True
+    
     return render_template(
         'admin/whatsapp_setup.html',
         config=app.config,
         templates=templates,
         count_7d_pending=count_7d_pending,
         count_3d_pending=count_3d_pending,
-        count_1d_pending=count_1d_pending
+        count_1d_pending=count_1d_pending,
+        reminders_enabled=reminders_enabled
     )
+
+@app.route('/admin/whatsapp-toggle-reminders', methods=['POST'])
+@login_required
+def admin_whatsapp_toggle_reminders():
+    setting = AppSetting.query.filter_by(key='reminders_enabled').first()
+    if not setting:
+        setting = AppSetting(key='reminders_enabled', value='true')
+        db.session.add(setting)
+    
+    # Toggle
+    setting.value = 'false' if setting.value == 'true' else 'true'
+    db.session.commit()
+    
+    status = "enabled" if setting.value == 'true' else "disabled"
+    log_action(f"WhatsApp reminders have been {status}.")
+    flash(f"WhatsApp reminders are now {status}.", "success")
+    return redirect(url_for('admin_whatsapp_setup'))
 
 @app.route('/admin/whatsapp-templates/update', methods=['POST'])
 @login_required
@@ -2751,6 +2778,11 @@ def admin_whatsapp_template_add():
 @app.route('/admin/whatsapp-send-all-due-reminders', methods=['POST'])
 @login_required
 def admin_whatsapp_send_all_due_reminders():
+    setting = AppSetting.query.filter_by(key='reminders_enabled').first()
+    if setting and setting.value != 'true':
+        flash("WhatsApp reminders are currently disabled. Please enable them first.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+
     from datetime import date
     today = date.today()
     event_date = date(2026, 7, 24)
@@ -2848,6 +2880,11 @@ def admin_whatsapp_send_all_due_reminders():
 @app.route('/admin/whatsapp-send-reminders/<int:days>', methods=['POST'])
 @login_required
 def admin_whatsapp_send_reminders(days):
+    setting = AppSetting.query.filter_by(key='reminders_enabled').first()
+    if setting and setting.value != 'true':
+        flash("WhatsApp reminders are currently disabled. Please enable them first.", "error")
+        return redirect(url_for('admin_whatsapp_setup'))
+
     if days not in [7, 3, 1]:
         flash("Invalid reminder interval.", "error")
         return redirect(url_for('admin_whatsapp_setup'))
@@ -2996,65 +3033,67 @@ def run_automatic_reminders_scheduler():
     while True:
         try:
             with app.app_context():
-                today = date.today()
-                # Target dates in UTC or IST. Event is 2026-07-24
-                event_date = date(2026, 7, 24)
-                days_left = (event_date - today).days
-                
-                if days_left in [7, 3, 1]:
-                    gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
-                    if gateway_url:
-                        import requests
-                        
-                        if days_left == 7:
-                            pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).all()
-                            key = 'reminder_7d'
-                        elif days_left == 3:
-                            pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).all()
-                            key = 'reminder_3d'
-                        else:
-                            pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).all()
-                            key = 'reminder_1d'
+                setting = AppSetting.query.filter_by(key='reminders_enabled').first()
+                if setting and setting.value == 'true':
+                    today = date.today()
+                    # Target dates in UTC or IST. Event is 2026-07-24
+                    event_date = date(2026, 7, 24)
+                    days_left = (event_date - today).days
+                    
+                    if days_left in [7, 3, 1]:
+                        gateway_url = app.config.get('WHATSAPP_GATEWAY_URL')
+                        if gateway_url:
+                            import requests
                             
-                        sent_count = 0
-                        for reg in pending:
-                            # Refresh to get latest state and prevent double sending
-                            db.session.refresh(reg)
-                            if days_left == 7 and reg.reminder_7d_sent: continue
-                            if days_left == 3 and reg.reminder_3d_sent: continue
-                            if days_left == 1 and reg.reminder_1d_sent: continue
-                            
-                            # Mark as sent immediately to 'lock' this record
-                            if days_left == 7: reg.reminder_7d_sent = True
-                            elif days_left == 3: reg.reminder_3d_sent = True
-                            elif days_left == 1: reg.reminder_1d_sent = True
-                            db.session.commit()
-                            
-                            body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
-                            if body:
-                                try:
-                                    r = requests.post(
-                                        f"{gateway_url}/send",
-                                        json={'to': reg.whatsapp, 'message': body},
-                                        timeout=5
-                                    )
-                                    if r.status_code == 200:
-                                        sent_count += 1
-                                    else:
+                            if days_left == 7:
+                                pending = Registration.query.filter_by(reg_status='Approved', reminder_7d_sent=False).all()
+                                key = 'reminder_7d'
+                            elif days_left == 3:
+                                pending = Registration.query.filter_by(reg_status='Approved', reminder_3d_sent=False).all()
+                                key = 'reminder_3d'
+                            else:
+                                pending = Registration.query.filter_by(reg_status='Approved', reminder_1d_sent=False).all()
+                                key = 'reminder_1d'
+                                
+                            sent_count = 0
+                            for reg in pending:
+                                # Refresh to get latest state and prevent double sending
+                                db.session.refresh(reg)
+                                if days_left == 7 and reg.reminder_7d_sent: continue
+                                if days_left == 3 and reg.reminder_3d_sent: continue
+                                if days_left == 1 and reg.reminder_1d_sent: continue
+                                
+                                # Mark as sent immediately to 'lock' this record
+                                if days_left == 7: reg.reminder_7d_sent = True
+                                elif days_left == 3: reg.reminder_3d_sent = True
+                                elif days_left == 1: reg.reminder_1d_sent = True
+                                db.session.commit()
+                                
+                                body = format_whatsapp_template(key, name=reg.full_name, reg_id=reg.reg_id)
+                                if body:
+                                    try:
+                                        r = requests.post(
+                                            f"{gateway_url}/send",
+                                            json={'to': reg.whatsapp, 'message': body},
+                                            timeout=5
+                                        )
+                                        if r.status_code == 200:
+                                            sent_count += 1
+                                        else:
+                                            # Revert lock
+                                            if days_left == 7: reg.reminder_7d_sent = False
+                                            elif days_left == 3: reg.reminder_3d_sent = False
+                                            elif days_left == 1: reg.reminder_1d_sent = False
+                                            db.session.commit()
+                                    except Exception as e:
+                                        print(f"Auto-scheduler sending error: {e}")
                                         # Revert lock
                                         if days_left == 7: reg.reminder_7d_sent = False
                                         elif days_left == 3: reg.reminder_3d_sent = False
                                         elif days_left == 1: reg.reminder_1d_sent = False
                                         db.session.commit()
-                                except Exception as e:
-                                    print(f"Auto-scheduler sending error: {e}")
-                                    # Revert lock
-                                    if days_left == 7: reg.reminder_7d_sent = False
-                                    elif days_left == 3: reg.reminder_3d_sent = False
-                                    elif days_left == 1: reg.reminder_1d_sent = False
-                                    db.session.commit()
-                        if sent_count > 0:
-                            log_action(f"Auto-scheduled daemon successfully sent {days_left}-day reminders to {sent_count} devotees")
+                            if sent_count > 0:
+                                log_action(f"Auto-scheduled daemon successfully sent {days_left}-day reminders to {sent_count} devotees")
         except Exception as e:
             print(f"Auto-reminder background scheduler error: {e}")
         

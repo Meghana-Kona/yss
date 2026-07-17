@@ -238,3 +238,13 @@ class GalleryImage(db.Model):
             'created_at': self.created_at.strftime('%d %b %Y') if self.created_at else ''
         }
 
+class AppSetting(db.Model):
+    __tablename__ = 'app_settings'
+    key = db.Column(db.String(100), primary_key=True)
+    value = db.Column(db.String(255), nullable=True)
+    
+    def to_dict(self):
+        return {
+            'key': self.key,
+            'value': self.value
+        }
