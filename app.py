@@ -1244,7 +1244,7 @@ def registration():
             if existing_reg:
                 errors.append('A registration with this Name and Mobile number already exists.')
                 
-            if payment_mode == 'UPI' and transaction_id:
+            if payment_mode == 'UPI' and transaction_id and transaction_id.upper() not in ['NONE', 'NA', 'N/A', '-', '']:
                 existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
                 if existing_txn:
                     errors.append('This Transaction ID has already been submitted.')
@@ -1555,7 +1555,7 @@ def admin_add_registration():
             if existing_reg:
                 errors.append('A registration with this Name and Mobile number already exists.')
                 
-            if payment_mode == 'UPI' and transaction_id:
+            if payment_mode == 'UPI' and transaction_id and transaction_id.upper() not in ['NONE', 'NA', 'N/A', '-', '']:
                 existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
                 if existing_txn:
                     errors.append('This Transaction ID has already been submitted.')
@@ -1662,7 +1662,7 @@ def admin_edit_registration(reg_id):
                 if existing_lesson:
                     errors.append(f'Lesson Number {lesson_no} is already registered.')
             
-            if transaction_id and transaction_id != reg.transaction_id and payment_mode == 'UPI':
+            if transaction_id and transaction_id != reg.transaction_id and payment_mode == 'UPI' and transaction_id.upper() not in ['NONE', 'NA', 'N/A', '-', '']:
                 existing_txn = Registration.query.filter(Registration.transaction_id.ilike(transaction_id)).first()
                 if existing_txn:
                     errors.append('This Transaction ID has already been submitted.')
@@ -1926,7 +1926,7 @@ def export_registrations_pdf():
             pdf.ln(10)
 
         pdf.set_font('helvetica', 'B', 8)
-        cols = [('S.No', 10), ('Lesson', 25), ('Name', 60), ('Mobile', 30), ('Place', 40), ('Amount', 20), ('Mode', 20), ('Kriya', 30), ('Acco', 15)]
+        cols = [('S.No', 10), ('Lesson', 25), ('Name', 60), ('Mobile', 30), ('Place', 40), ('Amount', 20), ('Age', 20), ('Kriya', 30), ('Acco', 15)]
         for txt, w in cols:
             pdf.cell(w, 8, txt, 1, 0, 'C')
         pdf.ln()
@@ -1956,7 +1956,7 @@ def export_registrations_pdf():
                 amt_str = '0'
                 
             pdf.cell(20, 8, amt_str, 1, 0, 'C')
-            pdf.cell(20, 8, safe_str(r.payment_mode), 1, 0, 'C')
+            pdf.cell(20, 8, str(r.age) if r.age else '-', 1, 0, 'C')
             pdf.cell(30, 8, 'Kriyaban' if r.is_kriyaban else 'Non-Kri', 1, 0, 'C')
             pdf.cell(15, 8, 'Yes' if r.accommodation else 'No', 1, 0, 'C')
             pdf.ln()

@@ -73,18 +73,22 @@ def migrate(source_url, target_url):
     }
 
     try:
+        # Clear target tables in reverse order to respect foreign key constraints
+        print("\nClearing existing target tables...")
+        for model in reversed(models_to_migrate):
+            table_name = table_names[model]
+            try:
+                target_session.query(model).delete()
+                target_session.commit()
+                print(f"Cleared table '{table_name}'.")
+            except Exception as e:
+                target_session.rollback()
+                print(f"Warning: Could not clear target table {table_name}: {e}")
+
         # We migrate table by table
         for model in models_to_migrate:
             table_name = table_names[model]
             print(f"\nMigrating table '{table_name}'...")
-
-            # Clear target table to prevent duplicates or unique constraint failures if re-run
-            try:
-                target_session.query(model).delete()
-                target_session.commit()
-            except Exception as e:
-                target_session.rollback()
-                print(f"Warning: Could not clear target table {table_name}: {e}")
 
             # Fetch all records from source
             source_records = source_session.query(model).all()

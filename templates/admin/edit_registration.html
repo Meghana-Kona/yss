@@ -192,6 +192,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const accoRadios = document.querySelectorAll('input[name="accommodation"]');
+    const amountInput = document.querySelector('input[name="amount"]');
+    if (accoRadios && amountInput) {
+        accoRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'yes') {
+                    amountInput.value = 2800;
+                } else {
+                    amountInput.value = 1800;
+                }
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
